@@ -4,23 +4,40 @@ import GeoInterface as GI
 import GeometryOps as GO
 import GeoFormatTypes as GFT
 import GeometryBasics as GB
-import ..GlobalGrids: Icosahedron, radius, R
+import ..GlobalGrids: Icosahedron
 import StyledStrings: @styled_str
 
 #-----------------------------------------------------------------------------# Grid
 struct Grid{T}
     ico::Icosahedron{T}
-    function Grid{T}(radius=R) where {T}
-        ico = Icosahedron{T}(radius)
-        return new{T}(ico)
-    end
+    Grid{T}() where {T} = new{T}(Icosahedron{T}())
 end
-Grid(radius=R) = Grid{Float64}(radius)
-radius(Grid::Grid) = radius(Grid.ico)
+Grid() = Grid{Float64}()
 
-function Base.show(io::IO, o::Grid)
-    print(io, styled"{bright_green:IGEO7.Grid:} $(o.ico)")
+Base.show(io::IO, o::Grid{T}) where {T} = print(io, "IGEO7.Grid{$T}")
+
+# Center is (0, 0) in Axial Coordinates
+struct Cell{T}
+    grid::Grid{T}
+    base::Int
+    digits::Vector{Int}
+    center::GB.Point3{T}
 end
+function Base.show(io::IO, o::Cell{T}) where {T}
+    print(io, "Cell{$T}", styled"{bright_green: base=$(o.base)} {bright_cyan:digits=$(o.digits)}")
+end
+
+
+const scale_factor = 1 / sqrt(7)
+
+function hexagon_axial_centers(o::Cell{T}) where {T}
+    a = GB.Point2{T}(1, 0)
+    b = GB.Point2{T}(0.5, sqrt(T(3)) / T(2))
+    scale_factor .* (GB.Point2{T}(0, 0), a, (a-b), -b, -a, (b-a), b)
+end
+
+Base.getindex(grid::Grid{T}, i::Int) where {T} = Cell{T}(grid, i, Int[])
+Base.getindex(cell::Cell{T}, digit::Int) where {T} = Cell{T}(cell.grid, cell.base, vcat(cell.digits, digit))
 
 
 #-----------------------------------------------------------------------------# Z7 Indexing
@@ -61,38 +78,6 @@ function decode(idx::UInt64)
 
     return (base = UInt8(base), digits = digits, resolution = resolution, padding = padding)
 end
-
-"""
-    encode(base_cell, digits)
-
-Construct a Z7 index from:
-- `base_cell`: Integer in 0-11.
-- `digits`: collection (maximum length 20) of Integers 0-6.
-"""
-function encode(base_cell, digits)
-    -1 < base_cell < 12 || throw(ArgumentError("base_cell must be in 0-11.  Found: $base_cell"))
-    all(x -> (-1 < x < 7), digits) || throw(ArgumentError("digits must all be in 0-6.  Found: $digits"))
-    idx = UInt64(base_cell - 1) << (Z7_MAX_RES * Z7_DIGIT_BITS)
-    for (i, d) in enumerate(digits)
-        idx |= (UInt64(d) << ((i - 1) * Z7_DIGIT_BITS))
-    end
-    for i in (length(digits)+1):Z7_MAX_RES
-        idx |= (UInt64(Z7_PAD_VALUE) << ((i - 1) * Z7_DIGIT_BITS))
-    end
-    return idx
-end
-
-function z7string(x::UInt64)
-    (; base, digits) = decode(x)
-    filter!(!=(0x07), digits)
-    string(lpad(Int(base), 2, '0'), join(Int.(digits), ""))
-end
-
-#-----------------------------------------------------------------------------# Cell
-struct Cell
-    index::UInt64  # Z7 index
-end
-
 
 
 end

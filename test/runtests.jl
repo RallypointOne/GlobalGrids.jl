@@ -1,14 +1,16 @@
 using GlobalGrids
 using Test
 
-using GlobalGrids: IGEO7
+import GlobalGrids as GG
+import GeometryBasics as GB
 
 @testset "GlobalGrids.jl" begin
 
-@testset "IGEO7" begin
-    x = IGEO7.encode(3, [1,2,3,4,5])
-    (;base, digits) = IGEO7.decode(x)
-    @test base == 2
-    @test digits == [1:5..., fill(7,15)...]
-end # IGEO7
+@testset "Coordinates" begin
+    lldeg = GG.LonLatDeg(GB.Point2(-75.0, 45.0))
+    llrad = GG.LonLatRad(lldeg)
+    isea = GG.ISEA(llrad)
+    lldeg2 = GG.LonLatDeg(isea)
+
+end # Coordinates
 end
