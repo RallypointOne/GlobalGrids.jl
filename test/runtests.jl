@@ -57,25 +57,25 @@ end # Coordinates
             @test GG.grid_distance(o, cell) ≤ 2
         end
     end
-    @testset "cells" begin
+    @testset "h3cells" begin
         # Point
         ll = GG.LonLat(-75.0, 54.0)
         for res in 0:15
-            @test GG.cells(ll, res) isa Vector{GG.H3Cell}
+            @test GG.h3cells(ll, res) isa Vector{GG.H3Cell}
         end
 
         # MultiPoint/Line
         mll = GB.MultiPoint{2, Float64}([GB.Point2(-75.0, 54.0), GB.Point2(-80.0, 50.0)])
         line = GI.Line(GI.coordinates(mll))
         for res in 0:15
-            @test GG.cells(mll, res) isa Vector{GG.H3Cell}
-            @test GG.cells(line, res) isa Vector{GG.H3Cell}
+            @test GG.h3cells(mll, res) isa Vector{GG.H3Cell}
+            @test GG.h3cells(line, res) isa Vector{GG.H3Cell}
         end
 
         # LineString
         linestring = GI.LineString([(0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (0.0, 0.0)])
         for res in 0:15
-            @test GG.cells(linestring, res) isa Vector{GG.H3Cell}
+            @test GG.h3cells(linestring, res) isa Vector{GG.H3Cell}
         end
 
         # Polygon
@@ -84,7 +84,7 @@ end # Coordinates
         vertices = [GI.centroid(c) for c in ring]
         poly = GI.Polygon([[vertices..., vertices[1]]])
         for res in 0:15
-            @test length(GG.cells(poly, res)) > 0
+            @test length(GG.h3cells(poly, res)) > 0
         end
 
         # MultiPolygon
@@ -92,13 +92,13 @@ end # Coordinates
         poly2 = GI.Polygon([[vertices2..., vertices2[1]]])
         multipoly = GI.MultiPolygon([poly, poly2])
         for res in 0:15
-            @test length(GG.cells(multipoly, res)) > 0
+            @test length(GG.h3cells(multipoly, res)) > 0
         end
 
         # Extents
         ex = GI.extent(poly)
         for res in 0:15
-            @test length(GG.cells(ex, res)) > 0
+            @test length(GG.h3cells(ex, res)) > 0
         end
 
     end  # cells
