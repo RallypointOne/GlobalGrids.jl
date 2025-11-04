@@ -2,28 +2,39 @@ project:
   type: website
   render:
     - "*.qmd"
+
 engines: ['julia']
+
 website:
   title: "GlobalGrids.jl"
   page-navigation: true
   navbar:
-    background: dark
-    search: true
-    left:
-      - href: index.qmd
-        text: Home
+    # left:
+      # - href: index.qmd
+      #   text: Home
     right:
       - icon: github
         href: https://github.com/joshday/GlobalGrids.jl
         aria-label: GitHub
   sidebar:
+    style: docked
+    search: true
     contents:
-      - index.qmd
+      - text: "Intro"
+        file: index.qmd
       - h3.qmd
       - coordinates.qmd
       - icosahedron.qmd
 
 format:
   html:
-    theme: cosmo
+    code-tools:
+      source: true
+      toggle: false
+      caption: none
+    theme: flatly
     toc: true
+    css: styles.css
+
+execute:
+  cache: true
