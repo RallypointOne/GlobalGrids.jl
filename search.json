@@ -4,9 +4,9 @@
     "href": "index.html",
     "title": "GlobalGrids.jl",
     "section": "",
-    "text": "1 GlobalGrids.jl\nDiscrete global grids (DGGs) for Julia.\nGlobalGrids provides:",
+    "text": "Discrete global grids (DGGs) for Julia.\nGlobalGrids provides:",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>GlobalGrids.jl</span>"
+      "Intro"
     ]
   },
   {
@@ -16,7 +16,7 @@
     "section": "Installation",
     "text": "Installation\nusing Pkg\nPkg.add(url = \"https://github.com/joshday/GlobalGrids.jl\")",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>GlobalGrids.jl</span>"
+      "Intro"
     ]
   },
   {
@@ -26,7 +26,7 @@
     "section": "Quickstart",
     "text": "Quickstart\n\nimport GlobalGrids as GG\nusing CairoMakie\n\n# Create a lon/lat point and convert to an H3 cell at resolution 7\np = GG.LonLat(-75.0, 54.0)\n\nc = GG.H3Cell(p, 7)\n\n\n ⬡ H3Cell res=7 base_cell=7 [1, 2, 0, 3, 3, 4, 6]\n\n\n\n\nneighbors = GG.grid_ring(c, 1)\n\n\n6-element Vector{GlobalGrids.H3Cell}:\n  ⬡ H3Cell res=7 base_cell=7 [1, 2, 0, 3, 0, 3, 1]\n  ⬡ H3Cell res=7 base_cell=7 [1, 2, 0, 3, 0, 3, 3]\n  ⬡ H3Cell res=7 base_cell=7 [1, 2, 0, 3, 3, 6, 5]\n  ⬡ H3Cell res=7 base_cell=7 [1, 2, 0, 3, 3, 4, 2]\n  ⬡ H3Cell res=7 base_cell=7 [1, 2, 0, 3, 3, 4, 0]\n  ⬡ H3Cell res=7 base_cell=7 [1, 2, 0, 3, 3, 4, 4]\n\n\n\n\npoly(neighbors, color=1:6)",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>GlobalGrids.jl</span>"
+      "Intro"
     ]
   },
   {
@@ -36,157 +36,137 @@
     "section": "Conventions",
     "text": "Conventions\nIn GlobalGrids:\n\nAngles are in degrees.\nDistances are in meters (area in meters ^ 2, etc.).",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>GlobalGrids.jl</span>"
-    ]
-  },
-  {
-    "objectID": "h3.html",
-    "href": "h3.html",
-    "title": "2  H3 Grid System",
-    "section": "",
-    "text": "Creating an H3Cell\nH3 is a DGGS developed by Uber. Here’s a brief summary of the H3 grid system:",
-    "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>H3 Grid System</span>"
+      "Intro"
     ]
   },
   {
     "objectID": "h3.html#creating-an-h3cell",
     "href": "h3.html#creating-an-h3cell",
-    "title": "2  H3 Grid System",
-    "section": "",
-    "text": "Every cell in the grid is indexed by a single UInt64. An H3Cell is simply a wrapper around a UInt64 index.\nThe index encodes the base cell (121 possible values, shown in the figure above), resolution, and digits (0-6).\nEach hexagon gets split into 7 hexagons by the next highest resolution. An additional digit corresponds to one of the smaller hexagons derived from its parent.\n\n\nFrom H3Grid\n\ngrid = H3Grid()\n\n# Select one of the 121 base cells:\ngrid[121]\n\n\n ⬡ H3Cell res=0 base_cell=121 Int64[]\n\n\n\n\n# Nesting getindex to dive down the hierarchy:\ngrid[121][1][5][0]\n\n\n ⬡ H3Cell res=3 base_cell=121 [1, 5, 0]\n\n\n\n\n\nFrom Base Cell and Digits\n\nH3Cell(121, [1, 5, 0])\n\n\n ⬡ H3Cell res=3 base_cell=121 [1, 5, 0]\n\n\n\n\n\nFrom Coordinates and Resolution:\n\ncoords = LonLat(-75.0, 54.0)\n\nH3Cell(coords, 10)\n\n\n ⬡ H3Cell res=10 base_cell=7 [1, 2, 0, 3, 3, 4, 6, 5, 1, 4]\n\n\n\n\n\nFrom Hexadecimal String\n\nc = H3Cell(ECEF(972438.8178049477, -3.62919107530028e6, 5.136743831429061e6))\n\nstr = GlobalGrids.h3string(c)\n@info str\n\nH3Cell(str)\n\n\n[ Info: 8a0e506e6a67fff\n\n\n\n\n\n ⬡ H3Cell res=10 base_cell=7 [1, 2, 0, 3, 3, 4, 6, 5, 1, 4]",
+    "title": "",
+    "section": "Creating an H3Cell",
+    "text": "Creating an H3Cell\n\nEvery cell in the grid is indexed by a single UInt64. An H3Cell is simply a wrapper around a UInt64 index.\nThe index encodes the base cell (121 possible values, shown in the figure above), resolution, and digits (0-6).\nEach hexagon gets split into 7 hexagons by the next highest resolution. An additional digit corresponds to one of the smaller hexagons derived from its parent.\n\n\nFrom H3Grid\n\ngrid = H3Grid()\n\n# Select one of the 121 base cells:\ngrid[121]\n\n\n ⬡ H3Cell res=0 base_cell=121 Int64[]\n\n\n\n\n# Nesting getindex to dive down the hierarchy:\ngrid[121][1][5][0]\n\n\n ⬡ H3Cell res=3 base_cell=121 [1, 5, 0]\n\n\n\n\n\nFrom Base Cell and Digits\n\nH3Cell(121, [1, 5, 0])\n\n\n ⬡ H3Cell res=3 base_cell=121 [1, 5, 0]\n\n\n\n\n\nFrom Coordinates and Resolution:\n\ncoords = LonLat(-75.0, 54.0)\n\nH3Cell(coords, 10)\n\n\n ⬡ H3Cell res=10 base_cell=7 [1, 2, 0, 3, 3, 4, 6, 5, 1, 4]\n\n\n\n\n\nFrom Hexadecimal String\n\nc = H3Cell(ECEF(972438.8178049477, -3.62919107530028e6, 5.136743831429061e6))\n\nstr = GlobalGrids.h3string(c)\n@info str\n\nH3Cell(str)\n\n\n[ Info: 8a0e506e6a67fff\n\n\n\n\n\n ⬡ H3Cell res=10 base_cell=7 [1, 2, 0, 3, 3, 4, 6, 5, 1, 4]",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>H3 Grid System</span>"
+      "H3 Grid System"
     ]
   },
   {
-    "objectID": "h3.html#inspecting-cells",
-    "href": "h3.html#inspecting-cells",
-    "title": "2  H3 Grid System",
-    "section": "Inspecting cells",
-    "text": "Inspecting cells\n\nGlobalGrids.resolution(c)\n\n10\n\n\n\nGlobalGrids.base_cell(c)\n\n7\n\n\n\nGlobalGrids.is_pentagon(c)\n\nfalse\n\n\n\nGlobalGrids.digits(c)'\n\n1×10 adjoint(::Vector{Int64}) with eltype Int64:\n 1  2  0  3  3  4  6  5  1  4\n\n\n\n# Faces of the icosahedron the cell intersects\nGlobalGrids.face_numbers(c)\n\n1-element Vector{Int32}:\n 2",
+    "objectID": "h3.html#inspecting-h3cells",
+    "href": "h3.html#inspecting-h3cells",
+    "title": "",
+    "section": "Inspecting H3Cells",
+    "text": "Inspecting H3Cells\n\n\nCode\n@show GlobalGrids.resolution(c)\n@show GlobalGrids.base_cell(c)\n@show GlobalGrids.is_pentagon(c)\n@show GlobalGrids.digits(c)\n@show GlobalGrids.face_numbers(c)\nnothing\n\n\nGlobalGrids.resolution(c) = 10\nGlobalGrids.base_cell(c) = 7\nGlobalGrids.is_pentagon(c) = false\nGlobalGrids.digits(c) = [1, 2, 0, 3, 3, 4, 6, 5, 1, 4]\nGlobalGrids.face_numbers(c) = Int32[2]",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>H3 Grid System</span>"
+      "H3 Grid System"
     ]
   },
   {
     "objectID": "h3.html#geointerface-integration",
     "href": "h3.html#geointerface-integration",
-    "title": "2  H3 Grid System",
+    "title": "",
     "section": "GeoInterface Integration:",
-    "text": "GeoInterface Integration:\n\nimport GeoInterface as GI\n\nGI.coordinates(c)\n\n\n7-element Vector{LonLat}:\n LonLat (-74.99962251383738, 54.0001926668228)\n LonLat (-75.0008585102879, 54.000019405226205)\n LonLat (-75.00122192991167, 53.999307797036366)\n LonLat (-75.00034938834023, 53.99876945809693)\n LonLat (-74.99911343000446, 53.99894271390214)\n LonLat (-74.99874997512619, 53.99965431443802)\n LonLat (-74.99962251383738, 54.0001926668228)\n\n\n\n\nGI.centroid(c)\n\n\nLonLat (-74.99998595778595, 53.99948106205935)\n\n\n\n\nGI.area(c)  # meters ^ 2\n\n17803.420253871413",
+    "text": "GeoInterface Integration:\n\n\nCode\nimport GeoInterface as GI\n\n@show GI.coordinates(c)\n@show GI.centroid(c)\n@show GI.area(c)  # meters ^ 2\nnothing\n\n\nGI.coordinates(c) = GlobalGrids.LonLat[LonLat (-74.99962251383738, 54.0001926668228), LonLat (-75.0008585102879, 54.000019405226205), LonLat (-75.00122192991167, 53.999307797036366), LonLat (-75.00034938834023, 53.99876945809693), LonLat (-74.99911343000446, 53.99894271390214), LonLat (-74.99874997512619, 53.99965431443802), LonLat (-74.99962251383738, 54.0001926668228)]\nGI.centroid(c) = LonLat (-74.99998595778595, 53.99948106205936)\nGI.area(c) = 17803.420253871413",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>H3 Grid System</span>"
+      "H3 Grid System"
     ]
   },
   {
     "objectID": "h3.html#grid-hierarchy",
     "href": "h3.html#grid-hierarchy",
-    "title": "2  H3 Grid System",
+    "title": "",
     "section": "Grid Hierarchy",
-    "text": "Grid Hierarchy\n\nparent, siblings, children\n\n\nfig = Figure()\nax = Axis(fig[1,1], title=\"Cell:Black, Parent:Blue, Siblings:Orange, Children:Green\")\nlines!(ax, GlobalGrids.parent(c), color = :blue)\npoly!(ax, c, color = :black)\nlines!(ax, GlobalGrids.siblings(c), color = :orange)\nlines!(ax, GlobalGrids.children(c), color = :green)\nfig",
+    "text": "Grid Hierarchy\n\nparent, siblings, and children\n\n\n\nCode\nfig = Figure()\nax = Axis(fig[1,1], title=\"Cell:Black, Parent:Blue, Siblings:Orange, Children:Green\")\nlines!(ax, GlobalGrids.parent(c), color = :blue)\npoly!(ax, c, color = :black)\nlines!(ax, GlobalGrids.siblings(c), color = :orange)\nlines!(ax, GlobalGrids.children(c), color = :green)\nfig",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>H3 Grid System</span>"
+      "H3 Grid System"
     ]
   },
   {
     "objectID": "h3.html#rings-and-disks",
     "href": "h3.html#rings-and-disks",
-    "title": "2  H3 Grid System",
+    "title": "",
     "section": "Rings and Disks",
-    "text": "Rings and Disks\n\ngrid_ring(cell, i) returns the cells that are exactly grid distance i away from the cell.\ngrid_disk(cell, i) is similar to grid_ring, but returns all cells inside the ring as well.\n\n\nfig = Figure()\nax = Axis(fig[1,1])\ncolors = [:blue, :green, :red, :magenta]\n\npoly!(ax, c, color=:black)\nfor i in 1:4\n    poly!(ax, GlobalGrids.grid_ring(c, i), color=colors[i])\nend\n\n\nfig",
+    "text": "Rings and Disks\n\ngrid_ring(cell, i) returns the cells that are exactly grid distance i away from the cell.\ngrid_disk(cell, i) is similar to grid_ring, but returns all cells inside the ring as well.\n\n\n\nCode\nfig = Figure()\nax = Axis(fig[1,1])\ncolors = [:blue, :green, :red, :magenta]\n\npoly!(ax, c, color=:black)\nfor i in 1:4\n    poly!(ax, GlobalGrids.grid_ring(c, i), color=colors[i])\nend\n\n\nfig",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>H3 Grid System</span>"
+      "H3 Grid System"
     ]
   },
   {
     "objectID": "h3.html#rasterizing-geometries-to-the-h3-grid",
     "href": "h3.html#rasterizing-geometries-to-the-h3-grid",
-    "title": "2  H3 Grid System",
+    "title": "",
     "section": "“Rasterizing” Geometries to the H3 Grid",
-    "text": "“Rasterizing” Geometries to the H3 Grid\n\nPoint\n\nll = LonLat(-54.0, -12.0)\n\nfig = Figure()\nax = Axis(fig[1,1], title=\"Resolutions 0-3\")\nfor res in 0:3\n    lines!(ax, h3cells(ll, res))\nend\nscatter!(ax, ll)\n\nfig\n\n\n\n\n\n\nMultiPoint\n\ncoords = [LonLat(360rand() - 180, 180rand() - 90) for _ in 1:100]\n\nx = H3Cell.(coords, 0)\n\nf, a, p = lines(x, axis=(;type=GeoAxis, dest = \"+proj=ortho +lon_0=-50 +lat_0=30\"))\nscatter!(a, coords)\nf\n\n\n\n\n\n\nLine\n\nBy default, the cells will be an arbitrary shortest path between the cells that contain the two points.\nFor more accuracy (cells with any intersection are included), but slower performance, use the shortest_path=false keyword argument.\n\n\nline = GI.Line([LonLat(0, 0), LonLat(1,1)])\n\nx1 = h3cells(line, 6)\nx2 = h3cells(line, 6; shortest_path=false)\n\nfig = Figure()\nax1 = Axis(fig[1,1])\nax2 = Axis(fig[1, 2])\n\npoly!(ax1, x1)\nlines!(ax1, GI.coordinates(line))\npoly!(ax2, x2)\nlines!(ax2, GI.coordinates(line))\n\nfig\n\n\n\n\n\n\n(Multi)Polygon\n\nContainment modes for polygons:\n\n:center: Include cell if its center is inside the polygon.\n:full: Include cell if all vertices are inside the polygon.\n:overlap: Include cell if any part intersects the polygon.\n:overlap_bbox: Include cell if any part of the bounding box intersects the polygon.\n\n\n\nusing OSMGeocoder\n\nobj = geocode(state=\"North Carolina\")\n\n# Create figure\nfunction make_axis(i, j, res, containment)\n    ax = Axis(fig[i, j], title=\"containment = $containment\")\n    x = h3cells(obj.geometry[1], res; containment)\n    lines!(ax, x)\n    lines!(ax, obj.geometry)\nend\nfig = Figure()\nmake_axis(1, 1, 4, :center)\nmake_axis(1, 2, 4, :full)\nmake_axis(2, 1, 4, :overlap)\nmake_axis(2, 2, 4, :overlap_bbox)\nfig\n\n\n\n\n\n\nExtents\n\nex = GI.extent(obj)\n\n# for plotting\nx1, x2 = ex.X\ny1, y2 = ex.Y\nlinestring = GI.LineString([(x1,y1), (x1,y2), (x2,y2), (x2, y1), (x1,y1)])\n\n# Create figure\nfunction make_axis(i, j, res, containment)\n    ax = Axis(fig[i, j], title=\"containment = $containment\")\n    x = h3cells(ex, res; containment)\n    lines!(ax, linestring)\n    lines!(ax, x)\nend\nfig = Figure()\nmake_axis(1, 1, 4, :center)\nmake_axis(1, 2, 4, :full)\nmake_axis(2, 1, 4, :overlap)\nmake_axis(2, 2, 4, :overlap_bbox)\nfig",
+    "text": "“Rasterizing” Geometries to the H3 Grid\n\nPoint\n\n\nCode\nll = LonLat(-54.0, -12.0)\n\nfig = Figure()\nax = Axis(fig[1,1], title=\"Resolutions 0-3\")\nfor res in 0:3\n    lines!(ax, h3cells(ll, res))\nend\nscatter!(ax, ll)\n\nfig\n\n\n\n\n\n\n\nMultiPoint\n\n\nCode\ncoords = [LonLat(360rand() - 180, 180rand() - 90) for _ in 1:100]\n\nx = H3Cell.(coords, 0)\n\nf, a, p = lines(x, axis=(;type=GeoAxis, dest = \"+proj=ortho +lon_0=-50 +lat_0=30\"))\nscatter!(a, coords)\nf\n\n\n\n\n\n\n\nLine\n\nBy default, the cells will be an arbitrary shortest path between the cells that contain the two points.\nFor more accuracy (cells with any intersection are included), but slower performance, use the shortest_path=false keyword argument.\n\n\n\nCode\nline = GI.Line([LonLat(0, 0), LonLat(1,1)])\n\nx1 = h3cells(line, 6)\nx2 = h3cells(line, 6; shortest_path=false)\n\nfig = Figure()\nax1 = Axis(fig[1,1])\nax2 = Axis(fig[1, 2])\n\npoly!(ax1, x1)\nlines!(ax1, GI.coordinates(line))\npoly!(ax2, x2)\nlines!(ax2, GI.coordinates(line))\n\nfig\n\n\n\n\n\n\n\n(Multi)Polygon\n\nContainment modes for polygons:\n\n:center: Include cell if its center is inside the polygon.\n:full: Include cell if all vertices are inside the polygon.\n:overlap: Include cell if any part intersects the polygon.\n:overlap_bbox: Include cell if any part of the bounding box intersects the polygon.\n\n\n\n\nCode\nusing OSMGeocoder\n\nobj = geocode(state=\"North Carolina\")\n\n# Create figure\nfunction make_axis(i, j, res, containment)\n    ax = Axis(fig[i, j], title=\"containment = $containment\")\n    x = h3cells(obj.geometry[1], res; containment)\n    lines!(ax, x)\n    lines!(ax, obj.geometry)\nend\nfig = Figure()\nmake_axis(1, 1, 4, :center)\nmake_axis(1, 2, 4, :full)\nmake_axis(2, 1, 4, :overlap)\nmake_axis(2, 2, 4, :overlap_bbox)\nfig\n\n\n\n\n\n\n\nExtents\n\n\n\n\n\n\nNote\n\n\n\nThe same containment options for (multi)polygons are available for Extents. test\n\n\n\n\nCode\nex = GI.extent(obj)\n\n# for plotting\nx1, x2 = ex.X\ny1, y2 = ex.Y\nlinestring = GI.LineString([(x1,y1), (x1,y2), (x2,y2), (x2, y1), (x1,y1)])\n\n# Create figure\nfunction make_axis(i, j, res, containment)\n    ax = Axis(fig[i, j], title=\"containment = $containment\")\n    x = h3cells(ex, res; containment)\n    lines!(ax, linestring)\n    lines!(ax, x)\nend\nfig = Figure()\nmake_axis(1, 1, 4, :center)\nmake_axis(1, 2, 4, :full)\nmake_axis(2, 1, 4, :overlap)\nmake_axis(2, 2, 4, :overlap_bbox)\nfig",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>H3 Grid System</span>"
-    ]
-  },
-  {
-    "objectID": "coordinates.html",
-    "href": "coordinates.html",
-    "title": "3  Coordinates",
-    "section": "",
-    "text": "Types\nGlobalGrids.jl provides small coordinate wrapper types that preserve projection info and interoperate via Proj.jl. All coordinate types implement GeoInterface’s point trait, so they work with plotting and spatial libraries.\nEach type can be constructed from another to transform coordinates:",
-    "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Coordinates</span>"
+      "H3 Grid System"
     ]
   },
   {
     "objectID": "coordinates.html#types",
     "href": "coordinates.html#types",
-    "title": "3  Coordinates",
-    "section": "",
-    "text": "LonLat(x, y) — longitude and latitude in degrees (EPSG:4326)\nLonLatAuthalic(x, y) — lon/lat in degrees using the authalic radius\nISEA(x, y) — ISEA projection coordinates on the plane\nISEACube(x, y) — rotated/skewed ISEA plane coordinates.\nECEF(x, y, z) — Earth‑Centered, Earth‑Fixed Cartesian meters (WGS84)\n\n\nusing GlobalGrids\np = LonLat(-75.0, 54.0)\nISEA(p)                 # -&gt; ISEA\nISEACube(p)             # -&gt; ISEACube (via ISEA)\nECEF(p)                 # -&gt; ECEF meters\nLonLat(ECEF(p))         # round‑trip back to lon/lat",
+    "title": "",
+    "section": "Types",
+    "text": "Types\n\nLonLat(x, y) — longitude and latitude in degrees (EPSG:4326)\nLonLatAuthalic(x, y) — lon/lat in degrees using the authalic radius\nISEA(x, y) — ISEA projection coordinates on the plane\nISEACube(x, y) — rotated/skewed ISEA plane coordinates.\nECEF(x, y, z) — Earth‑Centered, Earth‑Fixed Cartesian meters (WGS84)\n\nEach type can be constructed from another to transform coordinates:\nusing GlobalGrids\np = LonLat(-75.0, 54.0)\nISEA(p)                 # -&gt; ISEA\nISEACube(p)             # -&gt; ISEACube (via ISEA)\nECEF(p)                 # -&gt; ECEF meters\nLonLat(ECEF(p))         # round‑trip back to lon/lat",
     "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Coordinates</span>"
+      "Coordinates"
     ]
   },
   {
     "objectID": "coordinates.html#distance-and-bearings",
     "href": "coordinates.html#distance-and-bearings",
-    "title": "3  Coordinates",
+    "title": "",
     "section": "Distance and bearings",
     "text": "Distance and bearings\n\nhaversine(a, b) — great‑circle distance in meters using the Haversine formula (operates on any coordinate types).\nazimuth(a, b) — initial bearing from a to b, degrees clockwise from North.\ndestination(x, azimuth°, dist_m) — destination point from x at azimuth and distance.\n\nusing GlobalGrids\np = LonLat(-75, 54)\nq = LonLat(-80, 50)\nGlobalGrids.haversine(p, q)          # ≈ distance in meters\nθ = GlobalGrids.azimuth(p, q)        # degrees\nr = GlobalGrids.destination(p, θ, 50_000)",
     "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Coordinates</span>"
+      "Coordinates"
     ]
   },
   {
     "objectID": "coordinates.html#extents",
     "href": "coordinates.html#extents",
-    "title": "3  Coordinates",
+    "title": "",
     "section": "Extents",
     "text": "Extents\ncoords2extent(x; n=1000, s=1000, e=1000, w=1000) builds an Extents.Extent around a point by offset distances in meters (or provide a single value to use for all directions):\nusing GlobalGrids, Extents\np = LonLat(-75, 54)\nex = GlobalGrids.coords2extent(p, 2000)  # 2 km in all directions\n# or directional:\nex2 = GlobalGrids.coords2extent(p; n=5000, s=1000, e=2000, w=2000)",
     "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Coordinates</span>"
+      "Coordinates"
     ]
   },
   {
     "objectID": "icosahedron.html",
     "href": "icosahedron.html",
-    "title": "4  Icosahedron utilities",
+    "title": "Icosahedron utilities",
     "section": "",
-    "text": "Building an icosahedron\nThe package includes helper utilities for working with an icosahedron and its dual, useful for designing and visualizing discrete global grids.",
+    "text": "The package includes helper utilities for working with an icosahedron and its dual, useful for designing and visualizing discrete global grids.",
     "crumbs": [
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Icosahedron utilities</span>"
+      "Icosahedron utilities"
     ]
   },
   {
     "objectID": "icosahedron.html#building-an-icosahedron",
     "href": "icosahedron.html#building-an-icosahedron",
-    "title": "4  Icosahedron utilities",
-    "section": "",
-    "text": "using GlobalGrids, GeometryBasics\n\n# Place a vertex direction and azimuth, return a Mesh of triangles on the unit sphere\nico = icosahedron(Point3f(0,0,1), 0.0)   # default orientation\n\n# Preset orientations aligned with DGG literature\nico_poles     = icosahedron(:poles)\nico_isea      = icosahedron(:isea)\nico_dymaxion  = icosahedron(:dymaxion)\n\nVertices are normalized to lie on the unit sphere.\nThe function returns a GeometryBasics.Mesh with TriangleFace connectivity.",
+    "title": "Icosahedron utilities",
+    "section": "Building an icosahedron",
+    "text": "Building an icosahedron\nusing GlobalGrids, GeometryBasics\n\n# Place a vertex direction and azimuth, return a Mesh of triangles on the unit sphere\nico = icosahedron(Point3f(0,0,1), 0.0)   # default orientation\n\n# Preset orientations aligned with DGG literature\nico_poles     = icosahedron(:poles)\nico_isea      = icosahedron(:isea)\nico_dymaxion  = icosahedron(:dymaxion)\n\nVertices are normalized to lie on the unit sphere.\nThe function returns a GeometryBasics.Mesh with TriangleFace connectivity.",
     "crumbs": [
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Icosahedron utilities</span>"
+      "Icosahedron utilities"
     ]
   },
   {
     "objectID": "icosahedron.html#dual-pentagons",
     "href": "icosahedron.html#dual-pentagons",
-    "title": "4  Icosahedron utilities",
+    "title": "Icosahedron utilities",
     "section": "Dual (pentagons)",
     "text": "Dual (pentagons)\nCreate the dual mesh: vertices at face centroids of the icosahedron and pentagonal faces around original vertices.\nusing GeometryBasics\nico = icosahedron(:isea)\nd = GlobalGrids.dual(ico)        # Mesh with NgonFace{5}",
     "crumbs": [
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Icosahedron utilities</span>"
+      "Icosahedron utilities"
     ]
   },
   {
     "objectID": "icosahedron.html#helpers",
     "href": "icosahedron.html#helpers",
-    "title": "4  Icosahedron utilities",
+    "title": "Icosahedron utilities",
     "section": "Helpers",
     "text": "Helpers\n\nrotation_matrix(axis::SVector{3}, angle) — 3×3 Rodrigues rotation matrix\ncounterclockwise!(points) — enforce CCW ordering of polygon vertices in their local plane\nunit_icosahedron(T) — base icosahedron mesh of type T\n\nThese helpers are generally internal, but can be useful for custom grid experiments.",
     "crumbs": [
-      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Icosahedron utilities</span>"
+      "Icosahedron utilities"
     ]
   }
 ]
