@@ -1,1 +1,0 @@
-Sitemap: https://joshday.github.io/GlobalGrids.jl/sitemap.xml
