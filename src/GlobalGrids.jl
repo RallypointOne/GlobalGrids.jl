@@ -28,6 +28,7 @@ struct LonLat{T}
     lat::T
 end
 Base.show(io::IO, o::LonLat{T}) where {T} = print(io, styled"{bright_cyan:LonLat\{$T\}} (", o.lon, ", ", o.lat, ")")
+LonLat((x,y)::NTuple{2, AbstractFloat}) = LonLat(x, y)
 
 Base.getindex(o::LonLat, i::Integer) = i == 1 ? o.lon : i == 2 ? o.lat : throw(BoundsError(o, i))
 Base.length(o::LonLat) = 2

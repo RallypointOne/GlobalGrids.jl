@@ -235,6 +235,8 @@ haversine(a::H3Cell, b::H3Cell) = haversine(GI.centroid(a), GI.centroid(b))
 destination(a::H3Cell, azimuth°, m) = H3Cell(destination(GI.centroid(a), azimuth°, m), resolution(a))
 
 #-----------------------------------------------------------------------------# h3cells
+cells(::Type{H3Cell}, args...; kw...) = h3cells(args...; kw...)
+
 h3cells(geom, res::Integer = 10; kw...) = h3cells(GI.geomtrait(geom), geom, res; kw...)
 
 h3cells(::GI.PointTrait, geom, res::Integer) = [H3Cell(LonLat(GI.coordinates(geom)...), res)]
@@ -289,9 +291,14 @@ function h3cells(::GI.MultiPolygonTrait, geom, res::Integer; kw...)
     mapreduce(x -> h3cells(x, res; kw...), union, GI.getpolygon(geom))
 end
 
-function h3cells((; X, Y)::Extents.Extent, res::Integer; kw...)
+# -----------------------------------------------------------------------------# h3cells for no geomtrait
+function h3cells(::Nothing, (; X, Y)::Extents.Extent, res::Integer; kw...)
     ls = GI.LineString([(X[1], Y[1]), (X[1], Y[2]), (X[2], Y[2]), (X[2], Y[1]), (X[1], Y[1])])
     h3cells(GI.Polygon([ls]), res; kw...)
 end
 
-cells(::Type{H3Cell}, args...; kw...) = h3cells(args...; kw...)
+h3cells(::Nothing, x::AbstractArray{<: LonLat}, res::Integer) = h3cells(GI.MultiPoint(x), res)
+
+h3cells(::Nothing, x::AbstractArray{<: NTuple{2, Real}}, res::Integer) = h3cells(LonLat.(x), res)
+
+#-----------------------------------------------------------------------------# datacells

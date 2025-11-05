@@ -4,11 +4,6 @@ code-fold: true
 # H3 Grid System
 
 ```{julia}
-#| echo: false
-using Revise
-```
-
-```{julia}
 using GlobalGrids, GeoMakie, CairoMakie
 
 grid = H3Grid()
@@ -248,7 +243,18 @@ fig
 
 ## "Rasterizing" Rasters
 
-- For rasters, `cells` returns `Dict{Cell, Vector{T}}` where `T` is the eltype of the raster.
+
+
+```{julia}
+using GlobalGrids, Rasters, RasterDataSources, ArchGDAL
+
+ENV["RASTERDATASOURCES_PATH"] = tempdir()
+
+r = Raster(getraster(WorldClim{Elevation}).elev)
+
+coords = [LonLat(lon,lat) for lon in r.dims[1], lat in r.dims[2]]
+```
+<!-- - For rasters, `cells` returns `Dict{Cell, Vector{T}}` where `T` is the eltype of the raster.
 
 ```{julia}
 using GlobalGrids, Rasters, RasterDataSources, ArchGDAL
@@ -262,4 +268,4 @@ cells = collect(keys(dict))
 vals = maximum.(values(dict))
 
 poly(cells, color=vals, axis=(;type = GeoAxis, dest = "+proj=ortho +lon_0=-50 +lat_0=30"))
-```
+``` -->
