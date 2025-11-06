@@ -129,7 +129,14 @@ function cells(::Type{T}, ::GI.MultiPolygonTrait, geom, res::Integer; kw...) whe
     mapreduce(x -> cells(T, x, res; kw...), union, GI.getpolygon(geom))
 end
 
+
 #-----------------------------------------------------------------------------# Things without geomtraits
+function cells(::Type{CT}, ::Nothing, (; X, Y)::Extents.Extent, res::Integer; kw...) where {CT <: AbstractCell}
+    ls = GI.LineString([(X[1], Y[1]), (X[1], Y[2]), (X[2], Y[2]), (X[2], Y[1]), (X[1], Y[1])])
+    cells(CT, GI.Polygon([ls]), res; kw...)
+end
+
+# Raster Data, e.g. (z, (x, y)) = (r, r.dims)
 function cells(::Type{CT}, ::Nothing, (z, (x, y))::Tuple{Z, XY}, res::Integer; dropmissing=true) where {CT <: AbstractCell, T, Z<:AbstractMatrix{T}, XY<:Tuple}
     S = dropmissing ? Base.nonmissingtype(T) : T
     out = Dict{CT, Vector{S}}()

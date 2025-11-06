@@ -105,6 +105,9 @@ end
     # Multipolygon
     x = h3cells(multipolygon, 5; containment = :overlap)
 
+    # Extent
+    x = h3cells(GI.extent(polygon), 2; containment = :overlap_bbox)
+
 end
 
 # @testset "GlobalGrids.jl" begin
