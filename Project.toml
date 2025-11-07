@@ -37,7 +37,7 @@ Proj = "1.9.0"
 Rotations = "1.7.1"
 StaticArrays = "1.9.15"
 StaticArraysCore = "1.4.4"
-StyledStrings = "1.11.0"
+StyledStrings = "1.11.0, 1"
 julia = "1.10.10"
 
 [extras]
