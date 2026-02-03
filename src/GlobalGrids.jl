@@ -56,6 +56,16 @@ function destination((lon, lat)::LonLat, azimuth°::Real, m::Real)
     LonLat(lon2, lat2)
 end
 
+function azimuth((a_lon, a_lat), (b_lon, b_lat))
+    Δlon = b_lon - a_lon
+
+    # atan2(y, x) with degree trig
+    y = cosd(b_lat) * sind(Δlon)
+    x = cosd(a_lat) * sind(b_lat) - sind(a_lat) * cosd(b_lat) * cosd(Δlon)
+    θ = atand(y, x)                      # [-180, 180]
+    return mod(θ + 360, 360)             # [0, 360)
+end
+
 #-----------------------------------------------------------------------------# AbstractGrid
 abstract type AbstractGrid end
 Base.show(io::IO, ::T) where {T <: AbstractGrid} = print(io, styled"{bright_cyan: ⣿⣿ $(T.name.name)}")

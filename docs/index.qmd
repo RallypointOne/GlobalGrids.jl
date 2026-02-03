@@ -14,7 +14,7 @@ GlobalGrids provides:
 
 ```julia
 using Pkg
-Pkg.add(url = "https://github.com/joshday/GlobalGrids.jl")
+Pkg.add(url = "https://github.com/RallypointOne/GlobalGrids.jl")
 ```
 
 ## Quickstart

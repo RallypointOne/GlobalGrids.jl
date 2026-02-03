@@ -16,7 +16,7 @@ book:
       #   text: Home
     right:
       - icon: github
-        href: https://github.com/joshday/GlobalGrids.jl
+        href: https://github.com/RallypointOne/GlobalGrids.jl
         aria-label: GitHub
   # sidebar:
   #   style: docked
