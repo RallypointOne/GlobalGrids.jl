@@ -16,7 +16,7 @@ using H3_jll: libh3
 
 export icosahedron, LonLat, cells, CellTable,
     # H3:
-    H3Grid, H3Cell, h3cells, h3bin
+    H3Grid, H3Cell, h3cells
 
 
 #-----------------------------------------------------------------------------# icosahedron
