@@ -54,6 +54,12 @@ function h3check(err::H3Error)
 end
 
 #-----------------------------------------------------------------------------# H3Grid
+"""
+    H3Grid()
+
+The H3 hexagonal discrete global grid system developed by Uber.  Uses CRS
+EPSG:4326 (WGS84 longitude/latitude).
+"""
 struct H3Grid <: AbstractGrid end
 
 GI.crs(::H3Grid) = GFT.EPSG(4326)
@@ -62,10 +68,26 @@ GI.npolygon(::GI.PolyhedralSurfaceTrait, o::H3Grid) = h3_n_cells(h3_resolution(o
 GI.ngeom(::GI.PolyhedralSurfaceTrait, grid::H3Grid) = GI.npolygon(grid)
 
 #-----------------------------------------------------------------------------# H3Cell
+"""
+    H3Cell(index::UInt64)
+    H3Cell(base::Integer, digits::AbstractVector{<:Integer})
+    H3Cell(coord::LonLat, res::Integer=10)
+    H3Cell(str::AbstractString)
+
+A single cell in the H3 grid.  Wraps a `UInt64` index that encodes the base
+cell (0–121), resolution (0–15), and refinement digits (0–6).
+
+### Examples
+
+    H3Cell(LonLat(-75.0, 54.0), 7)
+    H3Cell(121, [1, 5, 0])
+"""
 struct H3Cell <: AbstractCell
     index::UInt64
     function H3Cell(idx::UInt64; validate::Bool = true)
-        validate && @ccall(libh3.isValidCell(idx::UInt64)::Cint) == 1 || throw(ArgumentError("Not a valid H3Cell Index: $idx."))
+        if validate
+            @ccall(libh3.isValidCell(idx::UInt64)::Cint) == 1 || throw(ArgumentError("Not a valid H3Cell Index: $idx."))
+        end
         new(idx)
     end
 end
@@ -235,6 +257,11 @@ haversine(a::H3Cell, b::H3Cell) = haversine(GI.centroid(a), GI.centroid(b))
 destination(a::H3Cell, azimuth°, m) = H3Cell(destination(GI.centroid(a), azimuth°, m), resolution(a))
 
 #-----------------------------------------------------------------------------# h3cells
+"""
+    h3cells(geom, res; kw...)
+
+Convenience wrapper for `cells(H3Cell, geom, res; kw...)`.
+"""
 h3cells(args...; kw...) = cells(H3Cell, args...; kw...)
 
 function cells(::Type{H3Cell}, ::GI.LineTrait, geom, res::Integer; containment = :shortest_path)
@@ -256,64 +283,16 @@ function cells(::Type{H3Cell}, ::GI.PolygonTrait, geom, res::Integer; containmen
             H3LatLng(deg2rad(coord[2]), deg2rad(coord[1]))
         end
     end
-    geo_loops = H3GeoLoop.(length.(verts), pointer.(verts))
-    n = length(geo_loops)
-    geo_polygon = H3GeoPolygon(geo_loops[1], n - 1, n > 1 ? pointer(geo_loops, 2) : C_NULL)
-    flag_dict = Dict{Symbol, UInt32}(:center => 0, :full => 1, :overlap => 2, :overlap_bbox => 3)
-    flag = flag_dict[containment]
-    max_n = Ref{Int64}()
-    h3check(@ccall(libh3.maxPolygonToCellsSizeExperimental(Ref(geo_polygon)::Ptr{H3GeoPolygon}, Cint(res)::Cint, flag::Int32, max_n::Ptr{Int64})::H3Error))
-    out = zeros(UInt64, max_n[])
-    h3check(@ccall(libh3.polygonToCellsExperimental(Ref(geo_polygon)::Ptr{H3GeoPolygon}, Cint(res)::Cint, flag::Int32, Cint(max_n[])::Cint, pointer(out)::Ptr{UInt64})::H3Error))
+    GC.@preserve verts begin
+        geo_loops = H3GeoLoop.(length.(verts), pointer.(verts))
+        n = length(geo_loops)
+        geo_polygon = H3GeoPolygon(geo_loops[1], n - 1, n > 1 ? pointer(geo_loops, 2) : C_NULL)
+        flag_dict = Dict{Symbol, UInt32}(:center => 0, :full => 1, :overlap => 2, :overlap_bbox => 3)
+        flag = flag_dict[containment]
+        max_n = Ref{Int64}()
+        h3check(@ccall(libh3.maxPolygonToCellsSizeExperimental(Ref(geo_polygon)::Ptr{H3GeoPolygon}, Cint(res)::Cint, flag::Int32, max_n::Ptr{Int64})::H3Error))
+        out = zeros(UInt64, max_n[])
+        h3check(@ccall(libh3.polygonToCellsExperimental(Ref(geo_polygon)::Ptr{H3GeoPolygon}, Cint(res)::Cint, flag::Int32, Cint(max_n[])::Cint, pointer(out)::Ptr{UInt64})::H3Error))
+    end
     return H3Cell.(filter!(!iszero, unique!(out)))
 end
-
-# function h3cells(::GI.MultiPolygonTrait, geom, res::Integer; kw...)
-#     mapreduce(x -> h3cells(x, res; kw...), union, GI.getpolygon(geom))
-# end
-
-# # -----------------------------------------------------------------------------# h3cells for no geomtrait
-# function h3cells(::Nothing, (; X, Y)::Extents.Extent, res::Integer; kw...)
-#     ls = GI.LineString([(X[1], Y[1]), (X[1], Y[2]), (X[2], Y[2]), (X[2], Y[1]), (X[1], Y[1])])
-#     h3cells(GI.Polygon([ls]), res; kw...)
-# end
-
-# h3cells(::Nothing, x::AbstractArray{<: LonLat}, res::Integer) = h3cells(GI.MultiPoint(x), res)
-
-# h3cells(::Nothing, x::AbstractArray{<: NTuple{2, Real}}, res::Integer) = h3cells(LonLat.(x), res)
-
-
-# # Rasters: h3cells((r, r.dims))
-# function h3cells(::Nothing, (z, (x, y))::Tuple{AbstractMatrix{T}, Tuple}, res::Integer; dropmissing=true) where {T}
-#     S = dropmissing ? Base.nonmissingtype(T) : T
-#     out = Dict{H3Cell, Vector{S}}()
-
-#     for ((x, y), z) in zip(Iterators.product(x, y), z)
-#         if !ismissing(z) || !dropmissing
-#             cell = H3Cell(LonLat(x, y), res)
-#             data = get!(out, cell, S[])
-#             push!(data, z)
-#         end
-#     end
-#     return out
-# end
-
-# #-----------------------------------------------------------------------------# h3bin
-# spatial_bin(::Type{H3Cell}, args...; kw...) = h3bin(args...; kw...)
-
-# function h3bin((z, (x, y))::Tuple{AbstractMatrix{T}, Tuple}, res::Integer; dropmissing=true) where {T}
-#     S = dropmissing ? Base.nonmissingtype(T) : T
-#     out = Dict{H3Cell, Vector{S}}()
-#     for ((x, y), z) in zip(Iterators.product(x, y), z)
-#         if !ismissing(z) || !dropmissing
-#             cell = H3Cell(LonLat(x, y), res)
-#             data = get!(out, cell, S[])
-#             push!(data, z)
-#         end
-#     end
-#     return out
-# end
-
-# function h3bin(cells::AbstractVector{H3Cell}, f::Base.Callable; kw...)
-#     cells = h3cells(geom, res; kw...)
-# end

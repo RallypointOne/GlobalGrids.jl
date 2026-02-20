@@ -1,6 +1,9 @@
 ---
+title: "H3 Grid System"
+engine: julia
 code-fold: true
 ---
+
 # H3 Grid System
 
 ```{julia}

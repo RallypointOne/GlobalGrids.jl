@@ -1,45 +1,53 @@
 project:
   type: book
-  # render:
-  #   - "*.qmd"
+  output-dir: _site
 
-engines: ['julia']
+engine: julia
+julia:
+  project: "."
 
 book:
   title: "GlobalGrids.jl"
-  page-navigation: true
   search:
     location: sidebar
+    keyboard-shortcut:
+      - "/"
   navbar:
-    # left:
-      # - href: index.qmd
-      #   text: Home
     right:
+      - icon: star
+        href: https://github.com/RallypointOne/GlobalGrids.jl/stargazers
+        text: "Star"
       - icon: github
         href: https://github.com/RallypointOne/GlobalGrids.jl
-        aria-label: GitHub
-  # sidebar:
-  #   style: docked
-  #   contents:
-  #     - index.qmd
-      # - text: "Intro"
-      #   file: index.qmd
-      # - h3.qmd
-      # - coordinates.qmd
-      # - icosahedron.qmd
   chapters:
-    - index.qmd
-    - h3.qmd
+    - part: "Docs"
+      chapters:
+        - index.qmd
+        - getting-started.qmd
+        - h3.qmd
+        - coordinates.qmd
+        - icosahedron.qmd
+    - part: "API"
+      chapters:
+        - api.qmd
+    - part: "Reference"
+      chapters:
+        - changelog.qmd
+        - coverage.qmd
+
+  page-footer:
+    center: "Built on __BUILD_DATE__"
+
+language:
+  search-text-placeholder: "Search  (/)"
 
 format:
   html:
-    code-tools:
-      source: true
-      toggle: false
-      caption: none
-    theme: flatly
-    toc: true
     css: styles.css
-
-execute:
-  cache: false
+    number-sections: false
+    theme:
+      light: flatly
+      dark: darkly
+    respect-user-color-scheme: true
+    include-after-body:
+      - file: _version-selector.html

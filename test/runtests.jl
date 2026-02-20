@@ -7,9 +7,97 @@ import GeoInterface as GI
 import GeometryOps as GO
 
 
+#-----------------------------------------------------------------------------# icosahedron
+@testset "icosahedron" begin
+    ico = icosahedron()
+    @test ico isa GB.Mesh
+    @test length(ico.position) == 12
+    @test length(GB.faces(ico)) == 20
+
+    # Preset orientations
+    for preset in [:poles, :isea, :dymaxion]
+        m = icosahedron(preset)
+        @test m isa GB.Mesh
+        @test length(m.position) == 12
+    end
+    @test_throws ArgumentError icosahedron(:invalid)
+
+    # Custom vertex/azimuth
+    ico2 = icosahedron(GB.Point3d(0, 0, -1), 0.0)
+    @test ico2 isa GB.Mesh
+
+    # Dual
+    d = GG.dual(ico)
+    @test d isa GB.Mesh
+    @test length(d.position) == 20
+end
+
+#-----------------------------------------------------------------------------# LonLat
+@testset "LonLat" begin
+    p = LonLat(-75.0, 54.0)
+    @test p.lon == -75.0
+    @test p.lat == 54.0
+    @test p[1] == -75.0
+    @test p[2] == 54.0
+    @test_throws BoundsError p[3]
+    @test length(p) == 2
+    @test eltype(p) == Float64
+    @test collect(p) == [-75.0, 54.0]
+
+    # Tuple constructor
+    p2 = LonLat((1.0, 2.0))
+    @test p2.lon == 1.0 && p2.lat == 2.0
+
+    # GeoInterface
+    @test GI.isgeometry(p)
+    @test GI.geomtrait(p) == GI.PointTrait()
+    @test GI.ncoord(p) == 2
+    @test GI.getcoord(p, 1) == -75.0
+    @test GI.getcoord(p, 2) == 54.0
+
+    # Show
+    @test contains(sprint(show, p), "LonLat")
+end
+
+#-----------------------------------------------------------------------------# haversine, destination, azimuth
+@testset "geodesic functions" begin
+    a = LonLat(0.0, 0.0)
+    b = LonLat(0.0, 1.0)
+
+    # haversine: ~111 km per degree of latitude
+    d = GG.haversine(a, b)
+    @test 110_000 < d < 112_000
+
+    # Same point → zero distance
+    @test GG.haversine(a, a) == 0.0
+
+    # Azimuth: due north
+    @test GG.azimuth(a, b) ≈ 0.0 atol=1e-10
+
+    # Azimuth: due east
+    c = LonLat(1.0, 0.0)
+    @test GG.azimuth(a, c) ≈ 90.0 atol=0.1
+
+    # Destination: go north 111 km ≈ 1 degree of latitude
+    dest = GG.destination(a, 0.0, 111_195.0)
+    @test dest.lat ≈ 1.0 atol=0.01
+    @test dest.lon ≈ 0.0 atol=0.01
+end
+
+#-----------------------------------------------------------------------------# crosses_meridian
+@testset "crosses_meridian" begin
+    # Cell near prime meridian — should not cross 180
+    c = H3Cell(LonLat(0.0, 0.0), 5)
+    @test !GG.crosses_meridian(c)
+end
+
 #-----------------------------------------------------------------------------# H3Grid
 @testset "H3Grid" begin
     g = H3Grid()
+    @test g isa H3Grid
+    @test GI.isgeometry(g)
+    @test GI.crs(g) == GI.crs(g)
+
     for i in 0:121
         @test g[i] isa H3Cell
     end
@@ -59,7 +147,7 @@ end
 
         # GeoInterface
         @test GI.area(o) > 0
-        @test length(GI.coordinates(o)) == 7  # closed ring
+        @test length(GI.coordinates(o)) == (GG.is_pentagon(o) ? 6 : 7)
         @test GO.contains(o, GI.centroid(o))
 
         # operations
@@ -76,6 +164,16 @@ end
             end
         end
     end
+
+    # H3Cell haversine and destination
+    c1 = H3Cell(LonLat(0.0, 0.0), 5)
+    c2 = H3Cell(LonLat(1.0, 0.0), 5)
+    @test GG.haversine(c1, c2) > 0
+    c3 = GG.destination(c1, 90.0, 50_000.0)
+    @test c3 isa H3Cell
+
+    # Show
+    @test contains(sprint(show, c1), "H3Cell")
 end
 
 #-----------------------------------------------------------------------------# h3cells
@@ -87,127 +185,39 @@ end
 
     # Point
     x = h3cells(boundary[1], 5)
+    @test length(x) == 1
+    @test x[1] isa H3Cell
     @test GO.contains(x[1], boundary[1])
 
     # Multipoint
     x = h3cells(GI.MultiPoint(boundary[1:3]), 5)
+    @test length(x) >= 1
+    @test all(c -> c isa H3Cell, x)
 
     # Line
     x = h3cells(GI.Line(boundary[1:2]), 5; containment = :shortest_path)
+    @test length(x) >= 2
     x = h3cells(GI.Line(boundary[1:2]), 5; containment = :overlap)
+    @test length(x) >= 1
 
     # Linestring
     x = h3cells(GI.LineString(boundary), 5; containment = :shortest_path)
+    @test length(x) >= 4
 
     # Polygon
     x = h3cells(polygon, 5; containment = :center)
+    @test length(x) >= 1
+    @test all(c -> c isa H3Cell, x)
 
     # Multipolygon
     x = h3cells(multipolygon, 5; containment = :overlap)
+    @test length(x) >= 1
 
     # Extent
     x = h3cells(GI.extent(polygon), 2; containment = :overlap_bbox)
+    @test length(x) >= 1
 
+    # Invalid containment
+    @test_throws ArgumentError h3cells(GI.Line(boundary[1:2]), 5; containment = :invalid)
+    @test_throws ArgumentError h3cells(polygon, 5; containment = :invalid)
 end
-
-# @testset "GlobalGrids.jl" begin
-
-# #-----------------------------------------------------------------------------# Coordinates
-# @testset "Coordinates" begin
-#     origin = GG.LonLat(-75.0, 54.0)
-#     types = [GG.LonLat, GG.LonLatAuthalic, GG.ECEF, GG.ISEA, GG.ISEACube]
-#     for T in types, S in types
-#         # @info "Testing transform: $(T) -> $(S) -> $(T)"
-#         x = T(origin)
-#         y = S(x)
-#         x2 = T(y)
-#         @test x.pt ≈ x2.pt
-#     end
-# end # Coordinates
-
-# #-----------------------------------------------------------------------------# H3
-# @testset "H3" begin
-#     # Sanity checks:
-#     g = GG.H3Grid()
-#     for res in 0:15
-#         @test length(GG.pentagons(g, res)) == 12
-#     end
-#     @test g isa GG.H3Grid
-#     ll = GG.LonLat(-75.0, 54.0)
-
-#     # resolution 0
-#     o = GG.H3Cell(ll, 0)
-#     @test o isa GG.H3Cell
-#     @test GG.resolution(o) == 0
-#     @test isnothing(GG.parent(o))
-#     @test isnothing(GG.siblings(o))
-
-#     for res in 1:15
-#         o = GG.H3Cell(ll, res)
-#         o2 = GG.H3Cell(GG.h3string(o))
-#         @test GI.area(o) > 0
-#         @test o == o2
-#         @test o isa GG.H3Cell
-#         @test GG.resolution(o) == res
-#         @test !GG.is_pentagon(o)
-#         for sib in GG.siblings(o)
-#             @test GG.grid_distance(o, sib) in (1, 2)
-#             @test length(GG.grid_path(o, sib)) == GG.grid_distance(o, sib) + 1
-#             @test GG.haversine(o, sib) > 0.0
-#         end
-#         for cell in GG.grid_ring(o, 1)
-#             @test GG.grid_distance(o, cell)  == 1
-#         end
-#         for cell in GG.grid_disk(o, 2)
-#             @test GG.grid_distance(o, cell) ≤ 2
-#         end
-#     end
-#     @testset "h3cells" begin
-#         # Point
-#         ll = GG.LonLat(-75.0, 54.0)
-#         for res in 0:15
-#             @test GG.h3cells(ll, res) isa Vector{GG.H3Cell}
-#         end
-
-#         # MultiPoint/Line
-#         mll = GB.MultiPoint{2, Float64}([GB.Point2(-75.0, 54.0), GB.Point2(-80.0, 50.0)])
-#         line = GI.Line(GI.coordinates(mll))
-#         for res in 0:15
-#             @test GG.h3cells(mll, res) isa Vector{GG.H3Cell}
-#             @test GG.h3cells(line, res) isa Vector{GG.H3Cell}
-#         end
-
-#         # LineString
-#         linestring = GI.LineString([(0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (0.0, 0.0)])
-#         for res in 0:15
-#             @test GG.h3cells(linestring, res) isa Vector{GG.H3Cell}
-#         end
-
-#         # Polygon
-#         o = GG.H3Cell(ll)
-#         ring = GG.grid_ring(o, 3)
-#         vertices = [GI.centroid(c) for c in ring]
-#         poly = GI.Polygon([[vertices..., vertices[1]]])
-#         for res in 0:15
-#             @test length(GG.h3cells(poly, res)) > 0
-#         end
-
-#         # MultiPolygon
-#         vertices2 = [x .+ GG.LonLat(5.0, 5.0) for x in vertices]
-#         poly2 = GI.Polygon([[vertices2..., vertices2[1]]])
-#         multipoly = GI.MultiPolygon([poly, poly2])
-#         for res in 0:15
-#             @test length(GG.h3cells(multipoly, res)) > 0
-#         end
-
-#         # Extents
-#         ex = GI.extent(poly)
-#         for res in 0:15
-#             @test length(GG.h3cells(ex, res)) > 0
-#         end
-
-#     end  # cells
-# end  # H3
-
-
-# end # GlobalGrids.jl

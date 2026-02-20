@@ -25,6 +25,20 @@ function unit_icosahedron(T = Float64)
     return Mesh(verts, faces)
 end
 
+"""
+    icosahedron(vertex=Point3d(0,0,1), azimuth=0.0)
+    icosahedron(preset::Symbol)
+
+Create an icosahedron mesh on the unit sphere.  A vertex is placed at `vertex`
+and the mesh is rotated by `azimuth` (radians) around that axis.
+
+Preset orientations: `:poles`, `:isea`, `:dymaxion`.
+
+### Examples
+
+    icosahedron()
+    icosahedron(:isea)
+"""
 function icosahedron(vertex::Point3{T} = Point3d(0,0,1), azimuth::T = 0.0) where {T}
     unit_ico = unit_icosahedron(eltype(vertex))
     ref_vertex = normalize(SVector{3,T}(unit_ico.position[1]...))  # First vertex of unit_ico

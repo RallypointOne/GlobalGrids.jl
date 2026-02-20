@@ -1,8 +1,9 @@
-# GlobalGrids
+[![CI](https://github.com/RallypointOne/GlobalGrids.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/RallypointOne/GlobalGrids.jl/actions/workflows/CI.yml)
+[![Docs Build](https://github.com/RallypointOne/GlobalGrids.jl/actions/workflows/Docs.yml/badge.svg)](https://github.com/RallypointOne/GlobalGrids.jl/actions/workflows/Docs.yml)
+[![Stable Docs](https://img.shields.io/badge/docs-stable-blue)](https://RallypointOne.github.io/GlobalGrids.jl/stable/)
+[![Dev Docs](https://img.shields.io/badge/docs-dev-blue)](https://RallypointOne.github.io/GlobalGrids.jl/dev/)
 
-[![Build Status](https://github.com/RallypointOne/GlobalGrids.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/RallypointOne/GlobalGrids.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Build and Deploy Docs](https://github.com/RallypointOne/GlobalGrids.jl/actions/workflows/Documentation.yml/badge.svg)](https://github.com/RallypointOne/GlobalGrids.jl/actions/workflows/Documentation.yml)
-
+# GlobalGrids.jl
 
 This package contains:
 

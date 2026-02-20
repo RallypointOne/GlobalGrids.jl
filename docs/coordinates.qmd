@@ -1,3 +1,8 @@
+---
+title: "Coordinates"
+engine: julia
+---
+
 # Coordinates
 
 GlobalGrids.jl provides small coordinate wrapper types that preserve projection info and interoperate via Proj.jl. All coordinate types implement GeoInterface's point trait, so they work with plotting and spatial libraries.

@@ -1,0 +1,16 @@
+---
+title: "Getting Started"
+engine: julia
+---
+
+# Getting Started {.unnumbered}
+
+## Basic Usage
+
+```julia
+using GlobalGrids
+```
+
+## Examples
+
+*TODO: Add examples here.*
