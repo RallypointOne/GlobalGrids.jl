@@ -33,13 +33,14 @@ GeometryBasics = "0.5.10"
 GeometryOps = "0.1.30"
 H3_jll = "4.2.1"
 LinearAlgebra = "1.12.0"
+Makie = "0.24.8"
 Proj = "1.9.0"
+Rasters = "0.14.7"
 Rotations = "1.7.1"
 StaticArrays = "1.9.15"
 StaticArraysCore = "1.4.4"
 StyledStrings = "1.11.0"
 julia = "1.10.10"
-
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
