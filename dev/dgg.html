@@ -476,7 +476,7 @@ window.Quarto = {
   <li><a href="#inspecting-cells" id="toc-inspecting-cells" class="nav-link" data-scroll-target="#inspecting-cells">Inspecting Cells</a></li>
   <li><a href="#geointerface" id="toc-geointerface" class="nav-link" data-scroll-target="#geointerface">GeoInterface</a></li>
   <li><a href="#grid-hierarchy" id="toc-grid-hierarchy" class="nav-link" data-scroll-target="#grid-hierarchy">Grid Hierarchy</a></li>
-  <li><a href="#rasterizing-geometries" id="toc-rasterizing-geometries" class="nav-link" data-scroll-target="#rasterizing-geometries">Rasterizing Geometries</a></li>
+  <li><a href="#quantizing-geometries" id="toc-quantizing-geometries" class="nav-link" data-scroll-target="#quantizing-geometries">Quantizing Geometries</a></li>
   <li><a href="#comparison-with-igeo7" id="toc-comparison-with-igeo7" class="nav-link" data-scroll-target="#comparison-with-igeo7">Comparison with IGEO7</a></li>
   </ul></li>
   </ul>
@@ -719,8 +719,8 @@ Note
 <p>Pentagons at any resolution:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pents <span class="op">=</span> GlobalGrids.<span class="fu">dgg_pentagons</span>(<span class="fu">ISEA3H</span>(), <span class="fl">3</span>)  <span class="co"># 12 pentagons at resolution 3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="rasterizing-geometries" class="level2">
-<h2 class="anchored" data-anchor-id="rasterizing-geometries">Rasterizing Geometries</h2>
+<section id="quantizing-geometries" class="level2">
+<h2 class="anchored" data-anchor-id="quantizing-geometries">Quantizing Geometries</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="bu">GeoInterface</span> as GI</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>

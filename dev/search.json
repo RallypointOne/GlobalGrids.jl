@@ -66,11 +66,11 @@
     ]
   },
   {
-    "objectID": "getting-started.html#rasterizing-geometries",
-    "href": "getting-started.html#rasterizing-geometries",
+    "objectID": "getting-started.html#quantizing-geometries",
+    "href": "getting-started.html#quantizing-geometries",
     "title": "Getting Started",
-    "section": "Rasterizing Geometries",
-    "text": "Rasterizing Geometries\nThe cells function (and convenience wrappers h3cells, igeo7cells, dggcells) find the grid cells covering a geometry:\nusing GlobalGrids\nimport GeoInterface as GI\n\n# Point\nh3cells(LonLat(0.0, 0.0), 5)\n\n# Line\nigeo7cells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3)\n\n# Polygon\nboundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]\ndggcells(GI.Polygon([boundary]), 2)",
+    "section": "Quantizing Geometries",
+    "text": "Quantizing Geometries\nThe cells function (and convenience wrappers h3cells, igeo7cells, dggcells) find the grid cells covering a geometry:\nusing GlobalGrids\nimport GeoInterface as GI\n\n# Point\nh3cells(LonLat(0.0, 0.0), 5)\n\n# Line\nigeo7cells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3)\n\n# Polygon\nboundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]\ndggcells(GI.Polygon([boundary]), 2)",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Getting Started</span>"
@@ -92,7 +92,7 @@
     "href": "h3.html",
     "title": "H3 Grid System",
     "section": "",
-    "text": "H3 Grid System\nCode\nusing GlobalGrids, GeoMakie, CairoMakie\n\ngrid = H3Grid()\n\nfig = Figure()\nax = GeoAxis(fig[1,1], dest = \"+proj=ortho +lon_0=-50 +lat_0=30\")\nlines!(ax, [grid[i] for i in 1:121])\npoly!(ax, collect(GlobalGrids.pentagons(grid, 0)), color=(:black, .4))\n\nep = surface!(ax,\n    -180..180, -90..90,\n    zeros(axes(rotr90(GeoMakie.earth())));\n    shading = NoShading, color = rotr90(GeoMakie.earth())\n)\ntranslate!(ep, 0, 0, -1)\n\nfig\n\n\n\nPrecompiling packages...\n   7704.4 ms  ✓ QuartoNotebookWorkerMakieExt (serial)\n  1 dependency successfully precompiled in 8 seconds\nPrecompiling packages...\n   5670.8 ms  ✓ QuartoNotebookWorkerCairoMakieExt (serial)\n  1 dependency successfully precompiled in 6 seconds\nH3 is a DGGS developed by Uber. Here’s a brief summary of the H3 grid system:",
+    "text": "H3 Grid System\nCode\nusing GlobalGrids, GeoMakie, CairoMakie\n\ngrid = H3Grid()\n\nfig = Figure()\nax = GeoAxis(fig[1,1], dest = \"+proj=ortho +lon_0=-50 +lat_0=30\")\nlines!(ax, [grid[i] for i in 1:121])\npoly!(ax, collect(GlobalGrids.pentagons(grid, 0)), color=(:black, .4))\n\nep = surface!(ax,\n    -180..180, -90..90,\n    zeros(axes(rotr90(GeoMakie.earth())));\n    shading = NoShading, color = rotr90(GeoMakie.earth())\n)\ntranslate!(ep, 0, 0, -1)\n\nfig\nH3 is a DGGS developed by Uber. Here’s a brief summary of the H3 grid system:",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>H3 Grid System</span>"
@@ -154,22 +154,22 @@
     ]
   },
   {
-    "objectID": "h3.html#rasterizing-geometries-to-the-h3-grid",
-    "href": "h3.html#rasterizing-geometries-to-the-h3-grid",
+    "objectID": "h3.html#quantizing-geometries-to-the-h3-grid",
+    "href": "h3.html#quantizing-geometries-to-the-h3-grid",
     "title": "H3 Grid System",
-    "section": "“Rasterizing” Geometries to the H3 Grid",
-    "text": "“Rasterizing” Geometries to the H3 Grid\n\nPoint\n\n\nCode\nll = LonLat(-54.0, -12.0)\n\nfig = Figure()\nax = Axis(fig[1,1], title=\"Cells Containing Point at Resolutions 0-3\")\nfor res in 0:3\n    lines!(ax, h3cells(ll, res))\nend\nscatter!(ax, ll)\n\nfig\n\n\n\n\n\n\n\nMultiPoint\n\n\nCode\ncoords = [LonLat(360rand() - 180, 180rand() - 90) for _ in 1:100]\n\nx = H3Cell.(coords, 0)\n\nf, a, p = lines(x, axis=(;type=GeoAxis, dest = \"+proj=ortho +lon_0=-50 +lat_0=30\"))\nscatter!(a, coords, color=:black)\nf\n\n\n\n\n\n\n\nLine\n\nBy default, the cells will be an arbitrary shortest path between the cells that contain the two points (containment = :shortest_path).\nThe other containment options for line(string)s are :overlap and :overlap_bbox.\n\n\n\nCode\nline = GI.Line([LonLat(0, 0), LonLat(1,1)])\n\nfig = Figure(size=(1000, 300))\n\nfor (i, containment) in enumerate((:shortest_path, :overlap, :overlap_bbox))\n    ax = Axis(fig[1, i], aspect=DataAspect(), title=\"containment = :$containment\")\n    x = h3cells(line, 6; containment)\n    lines!(ax, x)\n    lines!(ax, GI.coordinates(line), linewidth=3, color = :black)\nend\n\nfig\n\n\n\n\n\n\n\n(Multi)Polygon\n\nContainment modes for polygons:\n\n:center: Include cell if its center is inside the polygon.\n:full: Include cell if all vertices are inside the polygon.\n:overlap: Include cell if any part intersects the polygon.\n:overlap_bbox: Include cell if any part of the bounding box intersects the polygon.\n\n\n\n\nCode\nusing OSMGeocoder\n\nobj = geocode(state=\"North Carolina\")\n\n# Create figure\nfunction make_axis(i, j, containment)\n    ax = Axis(fig[i, j], title=\"containment = :$containment\")\n    x = h3cells(obj.geometry[1], 4; containment)\n    lines!(ax, x)\n    lines!(ax, obj.geometry)\nend\nfig = Figure()\nmake_axis(1, 1, :center)\nmake_axis(1, 2, :full)\nmake_axis(2, 1, :overlap)\nmake_axis(2, 2, :overlap_bbox)\nfig\n\n\n\n\n\n\n\nExtents\n\n\n\n\n\n\nNote\n\n\n\nThe same containment options for (multi)polygons are available for Extents. test\n\n\n\n\nCode\nex = GI.extent(obj)\n\n# for plotting\nx1, x2 = ex.X\ny1, y2 = ex.Y\nlinestring = GI.LineString([(x1,y1), (x1,y2), (x2,y2), (x2, y1), (x1,y1)])\n\n# Create figure\nfunction make_axis(i, j, containment)\n    ax = Axis(fig[i, j], title=\"containment = :$containment\")\n    x = h3cells(ex, 4; containment)\n    lines!(ax, linestring)\n    lines!(ax, x)\nend\nfig = Figure()\nmake_axis(1, 1, :center)\nmake_axis(1, 2, :full)\nmake_axis(2, 1, :overlap)\nmake_axis(2, 2, :overlap_bbox)\nfig",
+    "section": "Quantizing Geometries to the H3 Grid",
+    "text": "Quantizing Geometries to the H3 Grid\n\nPoint\n\n\nCode\nll = LonLat(-54.0, -12.0)\n\nfig = Figure()\nax = Axis(fig[1,1], title=\"Cells Containing Point at Resolutions 0-3\")\nfor res in 0:3\n    lines!(ax, h3cells(ll, res))\nend\nscatter!(ax, ll)\n\nfig\n\n\n\n\n\n\n\nMultiPoint\n\n\nCode\ncoords = [LonLat(360rand() - 180, 180rand() - 90) for _ in 1:100]\n\nx = H3Cell.(coords, 0)\n\nf, a, p = lines(x, axis=(;type=GeoAxis, dest = \"+proj=ortho +lon_0=-50 +lat_0=30\"))\nscatter!(a, coords, color=:black)\nf\n\n\n\n\n\n\n\nLine\n\nBy default, the cells will be an arbitrary shortest path between the cells that contain the two points (containment = :shortest_path).\nThe other containment options for line(string)s are :overlap and :overlap_bbox.\n\n\n\nCode\nline = GI.Line([LonLat(0, 0), LonLat(1,1)])\n\nfig = Figure(size=(1000, 300))\n\nfor (i, containment) in enumerate((:shortest_path, :overlap, :overlap_bbox))\n    ax = Axis(fig[1, i], aspect=DataAspect(), title=\"containment = :$containment\")\n    x = h3cells(line, 6; containment)\n    lines!(ax, x)\n    lines!(ax, GI.coordinates(line), linewidth=3, color = :black)\nend\n\nfig\n\n\n\n\n\n\n\n(Multi)Polygon\n\nContainment modes for polygons:\n\n:center: Include cell if its center is inside the polygon.\n:full: Include cell if all vertices are inside the polygon.\n:overlap: Include cell if any part intersects the polygon.\n:overlap_bbox: Include cell if any part of the bounding box intersects the polygon.\n\n\n\n\nCode\nusing OSMGeocoder\n\nobj = geocode(state=\"North Carolina\")\n\n# Create figure\nfunction make_axis(i, j, containment)\n    ax = Axis(fig[i, j], title=\"containment = :$containment\")\n    x = h3cells(obj.geometry[1], 4; containment)\n    lines!(ax, x)\n    lines!(ax, obj.geometry)\nend\nfig = Figure()\nmake_axis(1, 1, :center)\nmake_axis(1, 2, :full)\nmake_axis(2, 1, :overlap)\nmake_axis(2, 2, :overlap_bbox)\nfig\n\n\n\n\n\n\n\nExtents\n\n\n\n\n\n\nNote\n\n\n\nThe same containment options for (multi)polygons are available for Extents. test\n\n\n\n\nCode\nex = GI.extent(obj)\n\n# for plotting\nx1, x2 = ex.X\ny1, y2 = ex.Y\nlinestring = GI.LineString([(x1,y1), (x1,y2), (x2,y2), (x2, y1), (x1,y1)])\n\n# Create figure\nfunction make_axis(i, j, containment)\n    ax = Axis(fig[i, j], title=\"containment = :$containment\")\n    x = h3cells(ex, 4; containment)\n    lines!(ax, linestring)\n    lines!(ax, x)\nend\nfig = Figure()\nmake_axis(1, 1, :center)\nmake_axis(1, 2, :full)\nmake_axis(2, 1, :overlap)\nmake_axis(2, 2, :overlap_bbox)\nfig",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>H3 Grid System</span>"
     ]
   },
   {
-    "objectID": "h3.html#rasterizing-rasters",
-    "href": "h3.html#rasterizing-rasters",
+    "objectID": "h3.html#quantizing-rasters",
+    "href": "h3.html#quantizing-rasters",
     "title": "H3 Grid System",
-    "section": "“Rasterizing” Rasters",
-    "text": "“Rasterizing” Rasters\n\nFor data that is associated with a location, i.e. rasters, cells creates a Dict{H3Cell, Vector{T}} where T is the eltype of the data.\nNote that plotting polygons across a left/right boundary on a given projection can have strange behavior. See https://en.wikipedia.org/wiki/180th_meridian#Software_representation_problems.\n\n\n\nCode\nimport Scratch\nENV[\"RASTERDATASOURCES_PATH\"] = Scratch.get_scratch!(\"RASTERDATASOURCES_PATH\")\nnothing\n\n\n\n\nCode\nusing GlobalGrids, Rasters, RasterDataSources, ArchGDAL\n\nr = Raster(getraster(WorldClim{Elevation}).elev)\n\ndict = h3cells(r, 2)\n\ncells = collect(keys(dict))\nvals = maximum.(values(dict))\n\n# Do some work to avoid polygon issues on boundaries:\nidx = findall(x -&gt; !GlobalGrids.crosses_meridian(x, 180), cells)\n\ncells2 = cells[idx]\nvals2 = vals[idx]\n\nfig = Figure()\nax1 = Axis(fig[1, 1], title=\"Without Polygon Filtering\")\nax2 = Axis(fig[2, 1], title=\"With Polygon Filtering\")\n\npoly!(ax1, cells, color=vals)\npoly!(ax2, cells2, color=vals2)\nfig\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nWhen plotting large numbers of cells, its more efficient to just plot the centroid of the cell:\n\n\n\n\nCode\ndict = h3cells(r, 4)\n\ncells = collect(keys(dict))\n\nvals = maximum.(values(dict))\n\nscatter(GI.centroid.(cells), color=vals, markersize=2)",
+    "section": "Quantizing Rasters",
+    "text": "Quantizing Rasters\n\nFor data that is associated with a location, i.e. rasters, cells creates a Dict{H3Cell, Vector{T}} where T is the eltype of the data.\nNote that plotting polygons across a left/right boundary on a given projection can have strange behavior. See https://en.wikipedia.org/wiki/180th_meridian#Software_representation_problems.\n\n\n\nCode\nimport Scratch\nENV[\"RASTERDATASOURCES_PATH\"] = Scratch.get_scratch!(\"RASTERDATASOURCES_PATH\")\nnothing\n\n\n\n\nCode\nusing GlobalGrids, Rasters, RasterDataSources, ArchGDAL\n\nr = Raster(getraster(WorldClim{Elevation}).elev)\n\ndict = h3cells(r, 2)\n\ncells = collect(keys(dict))\nvals = maximum.(values(dict))\n\n# Do some work to avoid polygon issues on boundaries:\nidx = findall(x -&gt; !GlobalGrids.crosses_meridian(x, 180), cells)\n\ncells2 = cells[idx]\nvals2 = vals[idx]\n\nfig = Figure()\nax1 = Axis(fig[1, 1], title=\"Without Polygon Filtering\")\nax2 = Axis(fig[2, 1], title=\"With Polygon Filtering\")\n\npoly!(ax1, cells, color=vals)\npoly!(ax2, cells2, color=vals2)\nfig\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nWhen plotting large numbers of cells, its more efficient to just plot the centroid of the cell:\n\n\n\n\nCode\ndict = h3cells(r, 4)\n\ncells = collect(keys(dict))\n\nvals = maximum.(values(dict))\n\nscatter(GI.centroid.(cells), color=vals, markersize=2)",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>H3 Grid System</span>"
@@ -231,11 +231,11 @@
     ]
   },
   {
-    "objectID": "igeo7.html#rasterizing-geometries",
-    "href": "igeo7.html#rasterizing-geometries",
+    "objectID": "igeo7.html#quantizing-geometries",
+    "href": "igeo7.html#quantizing-geometries",
     "title": "IGEO7 Grid System",
-    "section": "Rasterizing Geometries",
-    "text": "Rasterizing Geometries\nUse igeo7cells to find cells covering a geometry:\nusing GlobalGrids\nimport GeoInterface as GI\n\n# Point\nigeo7cells(LonLat(0.0, 0.0), 5)\n\n# Line\nigeo7cells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)\n\n# Polygon\nboundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]\nigeo7cells(GI.Polygon([boundary]), 2; containment=:center)",
+    "section": "Quantizing Geometries",
+    "text": "Quantizing Geometries\nUse igeo7cells to find cells covering a geometry:\nusing GlobalGrids\nimport GeoInterface as GI\n\n# Point\nigeo7cells(LonLat(0.0, 0.0), 5)\n\n# Line\nigeo7cells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)\n\n# Polygon\nboundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]\nigeo7cells(GI.Polygon([boundary]), 2; containment=:center)",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>IGEO7 Grid System</span>"
@@ -319,11 +319,11 @@
     ]
   },
   {
-    "objectID": "dgg.html#rasterizing-geometries",
-    "href": "dgg.html#rasterizing-geometries",
+    "objectID": "dgg.html#quantizing-geometries",
+    "href": "dgg.html#quantizing-geometries",
     "title": "DGG Grid System",
-    "section": "Rasterizing Geometries",
-    "text": "Rasterizing Geometries\nusing GlobalGrids\nimport GeoInterface as GI\n\n# Point\ndggcells(LonLat(0.0, 0.0), 5)\n\n# Line\ndggcells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)\n\n# Polygon\nboundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]\ndggcells(GI.Polygon([boundary]), 2; containment=:center)",
+    "section": "Quantizing Geometries",
+    "text": "Quantizing Geometries\nusing GlobalGrids\nimport GeoInterface as GI\n\n# Point\ndggcells(LonLat(0.0, 0.0), 5)\n\n# Line\ndggcells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)\n\n# Polygon\nboundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]\ndggcells(GI.Polygon([boundary]), 2; containment=:center)",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>DGG Grid System</span>"

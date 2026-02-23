@@ -466,7 +466,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#choosing-a-grid-system" id="toc-choosing-a-grid-system" class="nav-link" data-scroll-target="#choosing-a-grid-system">Choosing a Grid System</a></li>
   <li><a href="#common-interface" id="toc-common-interface" class="nav-link" data-scroll-target="#common-interface">Common Interface</a></li>
-  <li><a href="#rasterizing-geometries" id="toc-rasterizing-geometries" class="nav-link" data-scroll-target="#rasterizing-geometries">Rasterizing Geometries</a></li>
+  <li><a href="#quantizing-geometries" id="toc-quantizing-geometries" class="nav-link" data-scroll-target="#quantizing-geometries">Quantizing Geometries</a></li>
   <li><a href="#geodesic-functions" id="toc-geodesic-functions" class="nav-link" data-scroll-target="#geodesic-functions">Geodesic Functions</a></li>
   </ul></li>
   </ul>
@@ -587,8 +587,8 @@ window.Quarto = {
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">children</span>(cell)     <span class="co"># finer child cells</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">siblings</span>(cell)     <span class="co"># same-parent neighbor cells</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="rasterizing-geometries" class="level2">
-<h2 class="anchored" data-anchor-id="rasterizing-geometries">Rasterizing Geometries</h2>
+<section id="quantizing-geometries" class="level2">
+<h2 class="anchored" data-anchor-id="quantizing-geometries">Quantizing Geometries</h2>
 <p>The <code>cells</code> function (and convenience wrappers <code>h3cells</code>, <code>igeo7cells</code>, <code>dggcells</code>) find the grid cells covering a geometry:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="bu">GeoInterface</span> as GI</span>
