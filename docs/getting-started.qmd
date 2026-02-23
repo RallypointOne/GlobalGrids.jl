@@ -53,7 +53,7 @@ GlobalGrids.children(cell)     # finer child cells
 GlobalGrids.siblings(cell)     # same-parent neighbor cells
 ```
 
-## Rasterizing Geometries
+## Quantizing Geometries
 
 The `cells` function (and convenience wrappers `h3cells`, `igeo7cells`, `dggcells`) find the grid cells covering a geometry:
 

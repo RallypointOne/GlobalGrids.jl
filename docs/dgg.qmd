@@ -128,7 +128,7 @@ Pentagons at any resolution:
 pents = GlobalGrids.dgg_pentagons(ISEA3H(), 3)  # 12 pentagons at resolution 3
 ```
 
-## Rasterizing Geometries
+## Quantizing Geometries
 
 ```julia
 using GlobalGrids

@@ -84,7 +84,7 @@ Pentagons at any resolution:
 pents = GlobalGrids.igeo7_pentagons(3)  # 12 pentagons at resolution 3
 ```
 
-## Rasterizing Geometries
+## Quantizing Geometries
 
 Use `igeo7cells` to find cells covering a geometry:
 

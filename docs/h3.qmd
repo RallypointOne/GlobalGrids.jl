@@ -139,7 +139,7 @@ end
 fig
 ```
 
-## "Rasterizing" Geometries to the H3 Grid
+## Quantizing Geometries to the H3 Grid
 
 ### Point
 
@@ -245,7 +245,7 @@ make_axis(2, 2, :overlap_bbox)
 fig
 ```
 
-## "Rasterizing" Rasters
+## Quantizing Rasters
 
 - For data that is associated with a location, i.e. rasters, `cells` creates a `Dict{H3Cell, Vector{T}}` where `T` is the eltype of the data.
 - Note that plotting polygons across a left/right boundary on a given projection can have strange behavior.  See [https://en.wikipedia.org/wiki/180th_meridian#Software_representation_problems](https://en.wikipedia.org/wiki/180th_meridian#Software_representation_problems).
