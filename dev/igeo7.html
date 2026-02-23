@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Getting Started – GlobalGrids.jl</title>
+<title>IGEO7 Grid System – GlobalGrids.jl</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,8 +65,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./h3.html" rel="next">
-<link href="./index.html" rel="prev">
+<link href="./dgg.html" rel="next">
+<link href="./h3.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -349,7 +349,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Docs</a></li><li class="breadcrumb-item"><a href="./getting-started.html"><span class="chapter-title">Getting Started</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Docs</a></li><li class="breadcrumb-item"><a href="./igeo7.html"><span class="chapter-title">IGEO7 Grid System</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -385,7 +385,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./getting-started.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Getting Started</span></a>
+  <a href="./getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Getting Started</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -395,7 +395,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./igeo7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">IGEO7 Grid System</span></a>
+  <a href="./igeo7.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">IGEO7 Grid System</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -462,12 +462,18 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a>
+  <li><a href="#igeo7-grid-system" id="toc-igeo7-grid-system" class="nav-link active" data-scroll-target="#igeo7-grid-system">IGEO7 Grid System</a>
   <ul class="collapse">
-  <li><a href="#choosing-a-grid-system" id="toc-choosing-a-grid-system" class="nav-link" data-scroll-target="#choosing-a-grid-system">Choosing a Grid System</a></li>
-  <li><a href="#common-interface" id="toc-common-interface" class="nav-link" data-scroll-target="#common-interface">Common Interface</a></li>
+  <li><a href="#creating-an-igeo7cell" id="toc-creating-an-igeo7cell" class="nav-link" data-scroll-target="#creating-an-igeo7cell">Creating an IGEO7Cell</a>
+  <ul class="collapse">
+  <li><a href="#from-coordinates-and-resolution" id="toc-from-coordinates-and-resolution" class="nav-link" data-scroll-target="#from-coordinates-and-resolution">From Coordinates and Resolution</a></li>
+  <li><a href="#from-base-vertex-and-digits" id="toc-from-base-vertex-and-digits" class="nav-link" data-scroll-target="#from-base-vertex-and-digits">From Base Vertex and Digits</a></li>
+  <li><a href="#from-hex-string" id="toc-from-hex-string" class="nav-link" data-scroll-target="#from-hex-string">From Hex String</a></li>
+  </ul></li>
+  <li><a href="#inspecting-cells" id="toc-inspecting-cells" class="nav-link" data-scroll-target="#inspecting-cells">Inspecting Cells</a></li>
+  <li><a href="#geointerface" id="toc-geointerface" class="nav-link" data-scroll-target="#geointerface">GeoInterface</a></li>
+  <li><a href="#grid-hierarchy" id="toc-grid-hierarchy" class="nav-link" data-scroll-target="#grid-hierarchy">Grid Hierarchy</a></li>
   <li><a href="#rasterizing-geometries" id="toc-rasterizing-geometries" class="nav-link" data-scroll-target="#rasterizing-geometries">Rasterizing Geometries</a></li>
-  <li><a href="#geodesic-functions" id="toc-geodesic-functions" class="nav-link" data-scroll-target="#geodesic-functions">Geodesic Functions</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -476,9 +482,9 @@ window.Quarto = {
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Docs</a></li><li class="breadcrumb-item"><a href="./getting-started.html"><span class="chapter-title">Getting Started</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Docs</a></li><li class="breadcrumb-item"><a href="./igeo7.html"><span class="chapter-title">IGEO7 Grid System</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Getting Started</span></h1>
+<h1 class="title"><span class="chapter-title">IGEO7 Grid System</span></h1>
 </div>
 
 
@@ -495,125 +501,85 @@ window.Quarto = {
 </header>
 
 
-<section id="getting-started" class="level1 unnumbered">
-<h1 class="unnumbered">Getting Started</h1>
-<section id="choosing-a-grid-system" class="level2">
-<h2 class="anchored" data-anchor-id="choosing-a-grid-system">Choosing a Grid System</h2>
-<p>GlobalGrids provides three grid systems. Each makes different tradeoffs:</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-</colgroup>
-<thead>
-<tr class="header">
-<th></th>
-<th>H3</th>
-<th>IGEO7</th>
-<th>DGG</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Implementation</td>
-<td>C library (H3_jll)</td>
-<td>Pure Julia</td>
-<td>Pure Julia</td>
-</tr>
-<tr class="even">
-<td>Aperture</td>
-<td>7</td>
-<td>7</td>
-<td>3, 4, 7, or 43</td>
-</tr>
-<tr class="odd">
-<td>Max Resolution</td>
-<td>15</td>
-<td>20</td>
-<td>28 (aperture 3/4) or 20 (aperture 7/43)</td>
-</tr>
-<tr class="even">
-<td>Topology</td>
-<td>Hex</td>
-<td>Hex</td>
-<td>Hex (tri/diamond planned)</td>
-</tr>
-<tr class="odd">
-<td>Projection</td>
-<td>Custom (Uber)</td>
-<td>Lambert azimuthal equal-area</td>
-<td>Lambert azimuthal equal-area</td>
-</tr>
-<tr class="even">
-<td>Cell count formula</td>
-<td>—</td>
-<td><span class="math inline">\(10 \cdot 7^r + 2\)</span></td>
-<td><span class="math inline">\(10 \cdot A^r + 2\)</span></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Recommendations:</strong></p>
+<section id="igeo7-grid-system" class="level1">
+<h1>IGEO7 Grid System</h1>
+<p>IGEO7 is a pure-Julia aperture-7 hexagonal discrete global grid. It uses the same icosahedral vertex placement as the ISEA orientation and a Lambert azimuthal equal-area projection centered on each of the 12 icosahedron vertices.</p>
+<p><strong>Key properties:</strong></p>
 <ul>
-<li><strong>H3</strong> — Best ecosystem support (widely used), ring/disk/path operations, mature C library.</li>
-<li><strong>IGEO7</strong> — Pure Julia, no binary dependency, aperture-7.</li>
-<li><strong>DGG</strong> — Configurable aperture. Currently supports aperture-3 hexagonal grids (<code>ISEA3H</code>).</li>
+<li><strong>Aperture</strong>: 7 — each hexagonal cell subdivides into 7 children.</li>
+<li><strong>Resolutions</strong>: 0–20 (resolution 0 has 12 pentagonal cells at icosahedron vertices).</li>
+<li><strong>Cell count</strong>: <span class="math inline">\(10 \cdot 7^r + 2\)</span> at resolution <span class="math inline">\(r\)</span>.</li>
+<li><strong>12 pentagons</strong> at every resolution (located at the icosahedron vertices).</li>
+<li><strong>Pure Julia</strong> — no binary dependencies beyond the standard library.</li>
 </ul>
-</section>
-<section id="common-interface" class="level2">
-<h2 class="anchored" data-anchor-id="common-interface">Common Interface</h2>
-<p>All cell types share the same interface through <code>AbstractCell</code>:</p>
+<section id="creating-an-igeo7cell" class="level2">
+<h2 class="anchored" data-anchor-id="creating-an-igeo7cell">Creating an IGEO7Cell</h2>
+<section id="from-coordinates-and-resolution" class="level3">
+<h3 class="anchored" data-anchor-id="from-coordinates-and-resolution">From Coordinates and Resolution</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="bu">GeoInterface</span> as GI</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a cell from coordinates + resolution</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>cell <span class="op">=</span> <span class="fu">H3Cell</span>(p, <span class="fl">5</span>)       <span class="co"># or IGEO7Cell(p, 5), ISEA3HCell(p, 5)</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">resolution</span>(cell)   <span class="co"># resolution level</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">is_pentagon</span>(cell)   <span class="co"># pentagon check (12 per resolution)</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">decode</span>(cell)        <span class="co"># human-readable string</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># GeoInterface</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">centroid</span>(cell)       <span class="co"># center LonLat</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">coordinates</span>(cell)    <span class="co"># boundary vertices (closed polygon)</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">area</span>(cell)           <span class="co"># area in m²</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Hierarchy</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">parent</span>(cell)       <span class="co"># coarser parent cell</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">children</span>(cell)     <span class="co"># finer child cells</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">siblings</span>(cell)     <span class="co"># same-parent neighbor cells</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>coord <span class="op">=</span> <span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>cell <span class="op">=</span> <span class="fu">IGEO7Cell</span>(coord, <span class="fl">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="from-base-vertex-and-digits" class="level3">
+<h3 class="anchored" data-anchor-id="from-base-vertex-and-digits">From Base Vertex and Digits</h3>
+<p>Each cell is identified by a base vertex (0–11) and a sequence of digits (0–6):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Base vertex 0, digits [1, 2, 3]</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>cell <span class="op">=</span> <span class="fu">IGEO7Cell</span>(<span class="fl">0</span>, [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="from-hex-string" class="level3">
+<h3 class="anchored" data-anchor-id="from-hex-string">From Hex String</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cell <span class="op">=</span> <span class="fu">IGEO7Cell</span>(coord, <span class="fl">5</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>str <span class="op">=</span> GlobalGrids.<span class="fu">igeo7_string</span>(cell)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">IGEO7Cell</span>(str)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="inspecting-cells" class="level2">
+<h2 class="anchored" data-anchor-id="inspecting-cells">Inspecting Cells</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>cell <span class="op">=</span> <span class="fu">IGEO7Cell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">resolution</span>(cell)       <span class="co"># 5</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">is_pentagon</span>(cell)       <span class="co"># false</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">igeo7_digits</span>(cell.index) <span class="co"># [d1, d2, d3, d4, d5]</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">decode</span>(cell)            <span class="co"># "3-12045" (base-digits)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="geointerface" class="level2">
+<h2 class="anchored" data-anchor-id="geointerface">GeoInterface</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="bu">GeoInterface</span> as GI</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">centroid</span>(cell)       <span class="co"># center LonLat</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">coordinates</span>(cell)    <span class="co"># boundary vertices (7 for hex, 6 for pentagon — closed)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">area</span>(cell)           <span class="co"># area in m²</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="grid-hierarchy" class="level2">
+<h2 class="anchored" data-anchor-id="grid-hierarchy">Grid Hierarchy</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>cell <span class="op">=</span> <span class="fu">IGEO7Cell</span>(<span class="fu">LonLat</span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>), <span class="fl">3</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> GlobalGrids.<span class="fu">parent</span>(cell)        <span class="co"># resolution 2 parent</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>ch <span class="op">=</span> GlobalGrids.<span class="fu">children</span>(cell)     <span class="co"># 7 children (6 for pentagons)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>sib <span class="op">=</span> GlobalGrids.<span class="fu">siblings</span>(cell)    <span class="co"># same-parent siblings</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Pentagons at any resolution:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pents <span class="op">=</span> GlobalGrids.<span class="fu">igeo7_pentagons</span>(<span class="fl">3</span>)  <span class="co"># 12 pentagons at resolution 3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="rasterizing-geometries" class="level2">
 <h2 class="anchored" data-anchor-id="rasterizing-geometries">Rasterizing Geometries</h2>
-<p>The <code>cells</code> function (and convenience wrappers <code>h3cells</code>, <code>igeo7cells</code>, <code>dggcells</code>) find the grid cells covering a geometry:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="bu">GeoInterface</span> as GI</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Point</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">h3cells</span>(<span class="fu">LonLat</span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>), <span class="fl">5</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Line</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">igeo7cells</span>(GI.<span class="fu">Line</span>([(<span class="fl">0.0</span>, <span class="fl">0.0</span>), (<span class="fl">5.0</span>, <span class="fl">5.0</span>)]), <span class="fl">3</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Polygon</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>boundary <span class="op">=</span> [(<span class="op">-</span><span class="fl">20.0</span>, <span class="op">-</span><span class="fl">20.0</span>), (<span class="op">-</span><span class="fl">20.0</span>, <span class="fl">20.0</span>), (<span class="fl">20.0</span>, <span class="fl">20.0</span>), (<span class="fl">20.0</span>, <span class="op">-</span><span class="fl">20.0</span>), (<span class="op">-</span><span class="fl">20.0</span>, <span class="op">-</span><span class="fl">20.0</span>)]</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">dggcells</span>(GI.<span class="fu">Polygon</span>([boundary]), <span class="fl">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="geodesic-functions" class="level2">
-<h2 class="anchored" data-anchor-id="geodesic-functions">Geodesic Functions</h2>
-<p>GlobalGrids includes geodesic utilities that work with <code>LonLat</code> points and cells:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fu">LonLat</span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> <span class="fu">LonLat</span>(<span class="fl">1.0</span>, <span class="fl">1.0</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">haversine</span>(a, b)          <span class="co"># great-circle distance in meters</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">azimuth</span>(a, b)            <span class="co"># bearing in degrees (clockwise from North)</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">destination</span>(a, <span class="fl">45.0</span>, <span class="fl">1e5</span>) <span class="co"># point 100km away at 45° bearing</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Use <code>igeo7cells</code> to find cells covering a geometry:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="bu">GeoInterface</span> as GI</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Point</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">igeo7cells</span>(<span class="fu">LonLat</span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>), <span class="fl">5</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Line</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">igeo7cells</span>(GI.<span class="fu">Line</span>([(<span class="fl">0.0</span>, <span class="fl">0.0</span>), (<span class="fl">5.0</span>, <span class="fl">5.0</span>)]), <span class="fl">3</span>; containment<span class="op">=:</span>center)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Polygon</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>boundary <span class="op">=</span> [(<span class="op">-</span><span class="fl">20.0</span>, <span class="op">-</span><span class="fl">20.0</span>), (<span class="op">-</span><span class="fl">20.0</span>, <span class="fl">20.0</span>), (<span class="fl">20.0</span>, <span class="fl">20.0</span>), (<span class="fl">20.0</span>, <span class="op">-</span><span class="fl">20.0</span>), (<span class="op">-</span><span class="fl">20.0</span>, <span class="op">-</span><span class="fl">20.0</span>)]</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">igeo7cells</span>(GI.<span class="fu">Polygon</span>([boundary]), <span class="fl">2</span>; containment<span class="op">=:</span>center)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
@@ -1035,13 +1001,13 @@ window.Quarto = {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./index.html" class="pagination-link" aria-label="GlobalGrids.jl">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">GlobalGrids.jl</span></span>
+      <a href="./h3.html" class="pagination-link" aria-label="H3 Grid System">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">H3 Grid System</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./h3.html" class="pagination-link" aria-label="H3 Grid System">
-        <span class="nav-page-text"><span class="chapter-title">H3 Grid System</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./dgg.html" class="pagination-link" aria-label="DGG Grid System">
+        <span class="nav-page-text"><span class="chapter-title">DGG Grid System</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

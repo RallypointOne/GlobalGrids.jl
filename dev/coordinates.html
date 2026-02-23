@@ -66,7 +66,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./icosahedron.html" rel="next">
-<link href="./h3.html" rel="prev">
+<link href="./dgg.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -366,6 +366,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./igeo7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">IGEO7 Grid System</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./dgg.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">DGG Grid System</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./coordinates.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Coordinates</span></a>
   </div>
 </li>
@@ -425,9 +435,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#coordinates" id="toc-coordinates" class="nav-link active" data-scroll-target="#coordinates">Coordinates</a>
   <ul class="collapse">
-  <li><a href="#types" id="toc-types" class="nav-link" data-scroll-target="#types">Types</a></li>
-  <li><a href="#distance-and-bearings" id="toc-distance-and-bearings" class="nav-link" data-scroll-target="#distance-and-bearings">Distance and bearings</a></li>
-  <li><a href="#extents" id="toc-extents" class="nav-link" data-scroll-target="#extents">Extents</a></li>
+  <li><a href="#lonlat" id="toc-lonlat" class="nav-link" data-scroll-target="#lonlat">LonLat</a></li>
+  <li><a href="#distance-and-bearings" id="toc-distance-and-bearings" class="nav-link" data-scroll-target="#distance-and-bearings">Distance and Bearings</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -457,46 +466,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="coordinates" class="level1">
 <h1>Coordinates</h1>
-<p>GlobalGrids.jl provides small coordinate wrapper types that preserve projection info and interoperate via Proj.jl. All coordinate types implement GeoInterface’s point trait, so they work with plotting and spatial libraries.</p>
-<section id="types" class="level2">
-<h2 class="anchored" data-anchor-id="types">Types</h2>
-<ul>
-<li><code>LonLat(x, y)</code> — longitude and latitude in degrees (EPSG:4326)</li>
-<li><code>LonLatAuthalic(x, y)</code> — lon/lat in degrees using the authalic radius</li>
-<li><code>ISEA(x, y)</code> — ISEA projection coordinates on the plane</li>
-<li><code>ISEACube(x, y)</code> — rotated/skewed ISEA plane coordinates.</li>
-<li><code>ECEF(x, y, z)</code> — Earth‑Centered, Earth‑Fixed Cartesian meters (WGS84)</li>
-</ul>
-<p>Each type can be constructed from another to transform coordinates:</p>
+<section id="lonlat" class="level2">
+<h2 class="anchored" data-anchor-id="lonlat">LonLat</h2>
+<p><code>LonLat(lon, lat)</code> is GlobalGrids’ coordinate type — a point on the Earth’s surface in degrees (EPSG:4326). It implements GeoInterface’s <code>PointTrait</code>, so it works with plotting and spatial libraries.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA</span>(p)                 <span class="co"># -&gt; ISEA</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEACube</span>(p)             <span class="co"># -&gt; ISEACube (via ISEA)</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ECEF</span>(p)                 <span class="co"># -&gt; ECEF meters</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">LonLat</span>(<span class="fu">ECEF</span>(p))         <span class="co"># round‑trip back to lon/lat</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>p.lon   <span class="co"># -75.0</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>p.lat   <span class="co"># 54.0</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>p[<span class="fl">1</span>]    <span class="co"># -75.0 (indexable)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>p[<span class="fl">2</span>]    <span class="co"># 54.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A <code>LonLat</code> can also be constructed from a tuple:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">LonLat</span>((<span class="fl">1.0</span>, <span class="fl">2.0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="distance-and-bearings" class="level2">
-<h2 class="anchored" data-anchor-id="distance-and-bearings">Distance and bearings</h2>
+<h2 class="anchored" data-anchor-id="distance-and-bearings">Distance and Bearings</h2>
 <ul>
-<li><code>haversine(a, b)</code> — great‑circle distance in meters using the Haversine formula (operates on any coordinate types).</li>
+<li><code>haversine(a, b)</code> — great-circle distance in meters using the Haversine formula.</li>
 <li><code>azimuth(a, b)</code> — initial bearing from <code>a</code> to <code>b</code>, degrees clockwise from North.</li>
-<li><code>destination(x, azimuth°, dist_m)</code> — destination point from <code>x</code> at azimuth and distance.</li>
+<li><code>destination(origin, azimuth°, dist_m)</code> — destination point at the given azimuth and distance.</li>
 </ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75</span>, <span class="fl">54</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">80</span>, <span class="fl">50</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">haversine</span>(p, q)          <span class="co"># ≈ distance in meters</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>θ <span class="op">=</span> GlobalGrids.<span class="fu">azimuth</span>(p, q)        <span class="co"># degrees</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> GlobalGrids.<span class="fu">destination</span>(p, θ, <span class="fl">50_000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="extents" class="level2">
-<h2 class="anchored" data-anchor-id="extents">Extents</h2>
-<p><code>coords2extent(x; n=1000, s=1000, e=1000, w=1000)</code> builds an <code>Extents.Extent</code> around a point by offset distances in meters (or provide a single value to use for all directions):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span>, <span class="bu">Extents</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75</span>, <span class="fl">54</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>ex <span class="op">=</span> GlobalGrids.<span class="fu">coords2extent</span>(p, <span class="fl">2000</span>)  <span class="co"># 2 km in all directions</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># or directional:</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>ex2 <span class="op">=</span> GlobalGrids.<span class="fu">coords2extent</span>(p; n<span class="op">=</span><span class="fl">5000</span>, s<span class="op">=</span><span class="fl">1000</span>, <span class="cn">e</span><span class="op">=</span><span class="fl">2000</span>, w<span class="op">=</span><span class="fl">2000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GlobalGrids</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> <span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">80.0</span>, <span class="fl">50.0</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">haversine</span>(a, b)              <span class="co"># distance in meters</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">azimuth</span>(a, b)                <span class="co"># bearing in degrees</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">destination</span>(a, <span class="fl">0.0</span>, <span class="fl">111_195</span>) <span class="co"># ~1° north</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>These functions also work directly on cell types:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>c1 <span class="op">=</span> <span class="fu">H3Cell</span>(a, <span class="fl">5</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>c2 <span class="op">=</span> <span class="fu">H3Cell</span>(b, <span class="fl">5</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">haversine</span>(c1, c2)  <span class="co"># distance between centroids</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
@@ -918,8 +920,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./h3.html" class="pagination-link" aria-label="H3 Grid System">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">H3 Grid System</span></span>
+      <a href="./dgg.html" class="pagination-link" aria-label="DGG Grid System">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">DGG Grid System</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
@@ -935,7 +937,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Built on 2026-02-20</p>
+<p>Built on 2026-02-23</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;
