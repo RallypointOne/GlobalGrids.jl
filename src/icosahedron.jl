@@ -79,8 +79,6 @@ function icosahedron(preset::Symbol)
     throw(ArgumentError("Unknown preset orientation: $preset"))
 end
 
-unit_sphere(T = Float64) = GB.Sphere(Point3{T}(0.0, 0.0, 0.0), 0.0)
-
 #-----------------------------------------------------------------------------# preset orientations
 # Reference: https://discreteglobalgrids.org/dgg-orientation/
 const ORIENTATION = (

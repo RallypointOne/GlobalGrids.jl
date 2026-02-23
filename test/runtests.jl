@@ -114,24 +114,24 @@ end
     for res in 0:15
         o = H3Cell(coord, res)
 
-        pentagons = GG.h3_pentagons(0)
-        for p in pentagons
-            @test GG.is_pentagon(p)
+        pents = pentagons(H3Grid(), 0)
+        for p in pents
+            @test is_pentagon(p)
             @test length(GG.h3_face_numbers(p.index)) == 5
         end
 
-        @test GG.resolution(o) == res
-        @test !GG.is_pentagon(o)
-        @test length(GG.h3_digits(o.index)) == res
+        @test resolution(o) == res
+        @test !is_pentagon(o)
+        @test length(GG.digits(o)) == res
         for i in (res + 1):15
             @test GG.h3_digit(o.index, i) == 7
         end
         if res > 0
             p = GG.parent(o)
-            @test GG.resolution(p) == res - 1
-            @test o in GG.children(p)
-            for sib in GG.siblings(o)
-                @test GG.resolution(sib) == res
+            @test resolution(p) == res - 1
+            @test o in children(p)
+            for sib in siblings(o)
+                @test resolution(sib) == res
                 @test GG.parent(sib) == p
             end
         else
@@ -139,15 +139,15 @@ end
         end
 
         # Constructors
-        @test o == H3Cell(GG.h3_string(o))
-        @test o == H3Cell(GI.centroid(o), GG.resolution(o))
+        @test o == H3Cell(encode(o))
+        @test o == H3Cell(GI.centroid(o), resolution(o))
         @test o == H3Cell(o.index)
         @test o == H3Cell((coord[1], coord[2]), res)
         @test o == H3Cell(coord, res)
 
         # GeoInterface
         @test GI.area(o) > 0
-        @test length(GI.coordinates(o)) == (GG.is_pentagon(o) ? 6 : 7)
+        @test length(GI.coordinates(o)) == (is_pentagon(o) ? 6 : 7)
         @test GO.contains(o, GI.centroid(o))
 
         # operations
@@ -168,9 +168,18 @@ end
     # H3Cell haversine and destination
     c1 = H3Cell(LonLat(0.0, 0.0), 5)
     c2 = H3Cell(LonLat(1.0, 0.0), 5)
-    @test GG.haversine(c1, c2) > 0
-    c3 = GG.destination(c1, 90.0, 50_000.0)
+    @test haversine(c1, c2) > 0
+    c3 = destination(c1, 90.0, 50_000.0)
     @test c3 isa H3Cell
+
+    # base_cell and digits
+    @test base_cell(c1) == GG.h3_base_cell(c1.index)
+    @test GG.digits(c1) == GG.h3_digits(c1.index)
+    @test encode(c1) == GG.h3_string(c1.index)
+
+    # ncells
+    @test ncells(H3Grid(), 0) == GG.h3_n_cells(0)
+    @test ncells(H3Grid(), 5) == GG.h3_n_cells(5)
 
     # Show
     @test contains(sprint(show, c1), "H3Cell")
@@ -251,20 +260,20 @@ end
 
     # Hex string constructor
     c = IGEO7Cell(coord, 3)
-    @test IGEO7Cell(GG.igeo7_string(c)) == c
+    @test IGEO7Cell(encode(c)) == c
 
     # Resolution sweep
     for res in 0:8
         o = IGEO7Cell(coord, res)
 
-        @test GG.resolution(o) == res
+        @test resolution(o) == res
         # At res 0, all cells are pentagons (base vertices)
         if res == 0
-            @test GG.is_pentagon(o)
+            @test is_pentagon(o)
         else
-            @test !GG.is_pentagon(o)
+            @test !is_pentagon(o)
         end
-        @test length(GG.igeo7_digits(o.index)) == res
+        @test length(GG.digits(o)) == res
 
         # Padding digits are 7
         for i in (res + 1):GG.IGEO7_NUM_DIGITS
@@ -274,10 +283,10 @@ end
         # Parent/children
         if res > 0
             p = GG.parent(o)
-            @test GG.resolution(p) == res - 1
-            @test o in GG.children(p)
-            for sib in GG.siblings(o)
-                @test GG.resolution(sib) == res
+            @test resolution(p) == res - 1
+            @test o in children(p)
+            for sib in siblings(o)
+                @test resolution(sib) == res
                 @test GG.parent(sib) == p
             end
         else
@@ -289,35 +298,35 @@ end
 
         # GeoInterface
         @test GI.area(o) > 0
-        @test length(GI.coordinates(o)) == (GG.is_pentagon(o) ? 6 : 7)
+        @test length(GI.coordinates(o)) == (is_pentagon(o) ? 6 : 7)
     end
 
     # Pentagon tests across resolutions
     for res in 0:5
-        pents = GG.igeo7_pentagons(res)
+        pents = pentagons(IGEO7Grid(), res)
         @test length(pents) == 12
-        @test all(GG.is_pentagon, pents)
+        @test all(is_pentagon, pents)
 
         # Pentagon children count
         for p in pents
             if res < GG.IGEO7_MAX_RES
-                ch = GG.children(p)
+                ch = children(p)
                 @test length(ch) == 6
-                @test GG.is_pentagon(ch[1])  # digit-0 child is pentagon
-                @test all(!GG.is_pentagon, ch[2:end])  # others are hexagons
+                @test is_pentagon(ch[1])  # digit-0 child is pentagon
+                @test all(!is_pentagon, ch[2:end])  # others are hexagons
             end
         end
     end
 
     # Hexagon children count
     hex = IGEO7Cell(0, [1])
-    @test length(GG.children(hex)) == 7
+    @test length(children(hex)) == 7
 
     # Cell count formula: 10*7^r + 2
-    @test GG.igeo7_n_cells(0) == 12
-    @test GG.igeo7_n_cells(1) == 72
-    @test GG.igeo7_n_cells(2) == 492
-    @test GG.igeo7_n_cells(3) == 3432
+    @test ncells(IGEO7Grid(), 0) == 12
+    @test ncells(IGEO7Grid(), 1) == 72
+    @test ncells(IGEO7Grid(), 2) == 492
+    @test ncells(IGEO7Grid(), 3) == 3432
 
     # Area decreases with resolution
     areas = [GI.area(IGEO7Cell(coord, r)) for r in 0:5]
@@ -327,15 +336,20 @@ end
     # IGEO7Cell haversine and destination
     c1 = IGEO7Cell(LonLat(0.0, 0.0), 5)
     c2 = IGEO7Cell(LonLat(1.0, 0.0), 5)
-    @test GG.haversine(c1, c2) > 0
-    c3 = GG.destination(c1, 90.0, 50_000.0)
+    @test haversine(c1, c2) > 0
+    c3 = destination(c1, 90.0, 50_000.0)
     @test c3 isa IGEO7Cell
+
+    # base_cell, digits, encode
+    @test base_cell(c1) == GG.igeo7_base_cell(c1.index)
+    @test GG.digits(c1) == GG.igeo7_digits(c1.index)
+    @test encode(c1) == GG.igeo7_string(c1.index)
 
     # Show
     @test contains(sprint(show, c1), "IGEO7Cell")
 
     # decode
-    @test GG.decode(IGEO7Cell(0, [1, 2, 3])) == "0-123"
+    @test decode(IGEO7Cell(0, [1, 2, 3])) == "0-123"
 
     # crosses_meridian
     @test !GG.crosses_meridian(IGEO7Cell(LonLat(0.0, 0.0), 5))
@@ -401,7 +415,7 @@ end
 
     # Hex string constructor
     c = ISEA3HCell(coord, 3)
-    @test ISEA3HCell(GG.dgg_string(c)) == c
+    @test ISEA3HCell(encode(c)) == c
 
     # Tuple constructor
     @test ISEA3HCell((coord[1], coord[2]), 3) == c
@@ -410,13 +424,13 @@ end
     for res in 0:12
         o = ISEA3HCell(coord, res)
 
-        @test GG.resolution(o) == res
+        @test resolution(o) == res
         if res == 0
-            @test GG.is_pentagon(o)
+            @test is_pentagon(o)
         else
-            @test !GG.is_pentagon(o)
+            @test !is_pentagon(o)
         end
-        @test length(GG.dgg_digits(o.index, Val(3))) == res
+        @test length(GG.digits(o)) == res
 
         # Padding digits are 0x3 (all-1s mask for 2-bit digits)
         for i in (res + 1):GG._dgg_maxd(Val(3))
@@ -426,10 +440,10 @@ end
         # Parent/children
         if res > 0
             p = GG.parent(o)
-            @test GG.resolution(p) == res - 1
-            @test o in GG.children(p)
-            for sib in GG.siblings(o)
-                @test GG.resolution(sib) == res
+            @test resolution(p) == res - 1
+            @test o in children(p)
+            for sib in siblings(o)
+                @test resolution(sib) == res
                 @test GG.parent(sib) == p
             end
         else
@@ -441,21 +455,21 @@ end
 
         # GeoInterface
         @test GI.area(o) > 0
-        @test length(GI.coordinates(o)) == (GG.is_pentagon(o) ? 6 : 7)
+        @test length(GI.coordinates(o)) == (is_pentagon(o) ? 6 : 7)
     end
 
     # 12 pentagons at each resolution
     for res in 0:5
-        pents = GG.dgg_pentagons(ISEA3H(), res)
+        pents = pentagons(ISEA3H(), res)
         @test length(pents) == 12
-        @test all(GG.is_pentagon, pents)
+        @test all(is_pentagon, pents)
     end
 
     # Cell count formula: 10*3^r + 2
-    @test GG.dgg_n_cells(3, 0) == 12
-    @test GG.dgg_n_cells(3, 1) == 32
-    @test GG.dgg_n_cells(3, 2) == 92
-    @test GG.dgg_n_cells(3, 3) == 272
+    @test ncells(ISEA3H(), 0) == 12
+    @test ncells(ISEA3H(), 1) == 32
+    @test ncells(ISEA3H(), 2) == 92
+    @test ncells(ISEA3H(), 3) == 272
 
     # Area decreases with resolution
     areas = [GI.area(ISEA3HCell(coord, r)) for r in 0:5]
@@ -465,15 +479,20 @@ end
     # DGGCell haversine and destination (use res 8 so cells are small enough)
     c1 = ISEA3HCell(LonLat(0.0, 0.0), 8)
     c2 = ISEA3HCell(LonLat(1.0, 0.0), 8)
-    @test GG.haversine(c1, c2) > 0
-    c3 = GG.destination(c1, 90.0, 50_000.0)
+    @test haversine(c1, c2) > 0
+    c3 = destination(c1, 90.0, 50_000.0)
     @test c3 isa ISEA3HCell
+
+    # base_cell, digits, encode
+    @test base_cell(c1) == GG.dgg_base(c1.index)
+    @test GG.digits(c1) == GG.dgg_digits(c1.index, Val(3))
+    @test encode(c1) == GG.dgg_string(c1.index)
 
     # Show
     @test contains(sprint(show, c1), "DGGCell")
 
     # Decode
-    @test GG.decode(ISEA3HCell(0, [1, 2, 0])) == "0-120"
+    @test decode(ISEA3HCell(0, [1, 2, 0])) == "0-120"
 
     # Round-trip with a grid of test points at multiple resolutions
     test_lons = range(-180, 180, length=20)

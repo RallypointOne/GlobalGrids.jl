@@ -26,7 +26,6 @@ _dgg_theta(::Val{3})          = DGG_AP3_THETA
 _dgg_digit_offsets(::Val{3})  = DGG_AP3_DIGIT_OFFSETS
 _dgg_s1(::Val{3})             = DGG_AP3_S1
 _dgg_scale_factor(::Val{3})   = sqrt(3.0)
-_dgg_n_children(::Val{3})     = 3
 
 #-----------------------------------------------------------------------------# Bottom-up digit extraction (aperture-3 matrix algebra)
 

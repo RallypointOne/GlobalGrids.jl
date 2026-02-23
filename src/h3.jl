@@ -2,15 +2,12 @@
 const H3Error = UInt32
 const H3Index = UInt64
 
-const H3_N_PENTAGONS        = 12
-const H3_N_BASE_CELLS       = 122
 const H3_NUM_DIGITS         = 15
 const H3_DIGIT_BITS         = 3
 const H3_DIGIT_MASK         = UInt64(0x7)  # 3 bits
 const H3_BASE_CELL_BITS     = 7
 const H3_RES_BITS           = 4
 const H3_RESERVED3_BITS     = 3
-const H3_MODE_BITS          = 4
 
 # bit offsets from LSB (bit 0)
 const H3_DIGITS_OFFSET      = 0
@@ -64,8 +61,6 @@ struct H3Grid <: AbstractGrid end
 
 GI.crs(::H3Grid) = GFT.EPSG(4326)
 GI.ncoord(::H3Grid) = 2
-GI.npolygon(::GI.PolyhedralSurfaceTrait, o::H3Grid) = h3_n_cells(h3_resolution(o.index))
-GI.ngeom(::GI.PolyhedralSurfaceTrait, grid::H3Grid) = GI.npolygon(grid)
 
 #-----------------------------------------------------------------------------# H3Cell
 """
@@ -171,15 +166,10 @@ end
 h3_digits(x::UInt64) = h3_digit.(x, 1:h3_resolution(x))
 h3_digits(o::H3Cell) = h3_digits(o.index)
 
-@inline function h3_change_digit(x::UInt64, i::Integer, d::Integer)
-    1 ≤ i ≤ H3_NUM_DIGITS || throw(ArgumentError("Digit index must be in 1:$H3_NUM_DIGITS"))
-    0 ≤ d ≤ 7 || throw(ArgumentError("Digit value must be in 0:7"))
-    shift = H3_DIGIT_BITS * (H3_NUM_DIGITS - i)
-    mask = ~(H3_DIGIT_MASK << shift)
-    (x & mask) | (UInt64(d) << shift)
-end
-
 decode(o::H3Cell) = string(h3_base_cell(o), "-", join(h3_digits(o)))
+digits(o::H3Cell) = h3_digits(o.index)
+base_cell(o::H3Cell) = h3_base_cell(o.index)
+encode(o::H3Cell) = h3_string(o.index)
 
 #-----------------------------------------------------------------------------# inspection
 function parent(o::H3Cell)
@@ -203,7 +193,8 @@ siblings(o::H3Cell) = resolution(o) == 0 ? nothing : filter!(!=(o), children(par
 h3_n_cells(res::Integer) = 2 + 120 * 6 ^ Int(res)
 
 h3_pentagons(r::Integer) = H3Cell.(H3_PENTAGON_BASE_CELLS, Ref(fill(0, r)))  # Faster than ccall
-pentagons(o::H3Grid, r::Integer) = h3_pentagons(r)
+pentagons(::H3Grid, r::Integer) = h3_pentagons(r)
+ncells(::H3Grid, res::Integer) = h3_n_cells(res)
 
 h3_string(idx::UInt64) = string(idx, base=16)
 h3_string(o::H3Cell) = h3_string(o.index)
@@ -251,10 +242,6 @@ function grid_path(a::H3Cell, b::H3Cell)
     return H3Cell.(out)
 end
 
-
-haversine(a::H3Cell, b::H3Cell) = haversine(GI.centroid(a), GI.centroid(b))
-
-destination(a::H3Cell, azimuth°, m) = H3Cell(destination(GI.centroid(a), azimuth°, m), resolution(a))
 
 #-----------------------------------------------------------------------------# h3cells
 """

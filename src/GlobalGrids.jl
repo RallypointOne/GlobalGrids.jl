@@ -5,16 +5,18 @@ import GeometryOps as GO
 import GeoFormatTypes as GFT
 import GeometryBasics as GB
 import GeometryBasics: Point, Point2, Point3, Point3d, Mesh
-import Proj
 import Extents
 import StyledStrings: @styled_str
 
 using StaticArrays
 using LinearAlgebra
-using Rotations
 using H3_jll: libh3
 
 export icosahedron, LonLat, cells,
+    # Interface:
+    resolution, is_pentagon, grid, decode, encode, base_cell,
+    ncells, pentagons, children, siblings,
+    haversine, destination, azimuth,
     # H3:
     H3Grid, H3Cell, h3cells,
     # IGEO7:
@@ -113,6 +115,58 @@ GI.geomtrait(o::AbstractGrid) = GI.PolyhedralSurfaceTrait()
 abstract type AbstractCell end
 
 is_pentagon(::AbstractCell) = false
+
+"""
+    digits(cell::AbstractCell)
+
+Return the hierarchical digit sequence of a cell as a `Vector{Int}`.
+"""
+function digits end
+
+"""
+    base_cell(cell::AbstractCell)
+
+Return the base cell index (integer) of a cell.
+"""
+function base_cell end
+
+"""
+    ncells(grid::AbstractGrid, res::Integer)
+
+Total number of cells at resolution `res`.
+"""
+function ncells end
+
+"""
+    pentagons(grid::AbstractGrid, res::Integer)
+
+Return the 12 pentagon cells at resolution `res`.
+"""
+function pentagons end
+
+"""
+    encode(cell::AbstractCell)
+
+Hex-string representation of a cell's raw `UInt64` index.
+"""
+function encode end
+
+"""
+    haversine(a::AbstractCell, b::AbstractCell)
+
+Great-circle distance (meters) between the centroids of two cells.
+"""
+haversine(a::AbstractCell, b::AbstractCell) = haversine(GI.centroid(a), GI.centroid(b))
+
+"""
+    destination(cell::AbstractCell, azimuth_deg, m)
+
+Return a new cell of the same type and resolution whose centroid is `m` meters
+from `cell` at the given bearing.
+"""
+function destination(a::T, azimuth_deg, m) where {T <: AbstractCell}
+    T(destination(GI.centroid(a), azimuth_deg, m), resolution(a))
+end
 
 function Base.show(io::IO, o::T) where {T <: AbstractCell}
     print(io, styled"{bright_green: $(icon(o))}")

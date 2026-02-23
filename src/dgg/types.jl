@@ -111,15 +111,6 @@ function dgg_digits(idx::UInt64, ::Val{Ap}) where Ap
     [dgg_digit(idx, i, Val(Ap)) for i in 1:r]
 end
 
-"""Set digit at 1-based position `i` to value `d`."""
-@inline function dgg_change_digit(idx::UInt64, i::Integer, d::Integer, ::Val{Ap}) where Ap
-    bpd = _dgg_bpd(Val(Ap))
-    maxd = _dgg_maxd(Val(Ap))
-    mask = _dgg_mask(Val(Ap))
-    shift = bpd * (maxd - i)
-    (idx & ~(mask << shift)) | (UInt64(d) << shift)
-end
-
 """Hex string of raw index."""
 dgg_string(idx::UInt64) = string(idx, base=16)
 dgg_string(o::DGGCell) = dgg_string(o.index)
@@ -167,3 +158,7 @@ is_pentagon(o::DGGCell{P,A,T}) where {P,A,T} = _dgg_is_pentagon(o.index, Val(A))
 icon(o::DGGCell) = is_pentagon(o) ? styled"{bright_red: ⬠}" : styled"{bright_green: ⬡}"
 
 decode(o::DGGCell{P,A,T}) where {P,A,T} = string(dgg_base(o.index), "-", join(dgg_digits(o.index, Val(A))))
+digits(o::DGGCell{P,A,T}) where {P,A,T} = dgg_digits(o.index, Val(A))
+base_cell(o::DGGCell) = dgg_base(o.index)
+ncells(::DGGGrid{P,A,:hex}, res::Integer) where {P,A} = dgg_n_cells(A, res)
+encode(o::DGGCell) = dgg_string(o.index)

@@ -38,9 +38,12 @@ p = LonLat(-75.0, 54.0)
 cell = H3Cell(p, 5)       # or IGEO7Cell(p, 5), ISEA3HCell(p, 5)
 
 # Inspect
-GlobalGrids.resolution(cell)   # resolution level
-GlobalGrids.is_pentagon(cell)   # pentagon check (12 per resolution)
-GlobalGrids.decode(cell)        # human-readable string
+resolution(cell)       # resolution level
+is_pentagon(cell)      # pentagon check (12 per resolution)
+decode(cell)           # human-readable string
+digits(cell)           # hierarchical digit sequence
+base_cell(cell)        # base cell index
+encode(cell)           # hex string of raw index
 
 # GeoInterface
 GI.centroid(cell)       # center LonLat
@@ -49,8 +52,12 @@ GI.area(cell)           # area in m²
 
 # Hierarchy
 GlobalGrids.parent(cell)       # coarser parent cell
-GlobalGrids.children(cell)     # finer child cells
-GlobalGrids.siblings(cell)     # same-parent neighbor cells
+children(cell)                 # finer child cells
+siblings(cell)                 # same-parent neighbor cells
+
+# Grid-level queries
+ncells(H3Grid(), 5)            # total cells at resolution 5
+pentagons(H3Grid(), 5)         # 12 pentagon cells at resolution 5
 ```
 
 ## Quantizing Geometries

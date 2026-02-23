@@ -2,19 +2,11 @@
 const IGEO7_NUM_DIGITS  = 20
 const IGEO7_DIGIT_BITS  = 3
 const IGEO7_DIGIT_MASK  = UInt64(0x7)
-const IGEO7_BASE_BITS   = 4
 const IGEO7_BASE_OFFSET = 60  # bits [63:60]
 const IGEO7_MAX_RES     = 20
 
 # Aperture-7 rotation angle per level (child grid rotates clockwise)
 const IGEO7_THETA7 = atan(sqrt(3) / 5)  # ≈ 19.1066°
-
-# Aperture-7 matrix: parent axial → child axial
-# M₇ = [3 1; -1 2], det = 7, scaling = √7, rotation = -θ₇
-const IGEO7_M7 = SMatrix{2,2,Int}(3, -1, 1, 2)
-
-# 7 * M₇⁻¹ = [2 -1; 1 3]  (integer matrix for exact arithmetic)
-const IGEO7_M7_INV_SCALED = SMatrix{2,2,Int}(2, 1, -1, 3)
 
 # Digit offsets in axial (q, r) coordinates
 const IGEO7_DIGIT_OFFSETS = SVector{7,SVector{2,Int}}(
@@ -26,11 +18,6 @@ const IGEO7_DIGIT_OFFSETS = SVector{7,SVector{2,Int}}(
     SVector(0, -1),  # digit 5
     SVector(1, -1),  # digit 6
 )
-
-# Residue-to-digit lookup: mod(2q - r, 7) uniquely identifies the digit
-# d0→0, d1→2, d2→6, d3→4, d4→5, d5→1, d6→3  (residues)
-# Inverted: res 0→d0, 1→d5, 2→d1, 3→d6, 4→d3, 5→d4, 6→d2
-const IGEO7_RESIDUE_TO_DIGIT = SVector{7,Int}(0, 5, 1, 6, 3, 4, 2)  # 1-based index by residue+1
 
 #-----------------------------------------------------------------------------# ISEA Icosahedron Geometry
 # 12 vertices of icosahedron(:isea) as unit vectors (1-indexed, matching GeometryBasics)
@@ -146,13 +133,6 @@ end
 function igeo7_digits(idx::UInt64)
     r = igeo7_resolution(idx)
     [igeo7_digit(idx, i) for i in 1:r]
-end
-
-"""Set digit at 1-based position `i` to value `d`."""
-@inline function igeo7_change_digit(idx::UInt64, i::Integer, d::Integer)
-    shift = IGEO7_DIGIT_BITS * (IGEO7_NUM_DIGITS - i)
-    mask = ~(IGEO7_DIGIT_MASK << shift)
-    (idx & mask) | (UInt64(d) << shift)
 end
 
 """Hex string representation of raw index."""
@@ -406,6 +386,9 @@ is_pentagon(o::IGEO7Cell) = _igeo7_is_pentagon(o.index)
 icon(o::IGEO7Cell) = is_pentagon(o) ? styled"{bright_red: ⬠}" : styled"{bright_green: ⬡}"
 
 decode(o::IGEO7Cell) = string(igeo7_base_cell(o.index), "-", join(igeo7_digits(o.index)))
+digits(o::IGEO7Cell) = igeo7_digits(o.index)
+base_cell(o::IGEO7Cell) = igeo7_base_cell(o.index)
+encode(o::IGEO7Cell) = igeo7_string(o.index)
 
 #-----------------------------------------------------------------------------# GeoInterface
 function GI.centroid(::GI.PolygonTrait, o::IGEO7Cell)
@@ -449,9 +432,7 @@ end
 #-----------------------------------------------------------------------------# Misc
 igeo7_pentagons(r::Integer) = [IGEO7Cell(b, fill(0, r)) for b in 0:11]
 pentagons(::IGEO7Grid, r::Integer) = igeo7_pentagons(r)
-
-haversine(a::IGEO7Cell, b::IGEO7Cell) = haversine(GI.centroid(a), GI.centroid(b))
-destination(a::IGEO7Cell, azimuth_deg, m) = IGEO7Cell(destination(GI.centroid(a), azimuth_deg, m), resolution(a))
+ncells(::IGEO7Grid, res::Integer) = igeo7_n_cells(res)
 
 #-----------------------------------------------------------------------------# igeo7cells
 """
@@ -495,16 +476,9 @@ function cells(::Type{IGEO7Cell}, ::GI.PolygonTrait, geom, res::Integer; contain
         lon = X[1]
         while lon <= X[2]
             c = IGEO7Cell(LonLat(lon, lat), res)
-            if containment == :center
-                ct = GI.centroid(c)
-                if GO.contains(geom, ct)
-                    push!(out, c)
-                end
-            else  # :overlap — use centroid as approximation
-                ct = GI.centroid(c)
-                if GO.contains(geom, ct)
-                    push!(out, c)
-                end
+            ct = GI.centroid(c)
+            if GO.contains(geom, ct)
+                push!(out, c)
             end
             lon += step_deg
         end

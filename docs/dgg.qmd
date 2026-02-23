@@ -1,9 +1,30 @@
 ---
 title: "DGG Grid System"
 engine: julia
+code-fold: true
 ---
 
 # DGG Grid System
+
+```{julia}
+using GlobalGrids, GeoMakie, CairoMakie
+
+grid = ISEA3H()
+pents = pentagons(grid, 0)
+
+fig = Figure()
+ax = GeoAxis(fig[1,1], dest = "+proj=ortho +lon_0=-50 +lat_0=30")
+poly!(ax, pents, color=(:black, .4))
+
+ep = surface!(ax,
+    -180..180, -90..90,
+    zeros(axes(rotr90(GeoMakie.earth())));
+    shading = NoShading, color = rotr90(GeoMakie.earth())
+)
+translate!(ep, 0, 0, -1)
+
+fig
+```
 
 The DGG (Discrete Global Grid) module provides parametric grid types inspired by [DGGRID](https://github.com/sahrk/DGGRID).  Grid configuration is encoded in type parameters, enabling zero-cost dispatch across different projections, apertures, and topologies.
 
@@ -53,96 +74,164 @@ Each cell wraps a single `UInt64` encoding the base vertex (0–11) and hierarch
 
 ### From Coordinates and Resolution
 
-```julia
-using GlobalGrids
-
+```{julia}
+#| code-fold: false
 coord = LonLat(-75.0, 54.0)
 cell = ISEA3HCell(coord, 5)
 ```
 
 ### From Base Vertex and Digits
 
-```julia
+```{julia}
+#| code-fold: false
 # Base vertex 0, digits [1, 2, 0]
 cell = ISEA3HCell(0, [1, 2, 0])
 ```
 
 ### From Hex String
 
-```julia
+```{julia}
+#| code-fold: false
 cell = ISEA3HCell(coord, 5)
-str = GlobalGrids.dgg_string(cell)
+str = encode(cell)
+@info str
 ISEA3HCell(str)
 ```
 
 ### Using the Convenience Wrapper
 
-```julia
+```{julia}
+#| code-fold: false
 # dggcells defaults to ISEA3H
 dggcells(LonLat(0.0, 0.0), 5)
-
-# Specify a different grid
-dggcells(LonLat(0.0, 0.0), 5; grid=FULLER3H())
 ```
 
 ## Inspecting Cells
 
-```julia
-using GlobalGrids
-
+```{julia}
 cell = ISEA3HCell(LonLat(-75.0, 54.0), 5)
 
-GlobalGrids.resolution(cell)                     # 5
-GlobalGrids.is_pentagon(cell)                     # false
-GlobalGrids.dgg_digits(cell.index, Val(3))        # digit vector
-GlobalGrids.decode(cell)                          # "3-12010" (base-digits)
+@show resolution(cell)
+@show is_pentagon(cell)
+@show GlobalGrids.digits(cell)
+@show base_cell(cell)
+@show decode(cell)
+@show encode(cell)
+nothing
 ```
 
 ## GeoInterface
 
-```julia
+```{julia}
 import GeoInterface as GI
 
 cell = ISEA3HCell(LonLat(-75.0, 54.0), 5)
 
-GI.centroid(cell)       # center LonLat
-GI.coordinates(cell)    # boundary vertices (7 for hex, 6 for pentagon — closed)
-GI.area(cell)           # area in m²
+@show GI.centroid(cell)
+@show GI.coordinates(cell)
+@show GI.area(cell)  # meters²
+nothing
 ```
 
 ## Grid Hierarchy
 
-```julia
-using GlobalGrids
+- `parent`, `siblings`, and `children`
 
-cell = ISEA3HCell(LonLat(0.0, 0.0), 3)
+```{julia}
+cell = ISEA3HCell(LonLat(0.0, 0.0), 5)
 
-p = GlobalGrids.parent(cell)        # resolution 2 parent
-ch = GlobalGrids.children(cell)     # 3 children per hex
-sib = GlobalGrids.siblings(cell)    # same-parent siblings
+fig = Figure()
+ax = Axis(fig[1,1], title="Cell:Black, Parent:Blue, Siblings:Orange, Children:Green")
+lines!(ax, GlobalGrids.parent(cell), color = :blue)
+poly!(ax, cell, color = :black)
+lines!(ax, siblings(cell), color = :orange)
+lines!(ax, children(cell), color = :green)
+fig
 ```
 
 Pentagons at any resolution:
 
-```julia
-pents = GlobalGrids.dgg_pentagons(ISEA3H(), 3)  # 12 pentagons at resolution 3
+```{julia}
+pents = pentagons(ISEA3H(), 3)
+
+f, a, p = lines(pents, axis=(;type=GeoAxis, dest = "+proj=ortho +lon_0=-50 +lat_0=30"))
+ep = surface!(a,
+    -180..180, -90..90,
+    zeros(axes(rotr90(GeoMakie.earth())));
+    shading = NoShading, color = rotr90(GeoMakie.earth())
+)
+translate!(ep, 0, 0, -1)
+f
 ```
 
 ## Quantizing Geometries
 
-```julia
-using GlobalGrids
-import GeoInterface as GI
+### Point
 
-# Point
-dggcells(LonLat(0.0, 0.0), 5)
+```{julia}
+ll = LonLat(-54.0, -12.0)
 
-# Line
-dggcells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)
+fig = Figure()
+ax = Axis(fig[1,1], title="Cells Containing Point at Resolutions 0-5")
+for res in 0:5
+    lines!(ax, dggcells(ll, res))
+end
+scatter!(ax, ll)
 
-# Polygon
+fig
+```
+
+### MultiPoint
+
+```{julia}
+coords = [LonLat(360rand() - 180, 180rand() - 90) for _ in 1:100]
+
+x = ISEA3HCell.(coords, 0)
+
+f, a, p = lines(x, axis=(;type=GeoAxis, dest = "+proj=ortho +lon_0=-50 +lat_0=30"))
+scatter!(a, coords, color=:black)
+f
+```
+
+### Line
+
+- Containment options for lines: `:center` and `:shortest_path`.
+
+```{julia}
+line = GI.Line([LonLat(0, 0), LonLat(1,1)])
+
+fig = Figure(size=(700, 300))
+
+for (i, containment) in enumerate((:center, :shortest_path))
+    ax = Axis(fig[1, i], aspect=DataAspect(), title="containment = :$containment")
+    x = dggcells(line, 6; containment)
+    lines!(ax, x)
+    lines!(ax, GI.coordinates(line), linewidth=3, color = :black)
+end
+
+fig
+```
+
+### Polygon
+
+- Containment modes for polygons:
+  - `:center`: Include cell if its center is inside the polygon.
+  - `:overlap`: Include cell if any part intersects the polygon.
+
+```{julia}
 boundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]
-dggcells(GI.Polygon([boundary]), 2; containment=:center)
+poly = GI.Polygon([boundary])
+
+fig = Figure(size=(700, 300))
+
+for (i, containment) in enumerate((:center, :overlap))
+    ax = Axis(fig[1, i], aspect=DataAspect(), title="containment = :$containment")
+    x = dggcells(poly, 4; containment)
+    lines!(ax, x)
+    lines!(ax, GI.LineString(boundary), linewidth=2, color=:black)
+end
+
+fig
 ```
 
 ## Comparison with IGEO7

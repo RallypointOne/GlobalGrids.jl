@@ -87,10 +87,12 @@ H3Cell(str)
 ## Inspecting H3Cells
 
 ```{julia}
-@show GlobalGrids.resolution(c)
-@show GlobalGrids.h3_base_cell(c)
-@show GlobalGrids.is_pentagon(c)
-@show GlobalGrids.h3_digits(c)
+@show resolution(c)
+@show base_cell(c)
+@show is_pentagon(c)
+@show GlobalGrids.digits(c)
+@show encode(c)
+@show decode(c)
 @show GlobalGrids.h3_face_numbers(c)
 nothing
 ```

@@ -92,9 +92,3 @@ function _dgg_centroid(idx::UInt64, ::Val{A}) where A
     return _xyz_to_lonlat(p)
 end
 
-#-----------------------------------------------------------------------------# Geodesic helpers for DGGCell
-haversine(a::DGGCell{P,A,T}, b::DGGCell{P,A,T}) where {P,A,T} = haversine(GI.centroid(a), GI.centroid(b))
-
-function destination(a::DGGCell{P,A,T}, azimuth_deg, m) where {P,A,T}
-    DGGCell{P,A,T}(destination(GI.centroid(a), azimuth_deg, m), resolution(a))
-end

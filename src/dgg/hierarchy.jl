@@ -25,3 +25,4 @@ end
 #-----------------------------------------------------------------------------# Pentagons
 dgg_pentagons(::DGGGrid{P,A,:hex}, r::Integer) where {P,A} =
     [DGGCell{P,A,:hex}(b, fill(0, r)) for b in 0:11]
+pentagons(g::DGGGrid{P,A,:hex}, r::Integer) where {P,A} = dgg_pentagons(g, r)

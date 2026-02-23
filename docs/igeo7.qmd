@@ -1,9 +1,30 @@
 ---
 title: "IGEO7 Grid System"
 engine: julia
+code-fold: true
 ---
 
 # IGEO7 Grid System
+
+```{julia}
+using GlobalGrids, GeoMakie, CairoMakie
+
+grid = IGEO7Grid()
+pents = pentagons(grid, 0)
+
+fig = Figure()
+ax = GeoAxis(fig[1,1], dest = "+proj=ortho +lon_0=-50 +lat_0=30")
+poly!(ax, pents, color=(:black, .4))
+
+ep = surface!(ax,
+    -180..180, -90..90,
+    zeros(axes(rotr90(GeoMakie.earth())));
+    shading = NoShading, color = rotr90(GeoMakie.earth())
+)
+translate!(ep, 0, 0, -1)
+
+fig
+```
 
 IGEO7 is a pure-Julia aperture-7 hexagonal discrete global grid.  It uses the same icosahedral vertex placement as the ISEA orientation and a Lambert azimuthal equal-area projection centered on each of the 12 icosahedron vertices.
 
@@ -19,9 +40,8 @@ IGEO7 is a pure-Julia aperture-7 hexagonal discrete global grid.  It uses the sa
 
 ### From Coordinates and Resolution
 
-```julia
-using GlobalGrids
-
+```{julia}
+#| code-fold: false
 coord = LonLat(-75.0, 54.0)
 cell = IGEO7Cell(coord, 5)
 ```
@@ -30,75 +50,144 @@ cell = IGEO7Cell(coord, 5)
 
 Each cell is identified by a base vertex (0–11) and a sequence of digits (0–6):
 
-```julia
+```{julia}
+#| code-fold: false
 # Base vertex 0, digits [1, 2, 3]
 cell = IGEO7Cell(0, [1, 2, 3])
 ```
 
 ### From Hex String
 
-```julia
+```{julia}
+#| code-fold: false
 cell = IGEO7Cell(coord, 5)
-str = GlobalGrids.igeo7_string(cell)
+str = encode(cell)
+@info str
 IGEO7Cell(str)
 ```
 
 ## Inspecting Cells
 
-```julia
-using GlobalGrids
-
+```{julia}
 cell = IGEO7Cell(LonLat(-75.0, 54.0), 5)
 
-GlobalGrids.resolution(cell)       # 5
-GlobalGrids.is_pentagon(cell)       # false
-GlobalGrids.igeo7_digits(cell.index) # [d1, d2, d3, d4, d5]
-GlobalGrids.decode(cell)            # "3-12045" (base-digits)
+@show resolution(cell)
+@show is_pentagon(cell)
+@show GlobalGrids.digits(cell)
+@show base_cell(cell)
+@show decode(cell)
+@show encode(cell)
+nothing
 ```
 
 ## GeoInterface
 
-```julia
+```{julia}
 import GeoInterface as GI
 
-GI.centroid(cell)       # center LonLat
-GI.coordinates(cell)    # boundary vertices (7 for hex, 6 for pentagon — closed)
-GI.area(cell)           # area in m²
+@show GI.centroid(cell)
+@show GI.coordinates(cell)
+@show GI.area(cell)  # meters²
+nothing
 ```
 
 ## Grid Hierarchy
 
-```julia
-using GlobalGrids
+- `parent`, `siblings`, and `children`
 
+```{julia}
 cell = IGEO7Cell(LonLat(0.0, 0.0), 3)
 
-p = GlobalGrids.parent(cell)        # resolution 2 parent
-ch = GlobalGrids.children(cell)     # 7 children (6 for pentagons)
-sib = GlobalGrids.siblings(cell)    # same-parent siblings
+fig = Figure()
+ax = Axis(fig[1,1], title="Cell:Black, Parent:Blue, Siblings:Orange, Children:Green")
+lines!(ax, GlobalGrids.parent(cell), color = :blue)
+poly!(ax, cell, color = :black)
+lines!(ax, siblings(cell), color = :orange)
+lines!(ax, children(cell), color = :green)
+fig
 ```
 
 Pentagons at any resolution:
 
-```julia
-pents = GlobalGrids.igeo7_pentagons(3)  # 12 pentagons at resolution 3
+```{julia}
+pents = pentagons(IGEO7Grid(), 3)
+
+f, a, p = lines(pents, axis=(;type=GeoAxis, dest = "+proj=ortho +lon_0=-50 +lat_0=30"))
+ep = surface!(a,
+    -180..180, -90..90,
+    zeros(axes(rotr90(GeoMakie.earth())));
+    shading = NoShading, color = rotr90(GeoMakie.earth())
+)
+translate!(ep, 0, 0, -1)
+f
 ```
 
 ## Quantizing Geometries
 
-Use `igeo7cells` to find cells covering a geometry:
+### Point
 
-```julia
-using GlobalGrids
-import GeoInterface as GI
+```{julia}
+ll = LonLat(-54.0, -12.0)
 
-# Point
-igeo7cells(LonLat(0.0, 0.0), 5)
+fig = Figure()
+ax = Axis(fig[1,1], title="Cells Containing Point at Resolutions 0-3")
+for res in 0:3
+    lines!(ax, igeo7cells(ll, res))
+end
+scatter!(ax, ll)
 
-# Line
-igeo7cells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)
+fig
+```
 
-# Polygon
+### MultiPoint
+
+```{julia}
+coords = [LonLat(360rand() - 180, 180rand() - 90) for _ in 1:100]
+
+x = IGEO7Cell.(coords, 0)
+
+f, a, p = lines(x, axis=(;type=GeoAxis, dest = "+proj=ortho +lon_0=-50 +lat_0=30"))
+scatter!(a, coords, color=:black)
+f
+```
+
+### Line
+
+- Containment options for lines: `:center` and `:shortest_path`.
+
+```{julia}
+line = GI.Line([LonLat(0, 0), LonLat(1,1)])
+
+fig = Figure(size=(700, 300))
+
+for (i, containment) in enumerate((:center, :shortest_path))
+    ax = Axis(fig[1, i], aspect=DataAspect(), title="containment = :$containment")
+    x = igeo7cells(line, 4; containment)
+    lines!(ax, x)
+    lines!(ax, GI.coordinates(line), linewidth=3, color = :black)
+end
+
+fig
+```
+
+### Polygon
+
+- Containment modes for polygons:
+  - `:center`: Include cell if its center is inside the polygon.
+  - `:overlap`: Include cell if any part intersects the polygon.
+
+```{julia}
 boundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]
-igeo7cells(GI.Polygon([boundary]), 2; containment=:center)
+poly = GI.Polygon([boundary])
+
+fig = Figure(size=(700, 300))
+
+for (i, containment) in enumerate((:center, :overlap))
+    ax = Axis(fig[1, i], aspect=DataAspect(), title="containment = :$containment")
+    x = igeo7cells(poly, 2; containment)
+    lines!(ax, x)
+    lines!(ax, GI.LineString(boundary), linewidth=2, color=:black)
+end
+
+fig
 ```
