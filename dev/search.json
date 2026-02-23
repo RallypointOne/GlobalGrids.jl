@@ -59,7 +59,7 @@
     "href": "getting-started.html#common-interface",
     "title": "Getting Started",
     "section": "Common Interface",
-    "text": "Common Interface\nAll cell types share the same interface through AbstractCell:\nusing GlobalGrids\nimport GeoInterface as GI\n\np = LonLat(-75.0, 54.0)\n\n# Create a cell from coordinates + resolution\ncell = H3Cell(p, 5)       # or IGEO7Cell(p, 5), ISEA3HCell(p, 5)\n\n# Inspect\nGlobalGrids.resolution(cell)   # resolution level\nGlobalGrids.is_pentagon(cell)   # pentagon check (12 per resolution)\nGlobalGrids.decode(cell)        # human-readable string\n\n# GeoInterface\nGI.centroid(cell)       # center LonLat\nGI.coordinates(cell)    # boundary vertices (closed polygon)\nGI.area(cell)           # area in m²\n\n# Hierarchy\nGlobalGrids.parent(cell)       # coarser parent cell\nGlobalGrids.children(cell)     # finer child cells\nGlobalGrids.siblings(cell)     # same-parent neighbor cells",
+    "text": "Common Interface\nAll cell types share the same interface through AbstractCell:\nusing GlobalGrids\nimport GeoInterface as GI\n\np = LonLat(-75.0, 54.0)\n\n# Create a cell from coordinates + resolution\ncell = H3Cell(p, 5)       # or IGEO7Cell(p, 5), ISEA3HCell(p, 5)\n\n# Inspect\nresolution(cell)       # resolution level\nis_pentagon(cell)      # pentagon check (12 per resolution)\ndecode(cell)           # human-readable string\ndigits(cell)           # hierarchical digit sequence\nbase_cell(cell)        # base cell index\nencode(cell)           # hex string of raw index\n\n# GeoInterface\nGI.centroid(cell)       # center LonLat\nGI.coordinates(cell)    # boundary vertices (closed polygon)\nGI.area(cell)           # area in m²\n\n# Hierarchy\nGlobalGrids.parent(cell)       # coarser parent cell\nchildren(cell)                 # finer child cells\nsiblings(cell)                 # same-parent neighbor cells\n\n# Grid-level queries\nncells(H3Grid(), 5)            # total cells at resolution 5\npentagons(H3Grid(), 5)         # 12 pentagon cells at resolution 5",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Getting Started</span>"
@@ -114,7 +114,7 @@
     "href": "h3.html#inspecting-h3cells",
     "title": "H3 Grid System",
     "section": "Inspecting H3Cells",
-    "text": "Inspecting H3Cells\n\n\nCode\n@show GlobalGrids.resolution(c)\n@show GlobalGrids.h3_base_cell(c)\n@show GlobalGrids.is_pentagon(c)\n@show GlobalGrids.h3_digits(c)\n@show GlobalGrids.h3_face_numbers(c)\nnothing\n\n\nGlobalGrids.resolution(c) = 10\nGlobalGrids.h3_base_cell(c) = 7\nGlobalGrids.is_pentagon(c) = false\nGlobalGrids.h3_digits(c) = [1, 2, 0, 3, 3, 4, 6, 5, 1, 4]\nGlobalGrids.h3_face_numbers(c) = Int32[2]",
+    "text": "Inspecting H3Cells\n\n\nCode\n@show resolution(c)\n@show base_cell(c)\n@show is_pentagon(c)\n@show GlobalGrids.digits(c)\n@show encode(c)\n@show decode(c)\n@show GlobalGrids.h3_face_numbers(c)\nnothing\n\n\nresolution(c) = 10\nbase_cell(c) = 7\nis_pentagon(c) = false\nGlobalGrids.digits(c) = [1, 2, 0, 3, 3, 4, 6, 5, 1, 4]\nencode(c) = \"8a0e506e6a67fff\"\ndecode(c) = \"7-1203346514\"\nGlobalGrids.h3_face_numbers(c) = Int32[2]",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>H3 Grid System</span>"
@@ -180,7 +180,7 @@
     "href": "igeo7.html",
     "title": "IGEO7 Grid System",
     "section": "",
-    "text": "IGEO7 Grid System\nIGEO7 is a pure-Julia aperture-7 hexagonal discrete global grid. It uses the same icosahedral vertex placement as the ISEA orientation and a Lambert azimuthal equal-area projection centered on each of the 12 icosahedron vertices.\nKey properties:",
+    "text": "IGEO7 Grid System\nCode\nusing GlobalGrids, GeoMakie, CairoMakie\n\ngrid = IGEO7Grid()\npents = pentagons(grid, 0)\n\nfig = Figure()\nax = GeoAxis(fig[1,1], dest = \"+proj=ortho +lon_0=-50 +lat_0=30\")\npoly!(ax, pents, color=(:black, .4))\n\nep = surface!(ax,\n    -180..180, -90..90,\n    zeros(axes(rotr90(GeoMakie.earth())));\n    shading = NoShading, color = rotr90(GeoMakie.earth())\n)\ntranslate!(ep, 0, 0, -1)\n\nfig\nIGEO7 is a pure-Julia aperture-7 hexagonal discrete global grid. It uses the same icosahedral vertex placement as the ISEA orientation and a Lambert azimuthal equal-area projection centered on each of the 12 icosahedron vertices.\nKey properties:",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>IGEO7 Grid System</span>"
@@ -191,7 +191,7 @@
     "href": "igeo7.html#creating-an-igeo7cell",
     "title": "IGEO7 Grid System",
     "section": "Creating an IGEO7Cell",
-    "text": "Creating an IGEO7Cell\n\nFrom Coordinates and Resolution\nusing GlobalGrids\n\ncoord = LonLat(-75.0, 54.0)\ncell = IGEO7Cell(coord, 5)\n\n\nFrom Base Vertex and Digits\nEach cell is identified by a base vertex (0–11) and a sequence of digits (0–6):\n# Base vertex 0, digits [1, 2, 3]\ncell = IGEO7Cell(0, [1, 2, 3])\n\n\nFrom Hex String\ncell = IGEO7Cell(coord, 5)\nstr = GlobalGrids.igeo7_string(cell)\nIGEO7Cell(str)",
+    "text": "Creating an IGEO7Cell\n\nFrom Coordinates and Resolution\n\ncoord = LonLat(-75.0, 54.0)\ncell = IGEO7Cell(coord, 5)\n\n\n  ⬡ IGEO7Cell 5 11-16612\n\n\n\n\n\nFrom Base Vertex and Digits\nEach cell is identified by a base vertex (0–11) and a sequence of digits (0–6):\n\n# Base vertex 0, digits [1, 2, 3]\ncell = IGEO7Cell(0, [1, 2, 3])\n\n\n  ⬡ IGEO7Cell 3 0-123\n\n\n\n\n\nFrom Hex String\n\ncell = IGEO7Cell(coord, 5)\nstr = encode(cell)\n@info str\nIGEO7Cell(str)\n\n\n[ Info: b3b15fffffffffff\n\n\n\n\n\n  ⬡ IGEO7Cell 5 11-16612",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>IGEO7 Grid System</span>"
@@ -202,7 +202,7 @@
     "href": "igeo7.html#inspecting-cells",
     "title": "IGEO7 Grid System",
     "section": "Inspecting Cells",
-    "text": "Inspecting Cells\nusing GlobalGrids\n\ncell = IGEO7Cell(LonLat(-75.0, 54.0), 5)\n\nGlobalGrids.resolution(cell)       # 5\nGlobalGrids.is_pentagon(cell)       # false\nGlobalGrids.igeo7_digits(cell.index) # [d1, d2, d3, d4, d5]\nGlobalGrids.decode(cell)            # \"3-12045\" (base-digits)",
+    "text": "Inspecting Cells\n\n\nCode\ncell = IGEO7Cell(LonLat(-75.0, 54.0), 5)\n\n@show resolution(cell)\n@show is_pentagon(cell)\n@show GlobalGrids.digits(cell)\n@show base_cell(cell)\n@show decode(cell)\n@show encode(cell)\nnothing\n\n\nresolution(cell) = 5\nis_pentagon(cell) = false\nGlobalGrids.digits(cell) = [1, 6, 6, 1, 2]\nbase_cell(cell) = 11\ndecode(cell) = \"11-16612\"\nencode(cell) = \"b3b15fffffffffff\"",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>IGEO7 Grid System</span>"
@@ -213,7 +213,7 @@
     "href": "igeo7.html#geointerface",
     "title": "IGEO7 Grid System",
     "section": "GeoInterface",
-    "text": "GeoInterface\nimport GeoInterface as GI\n\nGI.centroid(cell)       # center LonLat\nGI.coordinates(cell)    # boundary vertices (7 for hex, 6 for pentagon — closed)\nGI.area(cell)           # area in m²",
+    "text": "GeoInterface\n\n\nCode\nimport GeoInterface as GI\n\n@show GI.centroid(cell)\n@show GI.coordinates(cell)\n@show GI.area(cell)  # meters²\nnothing\n\n\nGI.centroid(cell) = LonLat{Float64} (-74.64844243661682, 53.873372152060995)\nGI.coordinates(cell) = GlobalGrids.LonLat{Float64}[LonLat{Float64} (-74.25799929906842, 53.66190569679182), LonLat{Float64} (-74.14477025256443, 53.94599208281042), LonLat{Float64} (-74.5367432930249, 54.15792502960155), LonLat{Float64} (-75.04228216717915, 54.08356962806361), LonLat{Float64} (-75.14984526262614, 53.79826918505636), LonLat{Float64} (-74.75758368313738, 53.58852797442134), LonLat{Float64} (-74.25799929906842, 53.66190569679182)]\nGI.area(cell) = 3.0348042608173203e9",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>IGEO7 Grid System</span>"
@@ -224,7 +224,7 @@
     "href": "igeo7.html#grid-hierarchy",
     "title": "IGEO7 Grid System",
     "section": "Grid Hierarchy",
-    "text": "Grid Hierarchy\nusing GlobalGrids\n\ncell = IGEO7Cell(LonLat(0.0, 0.0), 3)\n\np = GlobalGrids.parent(cell)        # resolution 2 parent\nch = GlobalGrids.children(cell)     # 7 children (6 for pentagons)\nsib = GlobalGrids.siblings(cell)    # same-parent siblings\nPentagons at any resolution:\npents = GlobalGrids.igeo7_pentagons(3)  # 12 pentagons at resolution 3",
+    "text": "Grid Hierarchy\n\nparent, siblings, and children\n\n\n\nCode\ncell = IGEO7Cell(LonLat(0.0, 0.0), 3)\n\nfig = Figure()\nax = Axis(fig[1,1], title=\"Cell:Black, Parent:Blue, Siblings:Orange, Children:Green\")\nlines!(ax, GlobalGrids.parent(cell), color = :blue)\npoly!(ax, cell, color = :black)\nlines!(ax, siblings(cell), color = :orange)\nlines!(ax, children(cell), color = :green)\nfig\n\n\n\n\n\nPentagons at any resolution:\n\n\nCode\npents = pentagons(IGEO7Grid(), 3)\n\nf, a, p = lines(pents, axis=(;type=GeoAxis, dest = \"+proj=ortho +lon_0=-50 +lat_0=30\"))\nep = surface!(a,\n    -180..180, -90..90,\n    zeros(axes(rotr90(GeoMakie.earth())));\n    shading = NoShading, color = rotr90(GeoMakie.earth())\n)\ntranslate!(ep, 0, 0, -1)\nf",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>IGEO7 Grid System</span>"
@@ -235,7 +235,7 @@
     "href": "igeo7.html#quantizing-geometries",
     "title": "IGEO7 Grid System",
     "section": "Quantizing Geometries",
-    "text": "Quantizing Geometries\nUse igeo7cells to find cells covering a geometry:\nusing GlobalGrids\nimport GeoInterface as GI\n\n# Point\nigeo7cells(LonLat(0.0, 0.0), 5)\n\n# Line\nigeo7cells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)\n\n# Polygon\nboundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]\nigeo7cells(GI.Polygon([boundary]), 2; containment=:center)",
+    "text": "Quantizing Geometries\n\nPoint\n\n\nCode\nll = LonLat(-54.0, -12.0)\n\nfig = Figure()\nax = Axis(fig[1,1], title=\"Cells Containing Point at Resolutions 0-3\")\nfor res in 0:3\n    lines!(ax, igeo7cells(ll, res))\nend\nscatter!(ax, ll)\n\nfig\n\n\n\n\n\n\n\nMultiPoint\n\n\nCode\ncoords = [LonLat(360rand() - 180, 180rand() - 90) for _ in 1:100]\n\nx = IGEO7Cell.(coords, 0)\n\nf, a, p = lines(x, axis=(;type=GeoAxis, dest = \"+proj=ortho +lon_0=-50 +lat_0=30\"))\nscatter!(a, coords, color=:black)\nf\n\n\n\n\n\n\n\nLine\n\nContainment options for lines: :center and :shortest_path.\n\n\n\nCode\nline = GI.Line([LonLat(0, 0), LonLat(1,1)])\n\nfig = Figure(size=(700, 300))\n\nfor (i, containment) in enumerate((:center, :shortest_path))\n    ax = Axis(fig[1, i], aspect=DataAspect(), title=\"containment = :$containment\")\n    x = igeo7cells(line, 4; containment)\n    lines!(ax, x)\n    lines!(ax, GI.coordinates(line), linewidth=3, color = :black)\nend\n\nfig\n\n\n\n\n\n\n\nPolygon\n\nContainment modes for polygons:\n\n:center: Include cell if its center is inside the polygon.\n:overlap: Include cell if any part intersects the polygon.\n\n\n\n\nCode\nboundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]\npoly = GI.Polygon([boundary])\n\nfig = Figure(size=(700, 300))\n\nfor (i, containment) in enumerate((:center, :overlap))\n    ax = Axis(fig[1, i], aspect=DataAspect(), title=\"containment = :$containment\")\n    x = igeo7cells(poly, 2; containment)\n    lines!(ax, x)\n    lines!(ax, GI.LineString(boundary), linewidth=2, color=:black)\nend\n\nfig",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>IGEO7 Grid System</span>"
@@ -246,7 +246,7 @@
     "href": "dgg.html",
     "title": "DGG Grid System",
     "section": "",
-    "text": "DGG Grid System\nThe DGG (Discrete Global Grid) module provides parametric grid types inspired by DGGRID. Grid configuration is encoded in type parameters, enabling zero-cost dispatch across different projections, apertures, and topologies.",
+    "text": "DGG Grid System\nCode\nusing GlobalGrids, GeoMakie, CairoMakie\n\ngrid = ISEA3H()\npents = pentagons(grid, 0)\n\nfig = Figure()\nax = GeoAxis(fig[1,1], dest = \"+proj=ortho +lon_0=-50 +lat_0=30\")\npoly!(ax, pents, color=(:black, .4))\n\nep = surface!(ax,\n    -180..180, -90..90,\n    zeros(axes(rotr90(GeoMakie.earth())));\n    shading = NoShading, color = rotr90(GeoMakie.earth())\n)\ntranslate!(ep, 0, 0, -1)\n\nfig\nThe DGG (Discrete Global Grid) module provides parametric grid types inspired by DGGRID. Grid configuration is encoded in type parameters, enabling zero-cost dispatch across different projections, apertures, and topologies.",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>DGG Grid System</span>"
@@ -279,7 +279,7 @@
     "href": "dgg.html#creating-a-dggcell",
     "title": "DGG Grid System",
     "section": "Creating a DGGCell",
-    "text": "Creating a DGGCell\n\nFrom Coordinates and Resolution\nusing GlobalGrids\n\ncoord = LonLat(-75.0, 54.0)\ncell = ISEA3HCell(coord, 5)\n\n\nFrom Base Vertex and Digits\n# Base vertex 0, digits [1, 2, 0]\ncell = ISEA3HCell(0, [1, 2, 0])\n\n\nFrom Hex String\ncell = ISEA3HCell(coord, 5)\nstr = GlobalGrids.dgg_string(cell)\nISEA3HCell(str)\n\n\nUsing the Convenience Wrapper\n# dggcells defaults to ISEA3H\ndggcells(LonLat(0.0, 0.0), 5)\n\n# Specify a different grid\ndggcells(LonLat(0.0, 0.0), 5; grid=FULLER3H())",
+    "text": "Creating a DGGCell\n\nFrom Coordinates and Resolution\n\ncoord = LonLat(-75.0, 54.0)\ncell = ISEA3HCell(coord, 5)\n\n\n  ⬡ DGGCell 5 0-20221\n\n\n\n\n\nFrom Base Vertex and Digits\n\n# Base vertex 0, digits [1, 2, 0]\ncell = ISEA3HCell(0, [1, 2, 0])\n\n\n  ⬡ DGGCell 3 0-120\n\n\n\n\n\nFrom Hex String\n\ncell = ISEA3HCell(coord, 5)\nstr = encode(cell)\n@info str\nISEA3HCell(str)\n\n\n[ Info: 8a7fffffffffff\n\n\n\n\n\n  ⬡ DGGCell 5 0-20221\n\n\n\n\n\nUsing the Convenience Wrapper\n\n# dggcells defaults to ISEA3H\ndggcells(LonLat(0.0, 0.0), 5)\n\n\n1-element Vector{ISEA3HCell}:\n   ⬡ DGGCell 5 1-11120",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>DGG Grid System</span>"
@@ -290,7 +290,7 @@
     "href": "dgg.html#inspecting-cells",
     "title": "DGG Grid System",
     "section": "Inspecting Cells",
-    "text": "Inspecting Cells\nusing GlobalGrids\n\ncell = ISEA3HCell(LonLat(-75.0, 54.0), 5)\n\nGlobalGrids.resolution(cell)                     # 5\nGlobalGrids.is_pentagon(cell)                     # false\nGlobalGrids.dgg_digits(cell.index, Val(3))        # digit vector\nGlobalGrids.decode(cell)                          # \"3-12010\" (base-digits)",
+    "text": "Inspecting Cells\n\n\nCode\ncell = ISEA3HCell(LonLat(-75.0, 54.0), 5)\n\n@show resolution(cell)\n@show is_pentagon(cell)\n@show GlobalGrids.digits(cell)\n@show base_cell(cell)\n@show decode(cell)\n@show encode(cell)\nnothing\n\n\nresolution(cell) = 5\nis_pentagon(cell) = false\nGlobalGrids.digits(cell) = [2, 0, 2, 2, 1]\nbase_cell(cell) = 0\ndecode(cell) = \"0-20221\"\nencode(cell) = \"8a7fffffffffff\"",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>DGG Grid System</span>"
@@ -301,7 +301,7 @@
     "href": "dgg.html#geointerface",
     "title": "DGG Grid System",
     "section": "GeoInterface",
-    "text": "GeoInterface\nimport GeoInterface as GI\n\ncell = ISEA3HCell(LonLat(-75.0, 54.0), 5)\n\nGI.centroid(cell)       # center LonLat\nGI.coordinates(cell)    # boundary vertices (7 for hex, 6 for pentagon — closed)\nGI.area(cell)           # area in m²",
+    "text": "GeoInterface\n\n\nCode\nimport GeoInterface as GI\n\ncell = ISEA3HCell(LonLat(-75.0, 54.0), 5)\n\n@show GI.centroid(cell)\n@show GI.coordinates(cell)\n@show GI.area(cell)  # meters²\nnothing\n\n\nGI.centroid(cell) = LonLat{Float64} (135.65589654897914, 76.24301687927634)\nGI.coordinates(cell) = GlobalGrids.LonLat{Float64}[LonLat{Float64} (143.3758205758539, 76.53160205611725), LonLat{Float64} (137.31372827622044, 78.07483802247093), LonLat{Float64} (128.88653063426133, 77.57636941973738), LonLat{Float64} (128.4301106497959, 75.69975248694196), LonLat{Float64} (134.47936778363214, 74.39073113812522), LonLat{Float64} (141.21601969837596, 74.74570316505651), LonLat{Float64} (143.3758205758539, 76.53160205611725)]\nGI.area(cell) = 2.0973092998523383e11",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>DGG Grid System</span>"
@@ -312,7 +312,7 @@
     "href": "dgg.html#grid-hierarchy",
     "title": "DGG Grid System",
     "section": "Grid Hierarchy",
-    "text": "Grid Hierarchy\nusing GlobalGrids\n\ncell = ISEA3HCell(LonLat(0.0, 0.0), 3)\n\np = GlobalGrids.parent(cell)        # resolution 2 parent\nch = GlobalGrids.children(cell)     # 3 children per hex\nsib = GlobalGrids.siblings(cell)    # same-parent siblings\nPentagons at any resolution:\npents = GlobalGrids.dgg_pentagons(ISEA3H(), 3)  # 12 pentagons at resolution 3",
+    "text": "Grid Hierarchy\n\nparent, siblings, and children\n\n\n\nCode\ncell = ISEA3HCell(LonLat(0.0, 0.0), 5)\n\nfig = Figure()\nax = Axis(fig[1,1], title=\"Cell:Black, Parent:Blue, Siblings:Orange, Children:Green\")\nlines!(ax, GlobalGrids.parent(cell), color = :blue)\npoly!(ax, cell, color = :black)\nlines!(ax, siblings(cell), color = :orange)\nlines!(ax, children(cell), color = :green)\nfig\n\n\n\n\n\nPentagons at any resolution:\n\n\nCode\npents = pentagons(ISEA3H(), 3)\n\nf, a, p = lines(pents, axis=(;type=GeoAxis, dest = \"+proj=ortho +lon_0=-50 +lat_0=30\"))\nep = surface!(a,\n    -180..180, -90..90,\n    zeros(axes(rotr90(GeoMakie.earth())));\n    shading = NoShading, color = rotr90(GeoMakie.earth())\n)\ntranslate!(ep, 0, 0, -1)\nf",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>DGG Grid System</span>"
@@ -323,7 +323,7 @@
     "href": "dgg.html#quantizing-geometries",
     "title": "DGG Grid System",
     "section": "Quantizing Geometries",
-    "text": "Quantizing Geometries\nusing GlobalGrids\nimport GeoInterface as GI\n\n# Point\ndggcells(LonLat(0.0, 0.0), 5)\n\n# Line\ndggcells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)\n\n# Polygon\nboundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]\ndggcells(GI.Polygon([boundary]), 2; containment=:center)",
+    "text": "Quantizing Geometries\n\nPoint\n\n\nCode\nll = LonLat(-54.0, -12.0)\n\nfig = Figure()\nax = Axis(fig[1,1], title=\"Cells Containing Point at Resolutions 0-5\")\nfor res in 0:5\n    lines!(ax, dggcells(ll, res))\nend\nscatter!(ax, ll)\n\nfig\n\n\n\n\n\n\n\nMultiPoint\n\n\nCode\ncoords = [LonLat(360rand() - 180, 180rand() - 90) for _ in 1:100]\n\nx = ISEA3HCell.(coords, 0)\n\nf, a, p = lines(x, axis=(;type=GeoAxis, dest = \"+proj=ortho +lon_0=-50 +lat_0=30\"))\nscatter!(a, coords, color=:black)\nf\n\n\n\n\n\n\n\nLine\n\nContainment options for lines: :center and :shortest_path.\n\n\n\nCode\nline = GI.Line([LonLat(0, 0), LonLat(1,1)])\n\nfig = Figure(size=(700, 300))\n\nfor (i, containment) in enumerate((:center, :shortest_path))\n    ax = Axis(fig[1, i], aspect=DataAspect(), title=\"containment = :$containment\")\n    x = dggcells(line, 6; containment)\n    lines!(ax, x)\n    lines!(ax, GI.coordinates(line), linewidth=3, color = :black)\nend\n\nfig\n\n\n\n\n\n\n\nPolygon\n\nContainment modes for polygons:\n\n:center: Include cell if its center is inside the polygon.\n:overlap: Include cell if any part intersects the polygon.\n\n\n\n\nCode\nboundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]\npoly = GI.Polygon([boundary])\n\nfig = Figure(size=(700, 300))\n\nfor (i, containment) in enumerate((:center, :overlap))\n    ax = Axis(fig[1, i], aspect=DataAspect(), title=\"containment = :$containment\")\n    x = dggcells(poly, 4; containment)\n    lines!(ax, x)\n    lines!(ax, GI.LineString(boundary), linewidth=2, color=:black)\nend\n\nfig",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>DGG Grid System</span>"
@@ -444,7 +444,7 @@
     "href": "api.html#functions",
     "title": "API",
     "section": "Functions",
-    "text": "Functions\n\n\ncells\n\n\ncells(::Type{T}, geom, res; kw...) where {T &lt;: AbstractCell}\nReturn the grid cells of type T at resolution res that cover geom.\nDispatches on the GeoInterface geometry trait of geom and supports points, multipoints, lines, linestrings, polygons, multipolygons, and Extents.Extent.\n\n\n\n\ndggcells\n\n\ndggcells(geom, res; grid=ISEA3H(), kw...)\nConvenience wrapper for cells(DGGCell{...}, geom, res; kw...).\n\n\n\n\nh3cells\n\n\nh3cells(geom, res; kw...)\nConvenience wrapper for cells(H3Cell, geom, res; kw...).\n\n\n\n\nicosahedron\n\n\nicosahedron(vertex=Point3d(0,0,1), azimuth=0.0)\nicosahedron(preset::Symbol)\nCreate an icosahedron mesh on the unit sphere. A vertex is placed at vertex and the mesh is rotated by azimuth (radians) around that axis.\nPreset orientations: :poles, :isea, :dymaxion.\n\nExamples\nicosahedron()\nicosahedron(:isea)\n\n\n\n\n\nigeo7cells\n\n\nigeo7cells(geom, res; kw...)\nConvenience wrapper for cells(IGEO7Cell, geom, res; kw...).",
+    "text": "Functions\n\n\nazimuth\n\n\nazimuth(a, b)\nInitial bearing (degrees clockwise from North) from point a to point b.\n\n\n\n\nbase_cell\n\n\nbase_cell(cell::AbstractCell)\nReturn the base cell index (integer) of a cell.\n\n\n\n\ncells\n\n\ncells(::Type{T}, geom, res; kw...) where {T &lt;: AbstractCell}\nReturn the grid cells of type T at resolution res that cover geom.\nDispatches on the GeoInterface geometry trait of geom and supports points, multipoints, lines, linestrings, polygons, multipolygons, and Extents.Extent.\n\n\n\n\nchildren\n\n\nNo documentation found for public binding GlobalGrids.children.\nGlobalGrids.children is a Function.\n# 3 methods for generic function \"children\" from GlobalGrids:\n [1] children(o::GlobalGrids.H3Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/h3.jl:181\n [2] children(o::GlobalGrids.IGEO7Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/igeo7.jl:416\n [3] children(o::GlobalGrids.DGGCell{P, A, T}) where {P, A, T}\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/hierarchy.jl:9\n\n\n\n\ndecode\n\n\nNo documentation found for public binding GlobalGrids.decode.\nGlobalGrids.decode is a Function.\n# 3 methods for generic function \"decode\" from GlobalGrids:\n [1] decode(o::GlobalGrids.H3Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/h3.jl:169\n [2] decode(o::GlobalGrids.IGEO7Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/igeo7.jl:388\n [3] decode(o::GlobalGrids.DGGCell{P, A, T}) where {P, A, T}\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:160\n\n\n\n\ndestination\n\n\ndestination(origin::LonLat, azimuth°::Real, m::Real)\nDestination point given a starting origin, azimuth° (degrees clockwise from North), and distance m (meters).\ndestination(cell::AbstractCell, azimuth_deg, m)\nReturn a new cell of the same type and resolution whose centroid is m meters from cell at the given bearing.\n\n\n\n\ndggcells\n\n\ndggcells(geom, res; grid=ISEA3H(), kw...)\nConvenience wrapper for cells(DGGCell{...}, geom, res; kw...).\n\n\n\n\nencode\n\n\nencode(cell::AbstractCell)\nHex-string representation of a cell’s raw UInt64 index.\n\n\n\n\ngrid\n\n\nNo documentation found for public binding GlobalGrids.grid.\nGlobalGrids.grid is a Function.\n# 3 methods for generic function \"grid\" from GlobalGrids:\n [1] grid(o::GlobalGrids.H3Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/h3.jl:144\n [2] grid(::GlobalGrids.IGEO7Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/igeo7.jl:380\n [3] grid(::GlobalGrids.DGGCell{P, A, T}) where {P, A, T}\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:144\n\n\n\n\nh3cells\n\n\nh3cells(geom, res; kw...)\nConvenience wrapper for cells(H3Cell, geom, res; kw...).\n\n\n\n\nhaversine\n\n\nhaversine(a::LonLat, b::LonLat)\nGreat-circle distance (meters) between two points using the Haversine formula.\nhaversine(a::AbstractCell, b::AbstractCell)\nGreat-circle distance (meters) between the centroids of two cells.\n\n\n\n\nicosahedron\n\n\nicosahedron(vertex=Point3d(0,0,1), azimuth=0.0)\nicosahedron(preset::Symbol)\nCreate an icosahedron mesh on the unit sphere. A vertex is placed at vertex and the mesh is rotated by azimuth (radians) around that axis.\nPreset orientations: :poles, :isea, :dymaxion.\n\nExamples\nicosahedron()\nicosahedron(:isea)\n\n\n\n\n\nigeo7cells\n\n\nigeo7cells(geom, res; kw...)\nConvenience wrapper for cells(IGEO7Cell, geom, res; kw...).\n\n\n\n\nis_pentagon\n\n\nNo documentation found for public binding GlobalGrids.is_pentagon.\nGlobalGrids.is_pentagon is a Function.\n# 4 methods for generic function \"is_pentagon\" from GlobalGrids:\n [1] is_pentagon(o::GlobalGrids.H3Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/h3.jl:152\n [2] is_pentagon(o::GlobalGrids.IGEO7Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/igeo7.jl:384\n [3] is_pentagon(o::GlobalGrids.DGGCell{P, A, T}) where {P, A, T}\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:156\n [4] is_pentagon(::GlobalGrids.AbstractCell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/GlobalGrids.jl:117\n\n\n\n\nncells\n\n\nncells(grid::AbstractGrid, res::Integer)\nTotal number of cells at resolution res.\n\n\n\n\npentagons\n\n\npentagons(grid::AbstractGrid, res::Integer)\nReturn the 12 pentagon cells at resolution res.\n\n\n\n\nresolution\n\n\nNo documentation found for public binding GlobalGrids.resolution.\nGlobalGrids.resolution is a Function.\n# 3 methods for generic function \"resolution\" from GlobalGrids:\n [1] resolution(o::GlobalGrids.H3Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/h3.jl:148\n [2] resolution(o::GlobalGrids.IGEO7Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/igeo7.jl:382\n [3] resolution(o::GlobalGrids.DGGCell{P, A, T}) where {P, A, T}\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:146\n\n\n\n\nsiblings\n\n\nNo documentation found for public binding GlobalGrids.siblings.\nGlobalGrids.siblings is a Function.\n# 3 methods for generic function \"siblings\" from GlobalGrids:\n [1] siblings(o::GlobalGrids.H3Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/h3.jl:190\n [2] siblings(o::GlobalGrids.IGEO7Cell)\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/igeo7.jl:426\n [3] siblings(o::GlobalGrids.DGGCell{P, A, T}) where {P, A, T}\n     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/hierarchy.jl:19",
     "crumbs": [
       "API",
       "<span class='chapter-number'>8</span>  <span class='chapter-title'>API</span>"

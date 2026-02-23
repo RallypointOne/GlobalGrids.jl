@@ -31,13 +31,13 @@
             <td class="headerValue">on branch main</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">96.4&nbsp;%</td>
-            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">27</td>
             <td class="headerCovTableEntry">27</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-02-23 13:28:30</td>
+            <td class="headerValue">2026-02-23 15:18:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -88,45 +88,44 @@
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">      343732 : _dgg_digit_offsets(::Val{3})  = DGG_AP3_DIGIT_OFFSETS</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">       97716 : _dgg_s1(::Val{3})             = DGG_AP3_S1</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">       97716 : _dgg_scale_factor(::Val{3})   = sqrt(3.0)</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC tlaBgUNC">           0 : _dgg_n_children(::Val{3})     = 3</span></span>
-<span id="L30"><span class="lineNum">      30</span>              : </span>
-<span id="L31"><span class="lineNum">      31</span>              : #-----------------------------------------------------------------------------# Bottom-up digit extraction (aperture-3 matrix algebra)</span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span>              : # M₃ = [2 1; -1 1] — maps coarser-level axial to finer-level axial (det=3, scale √3, rotate -π/6)</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">      173692 : @inline _dgg_apply_M(q::Int, r::Int, ::Val{3}) = (2q + r, -q + r)</span></span>
-<span id="L35"><span class="lineNum">      35</span>              : </span>
-<span id="L36"><span class="lineNum">      36</span>              : # M₃⁻¹ = [1 -1; 1 2] / 3</span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">      170040 : @inline _dgg_apply_M_inv(q::Int, r::Int, ::Val{3}) = (div(q - r, 3), div(q + 2r, 3))</span></span>
-<span id="L38"><span class="lineNum">      38</span>              : </span>
-<span id="L39"><span class="lineNum">      39</span>              : # Digit = coset index: mod(q - r, 3) for aperture 3</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">      170040 : @inline _dgg_axial_to_digit(q::Int, r::Int, ::Val{3}) = mod(q - r, 3)</span></span>
-<span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span>              : &quot;&quot;&quot;Extract hierarchical digits bottom-up from finest-level axial coordinates.&quot;&quot;&quot;</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">       48420 : function _dgg_bottomup_digits(q::Int, r::Int, res::Integer, ::Val{A}) where A</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">       48420 :     digits = Vector{Int}(undef, res)</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">       92004 :     for level in res:-1:1</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">      170040 :         d = _dgg_axial_to_digit(q, r, Val(A))</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">      170040 :         digits[level] = d</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">      170040 :         off = _dgg_digit_offsets(Val(A))[d + 1]</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">      170040 :         q, r = _dgg_apply_M_inv(q - off[1], r - off[2], Val(A))</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">      291660 :     end</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">       48420 :     return digits</span></span>
-<span id="L52"><span class="lineNum">      52</span>              : end</span>
-<span id="L53"><span class="lineNum">      53</span>              : </span>
-<span id="L54"><span class="lineNum">      54</span>              : &quot;&quot;&quot;Reconstruct finest-level axial coordinates from cell index (top-down digit application).&quot;&quot;&quot;</span>
-<span id="L55"><span class="lineNum">      55</span>              : function _dgg_finest_hex(idx::UInt64, ::Val{A}) where A</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">       49285 :     base1 = dgg_base(idx) + 1</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">      222977 :     res = dgg_resolution(idx, Val(A))</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">       49285 :     q, r = 0, 0</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">       49285 :     for level in 1:res</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">      173692 :         d = dgg_digit(idx, level, Val(A))</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">      173692 :         off = _dgg_digit_offsets(Val(A))[d + 1]</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">      173692 :         nq, nr = _dgg_apply_M(q, r, Val(A))</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">      173692 :         q = nq + off[1]</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">      173692 :         r = nr + off[2]</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">      298101 :     end</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">       49285 :     return base1, q, r</span></span>
-<span id="L67"><span class="lineNum">      67</span>              : end</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : #-----------------------------------------------------------------------------# Bottom-up digit extraction (aperture-3 matrix algebra)</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : # M₃ = [2 1; -1 1] — maps coarser-level axial to finer-level axial (det=3, scale √3, rotate -π/6)</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">      173692 : @inline _dgg_apply_M(q::Int, r::Int, ::Val{3}) = (2q + r, -q + r)</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : # M₃⁻¹ = [1 -1; 1 2] / 3</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">      170040 : @inline _dgg_apply_M_inv(q::Int, r::Int, ::Val{3}) = (div(q - r, 3), div(q + 2r, 3))</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : # Digit = coset index: mod(q - r, 3) for aperture 3</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">      170040 : @inline _dgg_axial_to_digit(q::Int, r::Int, ::Val{3}) = mod(q - r, 3)</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span>              : &quot;&quot;&quot;Extract hierarchical digits bottom-up from finest-level axial coordinates.&quot;&quot;&quot;</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">       48420 : function _dgg_bottomup_digits(q::Int, r::Int, res::Integer, ::Val{A}) where A</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">       48420 :     digits = Vector{Int}(undef, res)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">       92004 :     for level in res:-1:1</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">      170040 :         d = _dgg_axial_to_digit(q, r, Val(A))</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">      170040 :         digits[level] = d</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">      170040 :         off = _dgg_digit_offsets(Val(A))[d + 1]</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">      170040 :         q, r = _dgg_apply_M_inv(q - off[1], r - off[2], Val(A))</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">      291660 :     end</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">       48420 :     return digits</span></span>
+<span id="L51"><span class="lineNum">      51</span>              : end</span>
+<span id="L52"><span class="lineNum">      52</span>              : </span>
+<span id="L53"><span class="lineNum">      53</span>              : &quot;&quot;&quot;Reconstruct finest-level axial coordinates from cell index (top-down digit application).&quot;&quot;&quot;</span>
+<span id="L54"><span class="lineNum">      54</span>              : function _dgg_finest_hex(idx::UInt64, ::Val{A}) where A</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">       49285 :     base1 = dgg_base(idx) + 1</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">      222977 :     res = dgg_resolution(idx, Val(A))</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">       49285 :     q, r = 0, 0</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">       49285 :     for level in 1:res</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">      173692 :         d = dgg_digit(idx, level, Val(A))</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">      173692 :         off = _dgg_digit_offsets(Val(A))[d + 1]</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">      173692 :         nq, nr = _dgg_apply_M(q, r, Val(A))</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">      173692 :         q = nq + off[1]</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">      173692 :         r = nr + off[2]</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">      298101 :     end</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">       49285 :     return base1, q, r</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : end</span>
         </pre>
               </td>
             </tr>

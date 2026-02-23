@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">56</td>
-            <td class="headerCovTableEntry">56</td>
+            <td class="headerCovTableEntry">53</td>
+            <td class="headerCovTableEntry">53</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-02-23 13:28:30</td>
+            <td class="headerValue">2026-02-23 15:18:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -154,12 +154,6 @@
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">       49272 :     return _xyz_to_lonlat(p)</span></span>
 <span id="L93"><span class="lineNum">      93</span>              : end</span>
 <span id="L94"><span class="lineNum">      94</span>              : </span>
-<span id="L95"><span class="lineNum">      95</span>              : #-----------------------------------------------------------------------------# Geodesic helpers for DGGCell</span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 : haversine(a::DGGCell{P,A,T}, b::DGGCell{P,A,T}) where {P,A,T} = haversine(GI.centroid(a), GI.centroid(b))</span></span>
-<span id="L97"><span class="lineNum">      97</span>              : </span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 : function destination(a::DGGCell{P,A,T}, azimuth_deg, m) where {P,A,T}</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :     DGGCell{P,A,T}(destination(GI.centroid(a), azimuth_deg, m), resolution(a))</span></span>
-<span id="L100"><span class="lineNum">     100</span>              : end</span>
         </pre>
               </td>
             </tr>

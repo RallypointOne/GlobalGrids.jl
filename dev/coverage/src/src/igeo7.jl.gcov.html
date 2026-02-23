@@ -31,13 +31,13 @@
             <td class="headerValue">on branch main</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.5&nbsp;%</td>
-            <td class="headerCovTableEntry">252</td>
-            <td class="headerCovTableEntry">228</td>
+            <td class="headerCovTableEntryHi">93.1&nbsp;%</td>
+            <td class="headerCovTableEntry">246</td>
+            <td class="headerCovTableEntry">229</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-02-23 13:28:30</td>
+            <td class="headerValue">2026-02-23 15:18:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,516 +64,490 @@
 <span id="L2"><span class="lineNum">       2</span>              : const IGEO7_NUM_DIGITS  = 20</span>
 <span id="L3"><span class="lineNum">       3</span>              : const IGEO7_DIGIT_BITS  = 3</span>
 <span id="L4"><span class="lineNum">       4</span>              : const IGEO7_DIGIT_MASK  = UInt64(0x7)</span>
-<span id="L5"><span class="lineNum">       5</span>              : const IGEO7_BASE_BITS   = 4</span>
-<span id="L6"><span class="lineNum">       6</span>              : const IGEO7_BASE_OFFSET = 60  # bits [63:60]</span>
-<span id="L7"><span class="lineNum">       7</span>              : const IGEO7_MAX_RES     = 20</span>
-<span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span>              : # Aperture-7 rotation angle per level (child grid rotates clockwise)</span>
-<span id="L10"><span class="lineNum">      10</span>              : const IGEO7_THETA7 = atan(sqrt(3) / 5)  # ≈ 19.1066°</span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : # Aperture-7 matrix: parent axial → child axial</span>
-<span id="L13"><span class="lineNum">      13</span>              : # M₇ = [3 1; -1 2], det = 7, scaling = √7, rotation = -θ₇</span>
-<span id="L14"><span class="lineNum">      14</span>              : const IGEO7_M7 = SMatrix{2,2,Int}(3, -1, 1, 2)</span>
-<span id="L15"><span class="lineNum">      15</span>              : </span>
-<span id="L16"><span class="lineNum">      16</span>              : # 7 * M₇⁻¹ = [2 -1; 1 3]  (integer matrix for exact arithmetic)</span>
-<span id="L17"><span class="lineNum">      17</span>              : const IGEO7_M7_INV_SCALED = SMatrix{2,2,Int}(2, 1, -1, 3)</span>
-<span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span>              : # Digit offsets in axial (q, r) coordinates</span>
-<span id="L20"><span class="lineNum">      20</span>              : const IGEO7_DIGIT_OFFSETS = SVector{7,SVector{2,Int}}(</span>
-<span id="L21"><span class="lineNum">      21</span>              :     SVector(0,  0),  # digit 0: center</span>
-<span id="L22"><span class="lineNum">      22</span>              :     SVector(1,  0),  # digit 1</span>
-<span id="L23"><span class="lineNum">      23</span>              :     SVector(0,  1),  # digit 2</span>
-<span id="L24"><span class="lineNum">      24</span>              :     SVector(-1, 1),  # digit 3</span>
-<span id="L25"><span class="lineNum">      25</span>              :     SVector(-1, 0),  # digit 4</span>
-<span id="L26"><span class="lineNum">      26</span>              :     SVector(0, -1),  # digit 5</span>
-<span id="L27"><span class="lineNum">      27</span>              :     SVector(1, -1),  # digit 6</span>
-<span id="L28"><span class="lineNum">      28</span>              : )</span>
-<span id="L29"><span class="lineNum">      29</span>              : </span>
-<span id="L30"><span class="lineNum">      30</span>              : # Residue-to-digit lookup: mod(2q - r, 7) uniquely identifies the digit</span>
-<span id="L31"><span class="lineNum">      31</span>              : # d0→0, d1→2, d2→6, d3→4, d4→5, d5→1, d6→3  (residues)</span>
-<span id="L32"><span class="lineNum">      32</span>              : # Inverted: res 0→d0, 1→d5, 2→d1, 3→d6, 4→d3, 5→d4, 6→d2</span>
-<span id="L33"><span class="lineNum">      33</span>              : const IGEO7_RESIDUE_TO_DIGIT = SVector{7,Int}(0, 5, 1, 6, 3, 4, 2)  # 1-based index by residue+1</span>
-<span id="L34"><span class="lineNum">      34</span>              : </span>
-<span id="L35"><span class="lineNum">      35</span>              : #-----------------------------------------------------------------------------# ISEA Icosahedron Geometry</span>
-<span id="L36"><span class="lineNum">      36</span>              : # 12 vertices of icosahedron(:isea) as unit vectors (1-indexed, matching GeometryBasics)</span>
-<span id="L37"><span class="lineNum">      37</span>              : const IGEO7_VERTICES_3D = SVector{12,SVector{3,Float64}}(</span>
-<span id="L38"><span class="lineNum">      38</span>              :     SVector(0.5181369092970741,  0.10306383925506017,  0.8490653615959628),</span>
-<span id="L39"><span class="lineNum">      39</span>              :     SVector(0.9966866752635933, -0.0015397574699671436, -0.08132220175904135),</span>
-<span id="L40"><span class="lineNum">      40</span>              :     SVector(-0.9966866752635933, 0.0015397574699671436, 0.08132220175904135),</span>
-<span id="L41"><span class="lineNum">      41</span>              :     SVector(-0.5181369092970741, -0.10306383925506017, -0.8490653615959628),</span>
-<span id="L42"><span class="lineNum">      42</span>              :     SVector(-0.4613784348709131, -0.8762800214612103, -0.13879216052791962),</span>
-<span id="L43"><span class="lineNum">      43</span>              :     SVector(0.4748340273475299,  -0.8135346882413987,  0.3356992068815409),</span>
-<span id="L44"><span class="lineNum">      44</span>              :     SVector(-0.4748340273475299, 0.8135346882413987,  -0.3356992068815409),</span>
-<span id="L45"><span class="lineNum">      45</span>              :     SVector(0.4613784348709131,  0.8762800214612103,   0.13879216052791962),</span>
-<span id="L46"><span class="lineNum">      46</span>              :     SVector(0.3829968865764098,  0.4375553752195837,  -0.8135469737447408),</span>
-<span id="L47"><span class="lineNum">      47</span>              :     SVector(0.39131290006572633, -0.606807550066165,   -0.6918517264738518),</span>
-<span id="L48"><span class="lineNum">      48</span>              :     SVector(-0.39131290006572633, 0.606807550066165,    0.6918517264738518),</span>
-<span id="L49"><span class="lineNum">      49</span>              :     SVector(-0.3829968865764098, -0.4375553752195837,   0.8135469737447408),</span>
-<span id="L50"><span class="lineNum">      50</span>              : )</span>
-<span id="L51"><span class="lineNum">      51</span>              : </span>
-<span id="L52"><span class="lineNum">      52</span>              : # Vertex neighbors (1-indexed, sorted)</span>
-<span id="L53"><span class="lineNum">      53</span>              : const IGEO7_VERTEX_NEIGHBORS = SVector{12,SVector{5,Int}}(</span>
-<span id="L54"><span class="lineNum">      54</span>              :     SVector(2, 6, 8, 11, 12),   # vertex 1</span>
-<span id="L55"><span class="lineNum">      55</span>              :     SVector(1, 6, 8, 9, 10),    # vertex 2</span>
-<span id="L56"><span class="lineNum">      56</span>              :     SVector(4, 5, 7, 11, 12),   # vertex 3</span>
-<span id="L57"><span class="lineNum">      57</span>              :     SVector(3, 5, 7, 9, 10),    # vertex 4</span>
-<span id="L58"><span class="lineNum">      58</span>              :     SVector(3, 4, 6, 10, 12),   # vertex 5</span>
-<span id="L59"><span class="lineNum">      59</span>              :     SVector(1, 2, 5, 10, 12),   # vertex 6</span>
-<span id="L60"><span class="lineNum">      60</span>              :     SVector(3, 4, 8, 9, 11),    # vertex 7</span>
-<span id="L61"><span class="lineNum">      61</span>              :     SVector(1, 2, 7, 9, 11),    # vertex 8</span>
-<span id="L62"><span class="lineNum">      62</span>              :     SVector(2, 4, 7, 8, 10),    # vertex 9</span>
-<span id="L63"><span class="lineNum">      63</span>              :     SVector(2, 4, 5, 6, 9),     # vertex 10</span>
-<span id="L64"><span class="lineNum">      64</span>              :     SVector(1, 3, 7, 8, 12),    # vertex 11</span>
-<span id="L65"><span class="lineNum">      65</span>              :     SVector(1, 3, 5, 6, 11),    # vertex 12</span>
-<span id="L66"><span class="lineNum">      66</span>              : )</span>
-<span id="L67"><span class="lineNum">      67</span>              : </span>
-<span id="L68"><span class="lineNum">      68</span>              : # Hex size parameter at resolution 1 (Lambert equal-area projection, unit sphere)</span>
-<span id="L69"><span class="lineNum">      69</span>              : # Derived from: hex_area = 4π / n_cells, d² = 2*hex_area/√3, s = d/√3</span>
-<span id="L70"><span class="lineNum">      70</span>              : const IGEO7_S1 = sqrt(2 * 4π / (72 * sqrt(3))) / sqrt(3)  # ≈ 0.2592</span>
-<span id="L71"><span class="lineNum">      71</span>              : </span>
-<span id="L72"><span class="lineNum">      72</span>              : #-----------------------------------------------------------------------------# Local Basis</span>
-<span id="L73"><span class="lineNum">      73</span>              : # Precompute local tangent-plane basis (u, v) for each base vertex.</span>
-<span id="L74"><span class="lineNum">      74</span>              : # u is oriented toward the angular midpoint of the first two neighbors.</span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC tlaBgUNC">           0 : function _compute_local_bases()</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :     bases_u = Vector{SVector{3,Float64}}(undef, 12)</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :     bases_v = Vector{SVector{3,Float64}}(undef, 12)</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :     for i in 1:12</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         n = IGEO7_VERTICES_3D[i]</span></span>
-<span id="L80"><span class="lineNum">      80</span>              :         # Use direction toward first neighbor as reference</span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         nb = IGEO7_VERTICES_3D[IGEO7_VERTEX_NEIGHBORS[i][1]]</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         t = nb - dot(nb, n) * n  # project onto tangent plane</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         u = normalize(t)</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         v = cross(n, u)</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         bases_u[i] = u</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         bases_v[i] = v</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :     end</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :     return SVector{12}(bases_u), SVector{12}(bases_v)</span></span>
-<span id="L89"><span class="lineNum">      89</span>              : end</span>
-<span id="L90"><span class="lineNum">      90</span>              : </span>
-<span id="L91"><span class="lineNum">      91</span>              : const IGEO7_BASIS_U, IGEO7_BASIS_V = _compute_local_bases()</span>
-<span id="L92"><span class="lineNum">      92</span>              : </span>
-<span id="L93"><span class="lineNum">      93</span>              : #-----------------------------------------------------------------------------# IGEO7Grid</span>
-<span id="L94"><span class="lineNum">      94</span>              : &quot;&quot;&quot;</span>
-<span id="L95"><span class="lineNum">      95</span>              :     IGEO7Grid()</span>
-<span id="L96"><span class="lineNum">      96</span>              : </span>
-<span id="L97"><span class="lineNum">      97</span>              : An aperture-7 hexagonal discrete global grid based on the ISEA icosahedron.</span>
-<span id="L98"><span class="lineNum">      98</span>              : Uses 12 pentagonal base cells at icosahedron vertices with Z7 hierarchical</span>
-<span id="L99"><span class="lineNum">      99</span>              : indexing.  CRS is EPSG:4326 (WGS84 longitude/latitude).</span>
-<span id="L100"><span class="lineNum">     100</span>              : </span>
-<span id="L101"><span class="lineNum">     101</span>              : Cell count at resolution `r`: `10 * 7^r + 2`.</span>
-<span id="L102"><span class="lineNum">     102</span>              : &quot;&quot;&quot;</span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC tlaBgGNC">           1 : struct IGEO7Grid &lt;: AbstractGrid end</span></span>
+<span id="L5"><span class="lineNum">       5</span>              : const IGEO7_BASE_OFFSET = 60  # bits [63:60]</span>
+<span id="L6"><span class="lineNum">       6</span>              : const IGEO7_MAX_RES     = 20</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              : # Aperture-7 rotation angle per level (child grid rotates clockwise)</span>
+<span id="L9"><span class="lineNum">       9</span>              : const IGEO7_THETA7 = atan(sqrt(3) / 5)  # ≈ 19.1066°</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : # Digit offsets in axial (q, r) coordinates</span>
+<span id="L12"><span class="lineNum">      12</span>              : const IGEO7_DIGIT_OFFSETS = SVector{7,SVector{2,Int}}(</span>
+<span id="L13"><span class="lineNum">      13</span>              :     SVector(0,  0),  # digit 0: center</span>
+<span id="L14"><span class="lineNum">      14</span>              :     SVector(1,  0),  # digit 1</span>
+<span id="L15"><span class="lineNum">      15</span>              :     SVector(0,  1),  # digit 2</span>
+<span id="L16"><span class="lineNum">      16</span>              :     SVector(-1, 1),  # digit 3</span>
+<span id="L17"><span class="lineNum">      17</span>              :     SVector(-1, 0),  # digit 4</span>
+<span id="L18"><span class="lineNum">      18</span>              :     SVector(0, -1),  # digit 5</span>
+<span id="L19"><span class="lineNum">      19</span>              :     SVector(1, -1),  # digit 6</span>
+<span id="L20"><span class="lineNum">      20</span>              : )</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : #-----------------------------------------------------------------------------# ISEA Icosahedron Geometry</span>
+<span id="L23"><span class="lineNum">      23</span>              : # 12 vertices of icosahedron(:isea) as unit vectors (1-indexed, matching GeometryBasics)</span>
+<span id="L24"><span class="lineNum">      24</span>              : const IGEO7_VERTICES_3D = SVector{12,SVector{3,Float64}}(</span>
+<span id="L25"><span class="lineNum">      25</span>              :     SVector(0.5181369092970741,  0.10306383925506017,  0.8490653615959628),</span>
+<span id="L26"><span class="lineNum">      26</span>              :     SVector(0.9966866752635933, -0.0015397574699671436, -0.08132220175904135),</span>
+<span id="L27"><span class="lineNum">      27</span>              :     SVector(-0.9966866752635933, 0.0015397574699671436, 0.08132220175904135),</span>
+<span id="L28"><span class="lineNum">      28</span>              :     SVector(-0.5181369092970741, -0.10306383925506017, -0.8490653615959628),</span>
+<span id="L29"><span class="lineNum">      29</span>              :     SVector(-0.4613784348709131, -0.8762800214612103, -0.13879216052791962),</span>
+<span id="L30"><span class="lineNum">      30</span>              :     SVector(0.4748340273475299,  -0.8135346882413987,  0.3356992068815409),</span>
+<span id="L31"><span class="lineNum">      31</span>              :     SVector(-0.4748340273475299, 0.8135346882413987,  -0.3356992068815409),</span>
+<span id="L32"><span class="lineNum">      32</span>              :     SVector(0.4613784348709131,  0.8762800214612103,   0.13879216052791962),</span>
+<span id="L33"><span class="lineNum">      33</span>              :     SVector(0.3829968865764098,  0.4375553752195837,  -0.8135469737447408),</span>
+<span id="L34"><span class="lineNum">      34</span>              :     SVector(0.39131290006572633, -0.606807550066165,   -0.6918517264738518),</span>
+<span id="L35"><span class="lineNum">      35</span>              :     SVector(-0.39131290006572633, 0.606807550066165,    0.6918517264738518),</span>
+<span id="L36"><span class="lineNum">      36</span>              :     SVector(-0.3829968865764098, -0.4375553752195837,   0.8135469737447408),</span>
+<span id="L37"><span class="lineNum">      37</span>              : )</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : # Vertex neighbors (1-indexed, sorted)</span>
+<span id="L40"><span class="lineNum">      40</span>              : const IGEO7_VERTEX_NEIGHBORS = SVector{12,SVector{5,Int}}(</span>
+<span id="L41"><span class="lineNum">      41</span>              :     SVector(2, 6, 8, 11, 12),   # vertex 1</span>
+<span id="L42"><span class="lineNum">      42</span>              :     SVector(1, 6, 8, 9, 10),    # vertex 2</span>
+<span id="L43"><span class="lineNum">      43</span>              :     SVector(4, 5, 7, 11, 12),   # vertex 3</span>
+<span id="L44"><span class="lineNum">      44</span>              :     SVector(3, 5, 7, 9, 10),    # vertex 4</span>
+<span id="L45"><span class="lineNum">      45</span>              :     SVector(3, 4, 6, 10, 12),   # vertex 5</span>
+<span id="L46"><span class="lineNum">      46</span>              :     SVector(1, 2, 5, 10, 12),   # vertex 6</span>
+<span id="L47"><span class="lineNum">      47</span>              :     SVector(3, 4, 8, 9, 11),    # vertex 7</span>
+<span id="L48"><span class="lineNum">      48</span>              :     SVector(1, 2, 7, 9, 11),    # vertex 8</span>
+<span id="L49"><span class="lineNum">      49</span>              :     SVector(2, 4, 7, 8, 10),    # vertex 9</span>
+<span id="L50"><span class="lineNum">      50</span>              :     SVector(2, 4, 5, 6, 9),     # vertex 10</span>
+<span id="L51"><span class="lineNum">      51</span>              :     SVector(1, 3, 7, 8, 12),    # vertex 11</span>
+<span id="L52"><span class="lineNum">      52</span>              :     SVector(1, 3, 5, 6, 11),    # vertex 12</span>
+<span id="L53"><span class="lineNum">      53</span>              : )</span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span>              : # Hex size parameter at resolution 1 (Lambert equal-area projection, unit sphere)</span>
+<span id="L56"><span class="lineNum">      56</span>              : # Derived from: hex_area = 4π / n_cells, d² = 2*hex_area/√3, s = d/√3</span>
+<span id="L57"><span class="lineNum">      57</span>              : const IGEO7_S1 = sqrt(2 * 4π / (72 * sqrt(3))) / sqrt(3)  # ≈ 0.2592</span>
+<span id="L58"><span class="lineNum">      58</span>              : </span>
+<span id="L59"><span class="lineNum">      59</span>              : #-----------------------------------------------------------------------------# Local Basis</span>
+<span id="L60"><span class="lineNum">      60</span>              : # Precompute local tangent-plane basis (u, v) for each base vertex.</span>
+<span id="L61"><span class="lineNum">      61</span>              : # u is oriented toward the angular midpoint of the first two neighbors.</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC tlaBgUNC">           0 : function _compute_local_bases()</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :     bases_u = Vector{SVector{3,Float64}}(undef, 12)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :     bases_v = Vector{SVector{3,Float64}}(undef, 12)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :     for i in 1:12</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         n = IGEO7_VERTICES_3D[i]</span></span>
+<span id="L67"><span class="lineNum">      67</span>              :         # Use direction toward first neighbor as reference</span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         nb = IGEO7_VERTICES_3D[IGEO7_VERTEX_NEIGHBORS[i][1]]</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         t = nb - dot(nb, n) * n  # project onto tangent plane</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         u = normalize(t)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         v = cross(n, u)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         bases_u[i] = u</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :         bases_v[i] = v</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :     end</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :     return SVector{12}(bases_u), SVector{12}(bases_v)</span></span>
+<span id="L76"><span class="lineNum">      76</span>              : end</span>
+<span id="L77"><span class="lineNum">      77</span>              : </span>
+<span id="L78"><span class="lineNum">      78</span>              : const IGEO7_BASIS_U, IGEO7_BASIS_V = _compute_local_bases()</span>
+<span id="L79"><span class="lineNum">      79</span>              : </span>
+<span id="L80"><span class="lineNum">      80</span>              : #-----------------------------------------------------------------------------# IGEO7Grid</span>
+<span id="L81"><span class="lineNum">      81</span>              : &quot;&quot;&quot;</span>
+<span id="L82"><span class="lineNum">      82</span>              :     IGEO7Grid()</span>
+<span id="L83"><span class="lineNum">      83</span>              : </span>
+<span id="L84"><span class="lineNum">      84</span>              : An aperture-7 hexagonal discrete global grid based on the ISEA icosahedron.</span>
+<span id="L85"><span class="lineNum">      85</span>              : Uses 12 pentagonal base cells at icosahedron vertices with Z7 hierarchical</span>
+<span id="L86"><span class="lineNum">      86</span>              : indexing.  CRS is EPSG:4326 (WGS84 longitude/latitude).</span>
+<span id="L87"><span class="lineNum">      87</span>              : </span>
+<span id="L88"><span class="lineNum">      88</span>              : Cell count at resolution `r`: `10 * 7^r + 2`.</span>
+<span id="L89"><span class="lineNum">      89</span>              : &quot;&quot;&quot;</span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC tlaBgGNC">          11 : struct IGEO7Grid &lt;: AbstractGrid end</span></span>
+<span id="L91"><span class="lineNum">      91</span>              : </span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           2 : GI.crs(::IGEO7Grid) = GFT.EPSG(4326)</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC tlaBgUNC">           0 : GI.ncoord(::IGEO7Grid) = 2</span></span>
+<span id="L94"><span class="lineNum">      94</span>              : </span>
+<span id="L95"><span class="lineNum">      95</span>              : #-----------------------------------------------------------------------------# IGEO7Cell</span>
+<span id="L96"><span class="lineNum">      96</span>              : &quot;&quot;&quot;</span>
+<span id="L97"><span class="lineNum">      97</span>              :     IGEO7Cell(index::UInt64)</span>
+<span id="L98"><span class="lineNum">      98</span>              :     IGEO7Cell(base::Integer, digits::AbstractVector{&lt;:Integer})</span>
+<span id="L99"><span class="lineNum">      99</span>              :     IGEO7Cell(coord::LonLat, res::Integer)</span>
+<span id="L100"><span class="lineNum">     100</span>              :     IGEO7Cell(str::AbstractString)</span>
+<span id="L101"><span class="lineNum">     101</span>              : </span>
+<span id="L102"><span class="lineNum">     102</span>              : A single cell in the IGEO7 grid.  Wraps a `UInt64` index encoding a 4-bit</span>
+<span id="L103"><span class="lineNum">     103</span>              : base cell (0–11) and up to 20 three-bit digits (0–6, padding = 7).</span>
 <span id="L104"><span class="lineNum">     104</span>              : </span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           2 : GI.crs(::IGEO7Grid) = GFT.EPSG(4326)</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC tlaBgUNC">           0 : GI.ncoord(::IGEO7Grid) = 2</span></span>
-<span id="L107"><span class="lineNum">     107</span>              : </span>
-<span id="L108"><span class="lineNum">     108</span>              : #-----------------------------------------------------------------------------# IGEO7Cell</span>
+<span id="L105"><span class="lineNum">     105</span>              : ### Examples</span>
+<span id="L106"><span class="lineNum">     106</span>              : </span>
+<span id="L107"><span class="lineNum">     107</span>              :     IGEO7Cell(LonLat(-75.0, 54.0), 3)</span>
+<span id="L108"><span class="lineNum">     108</span>              :     IGEO7Cell(0, [1, 3, 0])</span>
 <span id="L109"><span class="lineNum">     109</span>              : &quot;&quot;&quot;</span>
-<span id="L110"><span class="lineNum">     110</span>              :     IGEO7Cell(index::UInt64)</span>
-<span id="L111"><span class="lineNum">     111</span>              :     IGEO7Cell(base::Integer, digits::AbstractVector{&lt;:Integer})</span>
-<span id="L112"><span class="lineNum">     112</span>              :     IGEO7Cell(coord::LonLat, res::Integer)</span>
-<span id="L113"><span class="lineNum">     113</span>              :     IGEO7Cell(str::AbstractString)</span>
-<span id="L114"><span class="lineNum">     114</span>              : </span>
-<span id="L115"><span class="lineNum">     115</span>              : A single cell in the IGEO7 grid.  Wraps a `UInt64` index encoding a 4-bit</span>
-<span id="L116"><span class="lineNum">     116</span>              : base cell (0–11) and up to 20 three-bit digits (0–6, padding = 7).</span>
+<span id="L110"><span class="lineNum">     110</span>              : struct IGEO7Cell &lt;: AbstractCell</span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC tlaBgGNC">        3277 :     index::UInt64</span></span>
+<span id="L112"><span class="lineNum">     112</span>              : end</span>
+<span id="L113"><span class="lineNum">     113</span>              : </span>
+<span id="L114"><span class="lineNum">     114</span>              : #-----------------------------------------------------------------------------# Bit Manipulation</span>
+<span id="L115"><span class="lineNum">     115</span>              : &quot;&quot;&quot;Extract 0-indexed base cell (0–11) from raw index.&quot;&quot;&quot;</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">         374 : igeo7_base_cell(idx::UInt64) = Int((idx &gt;&gt; IGEO7_BASE_OFFSET) &amp; 0xF)</span></span>
 <span id="L117"><span class="lineNum">     117</span>              : </span>
-<span id="L118"><span class="lineNum">     118</span>              : ### Examples</span>
-<span id="L119"><span class="lineNum">     119</span>              : </span>
-<span id="L120"><span class="lineNum">     120</span>              :     IGEO7Cell(LonLat(-75.0, 54.0), 3)</span>
-<span id="L121"><span class="lineNum">     121</span>              :     IGEO7Cell(0, [1, 3, 0])</span>
-<span id="L122"><span class="lineNum">     122</span>              : &quot;&quot;&quot;</span>
-<span id="L123"><span class="lineNum">     123</span>              : struct IGEO7Cell &lt;: AbstractCell</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC tlaBgGNC">        3277 :     index::UInt64</span></span>
-<span id="L125"><span class="lineNum">     125</span>              : end</span>
-<span id="L126"><span class="lineNum">     126</span>              : </span>
-<span id="L127"><span class="lineNum">     127</span>              : #-----------------------------------------------------------------------------# Bit Manipulation</span>
-<span id="L128"><span class="lineNum">     128</span>              : &quot;&quot;&quot;Extract 0-indexed base cell (0–11) from raw index.&quot;&quot;&quot;</span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">         372 : igeo7_base_cell(idx::UInt64) = Int((idx &gt;&gt; IGEO7_BASE_OFFSET) &amp; 0xF)</span></span>
-<span id="L130"><span class="lineNum">     130</span>              : </span>
-<span id="L131"><span class="lineNum">     131</span>              : &quot;&quot;&quot;Get 3-bit digit at 1-based position `i` (1 = most significant).&quot;&quot;&quot;</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">         144 : @inline function igeo7_digit(idx::UInt64, i::Int)</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">        8408 :     shift = IGEO7_DIGIT_BITS * (IGEO7_NUM_DIGITS - i)</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">        8408 :     Int((idx &gt;&gt; shift) &amp; IGEO7_DIGIT_MASK)</span></span>
-<span id="L135"><span class="lineNum">     135</span>              : end</span>
-<span id="L136"><span class="lineNum">     136</span>              : </span>
-<span id="L137"><span class="lineNum">     137</span>              : &quot;&quot;&quot;Resolution = number of leading non-padding (non-7) digits.&quot;&quot;&quot;</span>
-<span id="L138"><span class="lineNum">     138</span>              : function igeo7_resolution(idx::UInt64)</span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">        1255 :     for i in 1:IGEO7_NUM_DIGITS</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">        5295 :         igeo7_digit(idx, i) == 7 &amp;&amp; return i - 1</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">        8080 :     end</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC tlaBgUNC">           0 :     return IGEO7_NUM_DIGITS</span></span>
-<span id="L143"><span class="lineNum">     143</span>              : end</span>
+<span id="L118"><span class="lineNum">     118</span>              : &quot;&quot;&quot;Get 3-bit digit at 1-based position `i` (1 = most significant).&quot;&quot;&quot;</span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">         144 : @inline function igeo7_digit(idx::UInt64, i::Int)</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">        8430 :     shift = IGEO7_DIGIT_BITS * (IGEO7_NUM_DIGITS - i)</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">        8430 :     Int((idx &gt;&gt; shift) &amp; IGEO7_DIGIT_MASK)</span></span>
+<span id="L122"><span class="lineNum">     122</span>              : end</span>
+<span id="L123"><span class="lineNum">     123</span>              : </span>
+<span id="L124"><span class="lineNum">     124</span>              : &quot;&quot;&quot;Resolution = number of leading non-padding (non-7) digits.&quot;&quot;&quot;</span>
+<span id="L125"><span class="lineNum">     125</span>              : function igeo7_resolution(idx::UInt64)</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">        1257 :     for i in 1:IGEO7_NUM_DIGITS</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">        5307 :         igeo7_digit(idx, i) == 7 &amp;&amp; return i - 1</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">        8100 :     end</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC tlaBgUNC">           0 :     return IGEO7_NUM_DIGITS</span></span>
+<span id="L130"><span class="lineNum">     130</span>              : end</span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span>              : &quot;&quot;&quot;Return active digits as a vector.&quot;&quot;&quot;</span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC tlaBgGNC">         165 : function igeo7_digits(idx::UInt64)</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">         743 :     r = igeo7_resolution(idx)</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">         165 :     [igeo7_digit(idx, i) for i in 1:r]</span></span>
+<span id="L136"><span class="lineNum">     136</span>              : end</span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              : &quot;&quot;&quot;Hex string representation of raw index.&quot;&quot;&quot;</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           3 : igeo7_string(idx::UInt64) = string(idx, base=16)</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC tlaBgUNC">           0 : igeo7_string(o::IGEO7Cell) = igeo7_string(o.index)</span></span>
+<span id="L141"><span class="lineNum">     141</span>              : </span>
+<span id="L142"><span class="lineNum">     142</span>              : &quot;&quot;&quot;Number of cells at resolution `r`.&quot;&quot;&quot;</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC tlaBgGNC">           4 : igeo7_n_cells(r::Integer) = 10 * big(7)^r + 2</span></span>
 <span id="L144"><span class="lineNum">     144</span>              : </span>
-<span id="L145"><span class="lineNum">     145</span>              : &quot;&quot;&quot;Return active digits as a vector.&quot;&quot;&quot;</span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC tlaBgGNC">         163 : function igeo7_digits(idx::UInt64)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">         731 :     r = igeo7_resolution(idx)</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">         163 :     [igeo7_digit(idx, i) for i in 1:r]</span></span>
-<span id="L149"><span class="lineNum">     149</span>              : end</span>
-<span id="L150"><span class="lineNum">     150</span>              : </span>
-<span id="L151"><span class="lineNum">     151</span>              : &quot;&quot;&quot;Set digit at 1-based position `i` to value `d`.&quot;&quot;&quot;</span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC tlaBgUNC">           0 : @inline function igeo7_change_digit(idx::UInt64, i::Integer, d::Integer)</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :     shift = IGEO7_DIGIT_BITS * (IGEO7_NUM_DIGITS - i)</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :     mask = ~(IGEO7_DIGIT_MASK &lt;&lt; shift)</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :     (idx &amp; mask) | (UInt64(d) &lt;&lt; shift)</span></span>
-<span id="L156"><span class="lineNum">     156</span>              : end</span>
-<span id="L157"><span class="lineNum">     157</span>              : </span>
-<span id="L158"><span class="lineNum">     158</span>              : &quot;&quot;&quot;Hex string representation of raw index.&quot;&quot;&quot;</span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC tlaBgGNC">           1 : igeo7_string(idx::UInt64) = string(idx, base=16)</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 : igeo7_string(o::IGEO7Cell) = igeo7_string(o.index)</span></span>
-<span id="L161"><span class="lineNum">     161</span>              : </span>
-<span id="L162"><span class="lineNum">     162</span>              : &quot;&quot;&quot;Number of cells at resolution `r`.&quot;&quot;&quot;</span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           4 : igeo7_n_cells(r::Integer) = 10 * big(7)^r + 2</span></span>
-<span id="L164"><span class="lineNum">     164</span>              : </span>
-<span id="L165"><span class="lineNum">     165</span>              : #-----------------------------------------------------------------------------# Constructors</span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">        3280 : function IGEO7Cell(base::Integer, digits::AbstractVector{&lt;:Integer})</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">        3282 :     0 &lt;= base &lt;= 11 || throw(ArgumentError(&quot;base must be in 0:11, got $base&quot;))</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">        3278 :     length(digits) &lt;= IGEO7_NUM_DIGITS || throw(ArgumentError(&quot;digits length must be &lt;= $IGEO7_NUM_DIGITS&quot;))</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">       13316 :     all(d -&gt; 0 &lt;= d &lt;= 6, digits) || throw(ArgumentError(&quot;each digit must be in 0:6&quot;))</span></span>
-<span id="L170"><span class="lineNum">     170</span>              :     # Pentagon cells cannot have digit 6</span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">        3277 :     pent = true</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">        3277 :     for d in digits</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">       10036 :         if pent &amp;&amp; d == 6</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :             throw(ArgumentError(&quot;pentagon cell cannot have digit 6&quot;))</span></span>
-<span id="L175"><span class="lineNum">     175</span>              :         end</span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">       10035 :         pent = (d == 0) &amp;&amp; pent  # only center child of pentagon is pentagon</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">       10035 :     end</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">        3276 :     idx = UInt64(base) &lt;&lt; IGEO7_BASE_OFFSET</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">        3276 :     for i in 1:IGEO7_NUM_DIGITS</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">       65520 :         d = i &lt;= length(digits) ? UInt64(digits[i]) : IGEO7_DIGIT_MASK  # pad with 7</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">       65520 :         shift = IGEO7_DIGIT_BITS * (IGEO7_NUM_DIGITS - i)</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">       65520 :         idx |= (d &amp; IGEO7_DIGIT_MASK) &lt;&lt; shift</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">      127764 :     end</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">        3276 :     return IGEO7Cell(idx)</span></span>
-<span id="L185"><span class="lineNum">     185</span>              : end</span>
-<span id="L186"><span class="lineNum">     186</span>              : </span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 : function IGEO7Cell(str::AbstractString)</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :     idx = parse(UInt64, str; base=16)</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :     return IGEO7Cell(idx)</span></span>
-<span id="L190"><span class="lineNum">     190</span>              : end</span>
-<span id="L191"><span class="lineNum">     191</span>              : </span>
-<span id="L192"><span class="lineNum">     192</span>              : #-----------------------------------------------------------------------------# Lambert Azimuthal Equal-Area Projection</span>
-<span id="L193"><span class="lineNum">     193</span>              : &quot;&quot;&quot;Project 3D unit vector `p` onto tangent plane at base vertex `bi` (1-indexed).</span>
-<span id="L194"><span class="lineNum">     194</span>              : Returns (x, y) in the local coordinate system.&quot;&quot;&quot;</span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">       51007 : function _lambert_forward(p::SVector{3,Float64}, bi::Int)</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">       51007 :     n = IGEO7_VERTICES_3D[bi]</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">      102006 :     cos_a = clamp(dot(p, n), -1.0, 1.0)</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">       51007 :     cos_a &lt;= -1.0 + 1e-14 &amp;&amp; return (0.0, 0.0)  # antipodal</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">       50923 :     k = sqrt(2.0 / (1.0 + cos_a))</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">       50923 :     x = k * dot(p, IGEO7_BASIS_U[bi])</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">       50923 :     y = k * dot(p, IGEO7_BASIS_V[bi])</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">       50923 :     return (x, y)</span></span>
-<span id="L203"><span class="lineNum">     203</span>              : end</span>
-<span id="L204"><span class="lineNum">     204</span>              : </span>
-<span id="L205"><span class="lineNum">     205</span>              : &quot;&quot;&quot;Inverse Lambert: (x, y) in tangent plane at base vertex `bi` → 3D unit vector.&quot;&quot;&quot;</span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">       49616 : function _lambert_inverse(x::Float64, y::Float64, bi::Int)</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">       49616 :     rho2 = x * x + y * y</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">       49616 :     rho2 &lt; 1e-30 &amp;&amp; return IGEO7_VERTICES_3D[bi]</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">       43815 :     cos_a = 1.0 - rho2 / 2.0</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">       43815 :     scale = sqrt(max(0.0, 1.0 - rho2 / 4.0))</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">       43815 :     p = cos_a * IGEO7_VERTICES_3D[bi] + scale * (x * IGEO7_BASIS_U[bi] + y * IGEO7_BASIS_V[bi])</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">       43815 :     return normalize(p)</span></span>
-<span id="L213"><span class="lineNum">     213</span>              : end</span>
-<span id="L214"><span class="lineNum">     214</span>              : </span>
-<span id="L215"><span class="lineNum">     215</span>              : &quot;&quot;&quot;Convert 3D unit vector to LonLat.&quot;&quot;&quot;</span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">       49616 : function _xyz_to_lonlat(p::SVector{3,Float64})</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">       99232 :     lat = asind(clamp(p[3], -1.0, 1.0))</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">       49616 :     lon = atand(p[2], p[1])</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">       49616 :     return LonLat(lon, lat)</span></span>
-<span id="L220"><span class="lineNum">     220</span>              : end</span>
-<span id="L221"><span class="lineNum">     221</span>              : </span>
-<span id="L222"><span class="lineNum">     222</span>              : &quot;&quot;&quot;Convert LonLat to 3D unit vector.&quot;&quot;&quot;</span>
-<span id="L223"><span class="lineNum">     223</span>              : function _lonlat_to_xyz(ll::LonLat)</span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">       55048 :     clat = cosd(ll.lat)</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">       55048 :     SVector(clat * cosd(ll.lon), clat * sind(ll.lon), sind(ll.lat))</span></span>
-<span id="L226"><span class="lineNum">     226</span>              : end</span>
-<span id="L227"><span class="lineNum">     227</span>              : </span>
-<span id="L228"><span class="lineNum">     228</span>              : #-----------------------------------------------------------------------------# Hex Math</span>
-<span id="L229"><span class="lineNum">     229</span>              : &quot;&quot;&quot;Axial (q, r) → Cartesian (x, y) for pointy-top hex with size parameter `s`.&quot;&quot;&quot;</span>
-<span id="L230"><span class="lineNum">     230</span>              : function _axial_to_cart(q, r, s)</span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">      105356 :     x = s * (sqrt(3) * q + sqrt(3) / 2 * r)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">      105356 :     y = s * (1.5 * r)</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">      105356 :     return (x, y)</span></span>
-<span id="L234"><span class="lineNum">     234</span>              : end</span>
-<span id="L235"><span class="lineNum">     235</span>              : </span>
-<span id="L236"><span class="lineNum">     236</span>              : &quot;&quot;&quot;Cartesian (x, y) → fractional axial (q, r) for pointy-top hex with size parameter `s`.&quot;&quot;&quot;</span>
-<span id="L237"><span class="lineNum">     237</span>              : function _cart_to_axial(x, y, s)</span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">       48420 :     r = y / (1.5 * s)</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">       48420 :     q = (x / s - sqrt(3) / 2 * r) / sqrt(3)</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">       48420 :     return (q, r)</span></span>
-<span id="L241"><span class="lineNum">     241</span>              : end</span>
-<span id="L242"><span class="lineNum">     242</span>              : </span>
-<span id="L243"><span class="lineNum">     243</span>              : &quot;&quot;&quot;Round fractional axial (q, r) to nearest hex center.&quot;&quot;&quot;</span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">       48420 : function _hex_round(q::Float64, r::Float64)</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">       48420 :     s = -q - r  # cube z</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">       48420 :     rq = round(q)</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">       48420 :     rr = round(r)</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">       48420 :     rs = round(s)</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">       48420 :     dq = abs(rq - q)</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">       48420 :     dr = abs(rr - r)</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">       48420 :     ds = abs(rs - s)</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">       48420 :     if dq &gt; dr &amp;&amp; dq &gt; ds</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">       15393 :         rq = -rr - rs</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">       33027 :     elseif dr &gt; ds</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">       16894 :         rr = -rq - rs</span></span>
-<span id="L256"><span class="lineNum">     256</span>              :     end</span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">       48420 :     return (Int(rq), Int(rr))</span></span>
-<span id="L258"><span class="lineNum">     258</span>              : end</span>
-<span id="L259"><span class="lineNum">     259</span>              : </span>
-<span id="L260"><span class="lineNum">     260</span>              : &quot;&quot;&quot;Apply 2D rotation by angle `theta` (radians) to point (x, y).&quot;&quot;&quot;</span>
-<span id="L261"><span class="lineNum">     261</span>              : function _rotate2d(x, y, theta)</span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">      153776 :     c, s = cos(theta), sin(theta)</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">      153776 :     return (c * x - s * y, s * x + c * y)</span></span>
-<span id="L264"><span class="lineNum">     264</span>              : end</span>
-<span id="L265"><span class="lineNum">     265</span>              : </span>
-<span id="L266"><span class="lineNum">     266</span>              : #-----------------------------------------------------------------------------# Forward Transform (LonLat → IGEO7Cell)</span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">        2592 : function IGEO7Cell(coord::LonLat, res::Integer)</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">        2594 :     0 &lt;= res &lt;= IGEO7_MAX_RES || throw(ArgumentError(&quot;resolution must be in 0:$IGEO7_MAX_RES, got $res&quot;))</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">        2590 :     p = _lonlat_to_xyz(coord)</span></span>
-<span id="L270"><span class="lineNum">     270</span>              : </span>
-<span id="L271"><span class="lineNum">     271</span>              :     # Find nearest base vertex (0-indexed for the cell, 1-indexed for arrays)</span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">        2590 :     best_dot = -Inf</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">        2590 :     base1 = 1  # 1-indexed</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">        2590 :     for i in 1:12</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">       31080 :         d = dot(p, IGEO7_VERTICES_3D[i])</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">       31080 :         if d &gt; best_dot</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">        5204 :             best_dot = d</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">        5204 :             base1 = i</span></span>
-<span id="L279"><span class="lineNum">     279</span>              :         end</span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">       59570 :     end</span></span>
-<span id="L281"><span class="lineNum">     281</span>              : </span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">        2590 :     res == 0 &amp;&amp; return IGEO7Cell(base1 - 1, Int[])</span></span>
-<span id="L283"><span class="lineNum">     283</span>              : </span>
-<span id="L284"><span class="lineNum">     284</span>              :     # Project onto Lambert tangent plane at base vertex</span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">        2587 :     px, py = _lambert_forward(p, base1)</span></span>
-<span id="L286"><span class="lineNum">     286</span>              : </span>
-<span id="L287"><span class="lineNum">     287</span>              :     # Top-down recursive digit extraction:</span>
-<span id="L288"><span class="lineNum">     288</span>              :     # At each level, find the nearest child center among the valid digit offsets.</span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">        2587 :     digits = Vector{Int}(undef, res)</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">        2587 :     center_x, center_y = 0.0, 0.0  # current cell center in Lambert plane</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">        2587 :     is_pent = true  # base cells are always pentagons</span></span>
-<span id="L292"><span class="lineNum">     292</span>              : </span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">        2587 :     for level in 1:res</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">       12611 :         s_level = IGEO7_S1 / sqrt(7.0)^(level - 1)</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">        7599 :         rotation = -level * IGEO7_THETA7</span></span>
-<span id="L296"><span class="lineNum">     296</span>              : </span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">        7599 :         n_children = is_pent ? 6 : 7</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">        7599 :         best_d2 = Inf</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">        7599 :         best_digit = 0</span></span>
-<span id="L300"><span class="lineNum">     300</span>              : </span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">        7599 :         for d in 0:(n_children - 1)</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">       47990 :             off = IGEO7_DIGIT_OFFSETS[d + 1]</span></span>
-<span id="L303"><span class="lineNum">     303</span>              :             # Convert offset to cartesian, apply rotation</span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">       47990 :             ox, oy = _axial_to_cart(off[1], off[2], s_level)</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">       47990 :             ox, oy = _rotate2d(ox, oy, rotation)</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">       47990 :             cx = center_x + ox</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">       47990 :             cy = center_y + oy</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">       47990 :             dist2 = (px - cx)^2 + (py - cy)^2</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">       47990 :             if dist2 &lt; best_d2</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">       13814 :                 best_d2 = dist2</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">       13814 :                 best_digit = d</span></span>
-<span id="L312"><span class="lineNum">     312</span>              :             end</span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">       88381 :         end</span></span>
-<span id="L314"><span class="lineNum">     314</span>              : </span>
-<span id="L315"><span class="lineNum">     315</span>              :         # Update center and pentagon status</span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">        7599 :         off = IGEO7_DIGIT_OFFSETS[best_digit + 1]</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">        7599 :         ox, oy = _axial_to_cart(off[1], off[2], s_level)</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">        7599 :         ox, oy = _rotate2d(ox, oy, rotation)</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">        7599 :         center_x += ox</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">        7599 :         center_y += oy</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">        7599 :         digits[level] = best_digit</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">        7599 :         is_pent = is_pent &amp;&amp; (best_digit == 0)</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">       12611 :     end</span></span>
-<span id="L324"><span class="lineNum">     324</span>              : </span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">        2587 :     return IGEO7Cell(base1 - 1, digits)</span></span>
-<span id="L326"><span class="lineNum">     326</span>              : end</span>
-<span id="L327"><span class="lineNum">     327</span>              : </span>
-<span id="L328"><span class="lineNum">     328</span>              : #-----------------------------------------------------------------------------# Inverse Transform (IGEO7Cell → center LonLat)</span>
-<span id="L329"><span class="lineNum">     329</span>              : &quot;&quot;&quot;Compute the Lambert-plane center (x, y) for a cell at its base vertex.&quot;&quot;&quot;</span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">         218 : function _igeo7_center_lambert(idx::UInt64)</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">         218 :     base1 = igeo7_base_cell(idx) + 1</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">         702 :     res = igeo7_resolution(idx)</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">         218 :     cx, cy = 0.0, 0.0</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">         218 :     for level in 1:res</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">         484 :         d = igeo7_digit(idx, level)</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">         752 :         s_level = IGEO7_S1 / sqrt(7.0)^(level - 1)</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">         484 :         rotation = -level * IGEO7_THETA7</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">         484 :         off = IGEO7_DIGIT_OFFSETS[d + 1]</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">         484 :         ox, oy = _axial_to_cart(off[1], off[2], s_level)</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">         484 :         ox, oy = _rotate2d(ox, oy, rotation)</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">         484 :         cx += ox</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">         484 :         cy += oy</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">         752 :     end</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">         218 :     return base1, cx, cy</span></span>
-<span id="L345"><span class="lineNum">     345</span>              : end</span>
-<span id="L346"><span class="lineNum">     346</span>              : </span>
-<span id="L347"><span class="lineNum">     347</span>              : function _igeo7_centroid(idx::UInt64)</span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">         208 :     base1, cx, cy = _igeo7_center_lambert(idx)</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">         208 :     p = _lambert_inverse(cx, cy, base1)</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">         208 :     return _xyz_to_lonlat(p)</span></span>
-<span id="L351"><span class="lineNum">     351</span>              : end</span>
-<span id="L352"><span class="lineNum">     352</span>              : </span>
-<span id="L353"><span class="lineNum">     353</span>              : #-----------------------------------------------------------------------------# Cell Boundary</span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">          10 : function _igeo7_boundary(idx::UInt64)</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">          10 :     base1, cx, cy = _igeo7_center_lambert(idx)</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">          51 :     res = igeo7_resolution(idx)</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">          12 :     pent = _igeo7_is_pentagon(idx)</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">          10 :     n_verts = pent ? 5 : 6</span></span>
-<span id="L359"><span class="lineNum">     359</span>              : </span>
-<span id="L360"><span class="lineNum">     360</span>              :     # Hex vertex radius = circumradius = size parameter at this resolution</span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">          19 :     s_res = res == 0 ? IGEO7_S1 : IGEO7_S1 / sqrt(7.0)^(res - 1)</span></span>
-<span id="L362"><span class="lineNum">     362</span>              :     # For pointy-top hex, vertices are at distance s from center</span>
-<span id="L363"><span class="lineNum">     363</span>              :     # at angles 30° + k*60° for k=0..5</span>
-<span id="L364"><span class="lineNum">     364</span>              :     # Hex circumradius = center-to-vertex distance</span>
-<span id="L365"><span class="lineNum">     365</span>              :     # For hex with center-to-center spacing d = √3*s, circumradius = s (the size param)</span>
-<span id="L366"><span class="lineNum">     366</span>              :     # But our axial size param s_level is different from the hex circumradius.</span>
-<span id="L367"><span class="lineNum">     367</span>              :     # Hex circumradius = s_level (center-to-vertex = size parameter)</span>
-<span id="L368"><span class="lineNum">     368</span>              :     # Actually for a regular hex with side length a:</span>
-<span id="L369"><span class="lineNum">     369</span>              :     #   circumradius (center-to-vertex) = a</span>
-<span id="L370"><span class="lineNum">     370</span>              :     #   center-to-center distance = √3 * a</span>
-<span id="L371"><span class="lineNum">     371</span>              :     # Our s_level is the &quot;size parameter&quot; used in axial_to_cart.</span>
-<span id="L372"><span class="lineNum">     372</span>              :     # In axial_to_cart, (1,0) maps to (√3*s, 0) → distance √3*s from origin</span>
-<span id="L373"><span class="lineNum">     373</span>              :     # So center-to-center = √3*s, meaning the hex has side = s and circumradius = s.</span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">          10 :     hex_R = s_res</span></span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">          10 :     total_rotation = -res * IGEO7_THETA7</span></span>
-<span id="L376"><span class="lineNum">     376</span>              : </span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">          10 :     coords = Vector{LonLat{Float64}}(undef, n_verts + 1)</span></span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">          10 :     for k in 0:(n_verts - 1)</span></span>
-<span id="L379"><span class="lineNum">     379</span>              :         # Pointy-top hex: first vertex at 30°</span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">          59 :         angle = deg2rad(30.0 + k * (360.0 / n_verts)) + total_rotation</span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">          59 :         vx = cx + hex_R * cos(angle)</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">          59 :         vy = cy + hex_R * sin(angle)</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">          59 :         p = _lambert_inverse(vx, vy, base1)</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">          59 :         coords[k + 1] = _xyz_to_lonlat(p)</span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">         108 :     end</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">          10 :     coords[end] = coords[1]  # close polygon</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">          10 :     return coords</span></span>
-<span id="L388"><span class="lineNum">     388</span>              : end</span>
-<span id="L389"><span class="lineNum">     389</span>              : </span>
-<span id="L390"><span class="lineNum">     390</span>              : &quot;&quot;&quot;True if the cell is a pentagon (all digits are 0).&quot;&quot;&quot;</span>
-<span id="L391"><span class="lineNum">     391</span>              : function _igeo7_is_pentagon(idx::UInt64)</span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">        2669 :     res = igeo7_resolution(idx)</span></span>
-<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">         622 :     for i in 1:res</span></span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">        1917 :         igeo7_digit(idx, i) != 0 &amp;&amp; return false</span></span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">        2840 :     end</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">         221 :     return true</span></span>
-<span id="L397"><span class="lineNum">     397</span>              : end</span>
-<span id="L398"><span class="lineNum">     398</span>              : </span>
-<span id="L399"><span class="lineNum">     399</span>              : #-----------------------------------------------------------------------------# AbstractCell Interface</span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC tlaBgUNC">           0 : grid(::IGEO7Cell) = IGEO7Grid()</span></span>
+<span id="L145"><span class="lineNum">     145</span>              : #-----------------------------------------------------------------------------# Constructors</span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">        3280 : function IGEO7Cell(base::Integer, digits::AbstractVector{&lt;:Integer})</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">        3282 :     0 &lt;= base &lt;= 11 || throw(ArgumentError(&quot;base must be in 0:11, got $base&quot;))</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">        3278 :     length(digits) &lt;= IGEO7_NUM_DIGITS || throw(ArgumentError(&quot;digits length must be &lt;= $IGEO7_NUM_DIGITS&quot;))</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">       13316 :     all(d -&gt; 0 &lt;= d &lt;= 6, digits) || throw(ArgumentError(&quot;each digit must be in 0:6&quot;))</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :     # Pentagon cells cannot have digit 6</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">        3277 :     pent = true</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">        3277 :     for d in digits</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">       10036 :         if pent &amp;&amp; d == 6</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :             throw(ArgumentError(&quot;pentagon cell cannot have digit 6&quot;))</span></span>
+<span id="L155"><span class="lineNum">     155</span>              :         end</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">       10035 :         pent = (d == 0) &amp;&amp; pent  # only center child of pentagon is pentagon</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">       10035 :     end</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">        3276 :     idx = UInt64(base) &lt;&lt; IGEO7_BASE_OFFSET</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">        3276 :     for i in 1:IGEO7_NUM_DIGITS</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">       65520 :         d = i &lt;= length(digits) ? UInt64(digits[i]) : IGEO7_DIGIT_MASK  # pad with 7</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">       65520 :         shift = IGEO7_DIGIT_BITS * (IGEO7_NUM_DIGITS - i)</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">       65520 :         idx |= (d &amp; IGEO7_DIGIT_MASK) &lt;&lt; shift</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">      127764 :     end</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">        3276 :     return IGEO7Cell(idx)</span></span>
+<span id="L165"><span class="lineNum">     165</span>              : end</span>
+<span id="L166"><span class="lineNum">     166</span>              : </span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 : function IGEO7Cell(str::AbstractString)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :     idx = parse(UInt64, str; base=16)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :     return IGEO7Cell(idx)</span></span>
+<span id="L170"><span class="lineNum">     170</span>              : end</span>
+<span id="L171"><span class="lineNum">     171</span>              : </span>
+<span id="L172"><span class="lineNum">     172</span>              : #-----------------------------------------------------------------------------# Lambert Azimuthal Equal-Area Projection</span>
+<span id="L173"><span class="lineNum">     173</span>              : &quot;&quot;&quot;Project 3D unit vector `p` onto tangent plane at base vertex `bi` (1-indexed).</span>
+<span id="L174"><span class="lineNum">     174</span>              : Returns (x, y) in the local coordinate system.&quot;&quot;&quot;</span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">       51007 : function _lambert_forward(p::SVector{3,Float64}, bi::Int)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">       51007 :     n = IGEO7_VERTICES_3D[bi]</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">      102006 :     cos_a = clamp(dot(p, n), -1.0, 1.0)</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">       51007 :     cos_a &lt;= -1.0 + 1e-14 &amp;&amp; return (0.0, 0.0)  # antipodal</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">       50923 :     k = sqrt(2.0 / (1.0 + cos_a))</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">       50923 :     x = k * dot(p, IGEO7_BASIS_U[bi])</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">       50923 :     y = k * dot(p, IGEO7_BASIS_V[bi])</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">       50923 :     return (x, y)</span></span>
+<span id="L183"><span class="lineNum">     183</span>              : end</span>
+<span id="L184"><span class="lineNum">     184</span>              : </span>
+<span id="L185"><span class="lineNum">     185</span>              : &quot;&quot;&quot;Inverse Lambert: (x, y) in tangent plane at base vertex `bi` → 3D unit vector.&quot;&quot;&quot;</span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">       49616 : function _lambert_inverse(x::Float64, y::Float64, bi::Int)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">       49616 :     rho2 = x * x + y * y</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">       49616 :     rho2 &lt; 1e-30 &amp;&amp; return IGEO7_VERTICES_3D[bi]</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">       43815 :     cos_a = 1.0 - rho2 / 2.0</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">       43815 :     scale = sqrt(max(0.0, 1.0 - rho2 / 4.0))</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">       43815 :     p = cos_a * IGEO7_VERTICES_3D[bi] + scale * (x * IGEO7_BASIS_U[bi] + y * IGEO7_BASIS_V[bi])</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">       43815 :     return normalize(p)</span></span>
+<span id="L193"><span class="lineNum">     193</span>              : end</span>
+<span id="L194"><span class="lineNum">     194</span>              : </span>
+<span id="L195"><span class="lineNum">     195</span>              : &quot;&quot;&quot;Convert 3D unit vector to LonLat.&quot;&quot;&quot;</span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">       49616 : function _xyz_to_lonlat(p::SVector{3,Float64})</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">       99232 :     lat = asind(clamp(p[3], -1.0, 1.0))</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">       49616 :     lon = atand(p[2], p[1])</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">       49616 :     return LonLat(lon, lat)</span></span>
+<span id="L200"><span class="lineNum">     200</span>              : end</span>
+<span id="L201"><span class="lineNum">     201</span>              : </span>
+<span id="L202"><span class="lineNum">     202</span>              : &quot;&quot;&quot;Convert LonLat to 3D unit vector.&quot;&quot;&quot;</span>
+<span id="L203"><span class="lineNum">     203</span>              : function _lonlat_to_xyz(ll::LonLat)</span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">       55048 :     clat = cosd(ll.lat)</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">       55048 :     SVector(clat * cosd(ll.lon), clat * sind(ll.lon), sind(ll.lat))</span></span>
+<span id="L206"><span class="lineNum">     206</span>              : end</span>
+<span id="L207"><span class="lineNum">     207</span>              : </span>
+<span id="L208"><span class="lineNum">     208</span>              : #-----------------------------------------------------------------------------# Hex Math</span>
+<span id="L209"><span class="lineNum">     209</span>              : &quot;&quot;&quot;Axial (q, r) → Cartesian (x, y) for pointy-top hex with size parameter `s`.&quot;&quot;&quot;</span>
+<span id="L210"><span class="lineNum">     210</span>              : function _axial_to_cart(q, r, s)</span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">      105356 :     x = s * (sqrt(3) * q + sqrt(3) / 2 * r)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">      105356 :     y = s * (1.5 * r)</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">      105356 :     return (x, y)</span></span>
+<span id="L214"><span class="lineNum">     214</span>              : end</span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span>              : &quot;&quot;&quot;Cartesian (x, y) → fractional axial (q, r) for pointy-top hex with size parameter `s`.&quot;&quot;&quot;</span>
+<span id="L217"><span class="lineNum">     217</span>              : function _cart_to_axial(x, y, s)</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">       48420 :     r = y / (1.5 * s)</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">       48420 :     q = (x / s - sqrt(3) / 2 * r) / sqrt(3)</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">       48420 :     return (q, r)</span></span>
+<span id="L221"><span class="lineNum">     221</span>              : end</span>
+<span id="L222"><span class="lineNum">     222</span>              : </span>
+<span id="L223"><span class="lineNum">     223</span>              : &quot;&quot;&quot;Round fractional axial (q, r) to nearest hex center.&quot;&quot;&quot;</span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">       48420 : function _hex_round(q::Float64, r::Float64)</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">       48420 :     s = -q - r  # cube z</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">       48420 :     rq = round(q)</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">       48420 :     rr = round(r)</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">       48420 :     rs = round(s)</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">       48420 :     dq = abs(rq - q)</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">       48420 :     dr = abs(rr - r)</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">       48420 :     ds = abs(rs - s)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">       48420 :     if dq &gt; dr &amp;&amp; dq &gt; ds</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">       15393 :         rq = -rr - rs</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">       33027 :     elseif dr &gt; ds</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">       16894 :         rr = -rq - rs</span></span>
+<span id="L236"><span class="lineNum">     236</span>              :     end</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">       48420 :     return (Int(rq), Int(rr))</span></span>
+<span id="L238"><span class="lineNum">     238</span>              : end</span>
+<span id="L239"><span class="lineNum">     239</span>              : </span>
+<span id="L240"><span class="lineNum">     240</span>              : &quot;&quot;&quot;Apply 2D rotation by angle `theta` (radians) to point (x, y).&quot;&quot;&quot;</span>
+<span id="L241"><span class="lineNum">     241</span>              : function _rotate2d(x, y, theta)</span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">      153776 :     c, s = cos(theta), sin(theta)</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">      153776 :     return (c * x - s * y, s * x + c * y)</span></span>
+<span id="L244"><span class="lineNum">     244</span>              : end</span>
+<span id="L245"><span class="lineNum">     245</span>              : </span>
+<span id="L246"><span class="lineNum">     246</span>              : #-----------------------------------------------------------------------------# Forward Transform (LonLat → IGEO7Cell)</span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">        2592 : function IGEO7Cell(coord::LonLat, res::Integer)</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">        2594 :     0 &lt;= res &lt;= IGEO7_MAX_RES || throw(ArgumentError(&quot;resolution must be in 0:$IGEO7_MAX_RES, got $res&quot;))</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">        2590 :     p = _lonlat_to_xyz(coord)</span></span>
+<span id="L250"><span class="lineNum">     250</span>              : </span>
+<span id="L251"><span class="lineNum">     251</span>              :     # Find nearest base vertex (0-indexed for the cell, 1-indexed for arrays)</span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">        2590 :     best_dot = -Inf</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">        2590 :     base1 = 1  # 1-indexed</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">        2590 :     for i in 1:12</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">       31080 :         d = dot(p, IGEO7_VERTICES_3D[i])</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">       31080 :         if d &gt; best_dot</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">        5204 :             best_dot = d</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">        5204 :             base1 = i</span></span>
+<span id="L259"><span class="lineNum">     259</span>              :         end</span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">       59570 :     end</span></span>
+<span id="L261"><span class="lineNum">     261</span>              : </span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">        2590 :     res == 0 &amp;&amp; return IGEO7Cell(base1 - 1, Int[])</span></span>
+<span id="L263"><span class="lineNum">     263</span>              : </span>
+<span id="L264"><span class="lineNum">     264</span>              :     # Project onto Lambert tangent plane at base vertex</span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">        2587 :     px, py = _lambert_forward(p, base1)</span></span>
+<span id="L266"><span class="lineNum">     266</span>              : </span>
+<span id="L267"><span class="lineNum">     267</span>              :     # Top-down recursive digit extraction:</span>
+<span id="L268"><span class="lineNum">     268</span>              :     # At each level, find the nearest child center among the valid digit offsets.</span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">        2587 :     digits = Vector{Int}(undef, res)</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">        2587 :     center_x, center_y = 0.0, 0.0  # current cell center in Lambert plane</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">        2587 :     is_pent = true  # base cells are always pentagons</span></span>
+<span id="L272"><span class="lineNum">     272</span>              : </span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">        2587 :     for level in 1:res</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">       12611 :         s_level = IGEO7_S1 / sqrt(7.0)^(level - 1)</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">        7599 :         rotation = -level * IGEO7_THETA7</span></span>
+<span id="L276"><span class="lineNum">     276</span>              : </span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">        7599 :         n_children = is_pent ? 6 : 7</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">        7599 :         best_d2 = Inf</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">        7599 :         best_digit = 0</span></span>
+<span id="L280"><span class="lineNum">     280</span>              : </span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">        7599 :         for d in 0:(n_children - 1)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">       47990 :             off = IGEO7_DIGIT_OFFSETS[d + 1]</span></span>
+<span id="L283"><span class="lineNum">     283</span>              :             # Convert offset to cartesian, apply rotation</span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">       47990 :             ox, oy = _axial_to_cart(off[1], off[2], s_level)</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">       47990 :             ox, oy = _rotate2d(ox, oy, rotation)</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">       47990 :             cx = center_x + ox</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">       47990 :             cy = center_y + oy</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">       47990 :             dist2 = (px - cx)^2 + (py - cy)^2</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">       47990 :             if dist2 &lt; best_d2</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">       13814 :                 best_d2 = dist2</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">       13814 :                 best_digit = d</span></span>
+<span id="L292"><span class="lineNum">     292</span>              :             end</span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">       88381 :         end</span></span>
+<span id="L294"><span class="lineNum">     294</span>              : </span>
+<span id="L295"><span class="lineNum">     295</span>              :         # Update center and pentagon status</span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">        7599 :         off = IGEO7_DIGIT_OFFSETS[best_digit + 1]</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">        7599 :         ox, oy = _axial_to_cart(off[1], off[2], s_level)</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">        7599 :         ox, oy = _rotate2d(ox, oy, rotation)</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">        7599 :         center_x += ox</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">        7599 :         center_y += oy</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">        7599 :         digits[level] = best_digit</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">        7599 :         is_pent = is_pent &amp;&amp; (best_digit == 0)</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">       12611 :     end</span></span>
+<span id="L304"><span class="lineNum">     304</span>              : </span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">        2587 :     return IGEO7Cell(base1 - 1, digits)</span></span>
+<span id="L306"><span class="lineNum">     306</span>              : end</span>
+<span id="L307"><span class="lineNum">     307</span>              : </span>
+<span id="L308"><span class="lineNum">     308</span>              : #-----------------------------------------------------------------------------# Inverse Transform (IGEO7Cell → center LonLat)</span>
+<span id="L309"><span class="lineNum">     309</span>              : &quot;&quot;&quot;Compute the Lambert-plane center (x, y) for a cell at its base vertex.&quot;&quot;&quot;</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">         218 : function _igeo7_center_lambert(idx::UInt64)</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">         218 :     base1 = igeo7_base_cell(idx) + 1</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">         702 :     res = igeo7_resolution(idx)</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">         218 :     cx, cy = 0.0, 0.0</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">         218 :     for level in 1:res</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">         484 :         d = igeo7_digit(idx, level)</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">         752 :         s_level = IGEO7_S1 / sqrt(7.0)^(level - 1)</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">         484 :         rotation = -level * IGEO7_THETA7</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">         484 :         off = IGEO7_DIGIT_OFFSETS[d + 1]</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">         484 :         ox, oy = _axial_to_cart(off[1], off[2], s_level)</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">         484 :         ox, oy = _rotate2d(ox, oy, rotation)</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">         484 :         cx += ox</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">         484 :         cy += oy</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">         752 :     end</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">         218 :     return base1, cx, cy</span></span>
+<span id="L325"><span class="lineNum">     325</span>              : end</span>
+<span id="L326"><span class="lineNum">     326</span>              : </span>
+<span id="L327"><span class="lineNum">     327</span>              : function _igeo7_centroid(idx::UInt64)</span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">         208 :     base1, cx, cy = _igeo7_center_lambert(idx)</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">         208 :     p = _lambert_inverse(cx, cy, base1)</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">         208 :     return _xyz_to_lonlat(p)</span></span>
+<span id="L331"><span class="lineNum">     331</span>              : end</span>
+<span id="L332"><span class="lineNum">     332</span>              : </span>
+<span id="L333"><span class="lineNum">     333</span>              : #-----------------------------------------------------------------------------# Cell Boundary</span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">          10 : function _igeo7_boundary(idx::UInt64)</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">          10 :     base1, cx, cy = _igeo7_center_lambert(idx)</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">          51 :     res = igeo7_resolution(idx)</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">          12 :     pent = _igeo7_is_pentagon(idx)</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">          10 :     n_verts = pent ? 5 : 6</span></span>
+<span id="L339"><span class="lineNum">     339</span>              : </span>
+<span id="L340"><span class="lineNum">     340</span>              :     # Hex vertex radius = circumradius = size parameter at this resolution</span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">          19 :     s_res = res == 0 ? IGEO7_S1 : IGEO7_S1 / sqrt(7.0)^(res - 1)</span></span>
+<span id="L342"><span class="lineNum">     342</span>              :     # For pointy-top hex, vertices are at distance s from center</span>
+<span id="L343"><span class="lineNum">     343</span>              :     # at angles 30° + k*60° for k=0..5</span>
+<span id="L344"><span class="lineNum">     344</span>              :     # Hex circumradius = center-to-vertex distance</span>
+<span id="L345"><span class="lineNum">     345</span>              :     # For hex with center-to-center spacing d = √3*s, circumradius = s (the size param)</span>
+<span id="L346"><span class="lineNum">     346</span>              :     # But our axial size param s_level is different from the hex circumradius.</span>
+<span id="L347"><span class="lineNum">     347</span>              :     # Hex circumradius = s_level (center-to-vertex = size parameter)</span>
+<span id="L348"><span class="lineNum">     348</span>              :     # Actually for a regular hex with side length a:</span>
+<span id="L349"><span class="lineNum">     349</span>              :     #   circumradius (center-to-vertex) = a</span>
+<span id="L350"><span class="lineNum">     350</span>              :     #   center-to-center distance = √3 * a</span>
+<span id="L351"><span class="lineNum">     351</span>              :     # Our s_level is the &quot;size parameter&quot; used in axial_to_cart.</span>
+<span id="L352"><span class="lineNum">     352</span>              :     # In axial_to_cart, (1,0) maps to (√3*s, 0) → distance √3*s from origin</span>
+<span id="L353"><span class="lineNum">     353</span>              :     # So center-to-center = √3*s, meaning the hex has side = s and circumradius = s.</span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">          10 :     hex_R = s_res</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">          10 :     total_rotation = -res * IGEO7_THETA7</span></span>
+<span id="L356"><span class="lineNum">     356</span>              : </span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">          10 :     coords = Vector{LonLat{Float64}}(undef, n_verts + 1)</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">          10 :     for k in 0:(n_verts - 1)</span></span>
+<span id="L359"><span class="lineNum">     359</span>              :         # Pointy-top hex: first vertex at 30°</span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">          59 :         angle = deg2rad(30.0 + k * (360.0 / n_verts)) + total_rotation</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">          59 :         vx = cx + hex_R * cos(angle)</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">          59 :         vy = cy + hex_R * sin(angle)</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">          59 :         p = _lambert_inverse(vx, vy, base1)</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">          59 :         coords[k + 1] = _xyz_to_lonlat(p)</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">         108 :     end</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">          10 :     coords[end] = coords[1]  # close polygon</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">          10 :     return coords</span></span>
+<span id="L368"><span class="lineNum">     368</span>              : end</span>
+<span id="L369"><span class="lineNum">     369</span>              : </span>
+<span id="L370"><span class="lineNum">     370</span>              : &quot;&quot;&quot;True if the cell is a pentagon (all digits are 0).&quot;&quot;&quot;</span>
+<span id="L371"><span class="lineNum">     371</span>              : function _igeo7_is_pentagon(idx::UInt64)</span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">        2669 :     res = igeo7_resolution(idx)</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">         622 :     for i in 1:res</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">        1917 :         igeo7_digit(idx, i) != 0 &amp;&amp; return false</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">        2840 :     end</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">         221 :     return true</span></span>
+<span id="L377"><span class="lineNum">     377</span>              : end</span>
+<span id="L378"><span class="lineNum">     378</span>              : </span>
+<span id="L379"><span class="lineNum">     379</span>              : #-----------------------------------------------------------------------------# AbstractCell Interface</span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC tlaBgUNC">           0 : grid(::IGEO7Cell) = IGEO7Grid()</span></span>
+<span id="L381"><span class="lineNum">     381</span>              : </span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC tlaBgGNC">         797 : resolution(o::IGEO7Cell) = igeo7_resolution(o.index)</span></span>
+<span id="L383"><span class="lineNum">     383</span>              : </span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">        1874 : is_pentagon(o::IGEO7Cell) = _igeo7_is_pentagon(o.index)</span></span>
+<span id="L385"><span class="lineNum">     385</span>              : </span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           3 : icon(o::IGEO7Cell) = is_pentagon(o) ? styled&quot;{bright_red: ⬠}&quot; : styled&quot;{bright_green: ⬡}&quot;</span></span>
+<span id="L387"><span class="lineNum">     387</span>              : </span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           2 : decode(o::IGEO7Cell) = string(igeo7_base_cell(o.index), &quot;-&quot;, join(igeo7_digits(o.index)))</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">          10 : digits(o::IGEO7Cell) = igeo7_digits(o.index)</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 : base_cell(o::IGEO7Cell) = igeo7_base_cell(o.index)</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           2 : encode(o::IGEO7Cell) = igeo7_string(o.index)</span></span>
+<span id="L392"><span class="lineNum">     392</span>              : </span>
+<span id="L393"><span class="lineNum">     393</span>              : #-----------------------------------------------------------------------------# GeoInterface</span>
+<span id="L394"><span class="lineNum">     394</span>              : function GI.centroid(::GI.PolygonTrait, o::IGEO7Cell)</span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">         208 :     return _igeo7_centroid(o.index)</span></span>
+<span id="L396"><span class="lineNum">     396</span>              : end</span>
+<span id="L397"><span class="lineNum">     397</span>              : </span>
+<span id="L398"><span class="lineNum">     398</span>              : function GI.coordinates(::GI.PolygonTrait, o::IGEO7Cell)</span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">          10 :     return _igeo7_boundary(o.index)</span></span>
+<span id="L400"><span class="lineNum">     400</span>              : end</span>
 <span id="L401"><span class="lineNum">     401</span>              : </span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC tlaBgGNC">         797 : resolution(o::IGEO7Cell) = igeo7_resolution(o.index)</span></span>
-<span id="L403"><span class="lineNum">     403</span>              : </span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">        1874 : is_pentagon(o::IGEO7Cell) = _igeo7_is_pentagon(o.index)</span></span>
-<span id="L405"><span class="lineNum">     405</span>              : </span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           3 : icon(o::IGEO7Cell) = is_pentagon(o) ? styled&quot;{bright_red: ⬠}&quot; : styled&quot;{bright_green: ⬡}&quot;</span></span>
-<span id="L407"><span class="lineNum">     407</span>              : </span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           2 : decode(o::IGEO7Cell) = string(igeo7_base_cell(o.index), &quot;-&quot;, join(igeo7_digits(o.index)))</span></span>
-<span id="L409"><span class="lineNum">     409</span>              : </span>
-<span id="L410"><span class="lineNum">     410</span>              : #-----------------------------------------------------------------------------# GeoInterface</span>
-<span id="L411"><span class="lineNum">     411</span>              : function GI.centroid(::GI.PolygonTrait, o::IGEO7Cell)</span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">         208 :     return _igeo7_centroid(o.index)</span></span>
-<span id="L413"><span class="lineNum">     413</span>              : end</span>
-<span id="L414"><span class="lineNum">     414</span>              : </span>
-<span id="L415"><span class="lineNum">     415</span>              : function GI.coordinates(::GI.PolygonTrait, o::IGEO7Cell)</span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">          10 :     return _igeo7_boundary(o.index)</span></span>
-<span id="L417"><span class="lineNum">     417</span>              : end</span>
-<span id="L418"><span class="lineNum">     418</span>              : </span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">          15 : function GI.area(::GI.PolygonTrait, o::IGEO7Cell)</span></span>
-<span id="L420"><span class="lineNum">     420</span>              :     # Equal-area: total sphere surface / n_cells</span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">          66 :     r = igeo7_resolution(o.index)</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">          28 :     n = 10 * 7.0^r + 2</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">          15 :     return 4π * EARTH_RADIUS_AUTHALIC^2 / n</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">          15 : function GI.area(::GI.PolygonTrait, o::IGEO7Cell)</span></span>
+<span id="L403"><span class="lineNum">     403</span>              :     # Equal-area: total sphere surface / n_cells</span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">          66 :     r = igeo7_resolution(o.index)</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">          28 :     n = 10 * 7.0^r + 2</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">          15 :     return 4π * EARTH_RADIUS_AUTHALIC^2 / n</span></span>
+<span id="L407"><span class="lineNum">     407</span>              : end</span>
+<span id="L408"><span class="lineNum">     408</span>              : </span>
+<span id="L409"><span class="lineNum">     409</span>              : #-----------------------------------------------------------------------------# Navigation</span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">          64 : function parent(o::IGEO7Cell)</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">         351 :     r = resolution(o)</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">          64 :     r == 0 &amp;&amp; return nothing</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">          63 :     return IGEO7Cell(igeo7_base_cell(o.index), igeo7_digits(o.index)[1:end-1])</span></span>
+<span id="L414"><span class="lineNum">     414</span>              : end</span>
+<span id="L415"><span class="lineNum">     415</span>              : </span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">          89 : function children(o::IGEO7Cell)</span></span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">         326 :     r = resolution(o)</span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">          89 :     r &gt;= IGEO7_MAX_RES &amp;&amp; return IGEO7Cell[]</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">          89 :     base = igeo7_base_cell(o.index)</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">          89 :     ds = igeo7_digits(o.index)</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">         269 :     pent = is_pentagon(o)</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">          89 :     n_children = pent ? 6 : 7</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">          89 :     return [IGEO7Cell(base, [ds; d]) for d in 0:(n_children - 1)]</span></span>
 <span id="L424"><span class="lineNum">     424</span>              : end</span>
 <span id="L425"><span class="lineNum">     425</span>              : </span>
-<span id="L426"><span class="lineNum">     426</span>              : #-----------------------------------------------------------------------------# Navigation</span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">          64 : function parent(o::IGEO7Cell)</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">         351 :     r = resolution(o)</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">          64 :     r == 0 &amp;&amp; return nothing</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">          63 :     return IGEO7Cell(igeo7_base_cell(o.index), igeo7_digits(o.index)[1:end-1])</span></span>
-<span id="L431"><span class="lineNum">     431</span>              : end</span>
-<span id="L432"><span class="lineNum">     432</span>              : </span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">          89 : function children(o::IGEO7Cell)</span></span>
-<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">         326 :     r = resolution(o)</span></span>
-<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">          89 :     r &gt;= IGEO7_MAX_RES &amp;&amp; return IGEO7Cell[]</span></span>
-<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">          89 :     base = igeo7_base_cell(o.index)</span></span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">          89 :     ds = igeo7_digits(o.index)</span></span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">         269 :     pent = is_pentagon(o)</span></span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">          89 :     n_children = pent ? 6 : 7</span></span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">          89 :     return [IGEO7Cell(base, [ds; d]) for d in 0:(n_children - 1)]</span></span>
-<span id="L441"><span class="lineNum">     441</span>              : end</span>
-<span id="L442"><span class="lineNum">     442</span>              : </span>
-<span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           8 : function siblings(o::IGEO7Cell)</span></span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">          44 :     r = resolution(o)</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           8 :     r == 0 &amp;&amp; return nothing</span></span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           8 :     return filter!(!=(o), children(parent(o)))</span></span>
-<span id="L447"><span class="lineNum">     447</span>              : end</span>
-<span id="L448"><span class="lineNum">     448</span>              : </span>
-<span id="L449"><span class="lineNum">     449</span>              : #-----------------------------------------------------------------------------# Misc</span>
-<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           6 : igeo7_pentagons(r::Integer) = [IGEO7Cell(b, fill(0, r)) for b in 0:11]</span></span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC tlaBgUNC">           0 : pentagons(::IGEO7Grid, r::Integer) = igeo7_pentagons(r)</span></span>
-<span id="L452"><span class="lineNum">     452</span>              : </span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC tlaBgGNC">           1 : haversine(a::IGEO7Cell, b::IGEO7Cell) = haversine(GI.centroid(a), GI.centroid(b))</span></span>
-<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 : destination(a::IGEO7Cell, azimuth_deg, m) = IGEO7Cell(destination(GI.centroid(a), azimuth_deg, m), resolution(a))</span></span>
-<span id="L455"><span class="lineNum">     455</span>              : </span>
-<span id="L456"><span class="lineNum">     456</span>              : #-----------------------------------------------------------------------------# igeo7cells</span>
-<span id="L457"><span class="lineNum">     457</span>              : &quot;&quot;&quot;</span>
-<span id="L458"><span class="lineNum">     458</span>              :     igeo7cells(geom, res; kw...)</span>
-<span id="L459"><span class="lineNum">     459</span>              : </span>
-<span id="L460"><span class="lineNum">     460</span>              : Convenience wrapper for `cells(IGEO7Cell, geom, res; kw...)`.</span>
-<span id="L461"><span class="lineNum">     461</span>              : &quot;&quot;&quot;</span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">          14 : igeo7cells(args...; kw...) = cells(IGEO7Cell, args...; kw...)</span></span>
-<span id="L463"><span class="lineNum">     463</span>              : </span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           8 : function cells(::Type{IGEO7Cell}, ::GI.LineTrait, geom, res::Integer; containment=:center)</span></span>
-<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           5 :     containment in (:center, :shortest_path) ||</span></span>
-<span id="L466"><span class="lineNum">     466</span>              :         throw(ArgumentError(&quot;Invalid containment mode for IGEO7 LineTrait. Expected :center or :shortest_path. Found: $containment.&quot;))</span>
-<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           5 :     coords = [LonLat(x...) for x in GI.coordinates(geom)]</span></span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           3 :     a_ll, b_ll = coords[1], coords[2]</span></span>
-<span id="L469"><span class="lineNum">     469</span>              :     # Densify the line: sample points along the great circle and collect unique cells</span>
-<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           3 :     d = haversine(a_ll, b_ll)</span></span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           3 :     n_samples = max(2, ceil(Int, d / 1000.0))  # ~1 km spacing, at least 2 points</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           3 :     az = azimuth(a_ll, b_ll)</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           3 :     out = Set{IGEO7Cell}()</span></span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           3 :     for i in 0:n_samples</span></span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">        2361 :         frac = i / n_samples</span></span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">        2361 :         pt = destination(a_ll, az, frac * d)</span></span>
-<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">        2361 :         push!(out, IGEO7Cell(pt, res))</span></span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">        4719 :     end</span></span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           3 :     return collect(out)</span></span>
-<span id="L480"><span class="lineNum">     480</span>              : end</span>
-<span id="L481"><span class="lineNum">     481</span>              : </span>
-<span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">           4 : function cells(::Type{IGEO7Cell}, ::GI.PolygonTrait, geom, res::Integer; containment=:center)</span></span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           3 :     containment in (:center, :overlap) ||</span></span>
-<span id="L484"><span class="lineNum">     484</span>              :         throw(ArgumentError(&quot;Invalid containment mode for IGEO7 PolygonTrait. Expected :center or :overlap. Found: $containment.&quot;))</span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :     ext = GI.extent(geom)</span></span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 :     X, Y = ext.X, ext.Y</span></span>
-<span id="L487"><span class="lineNum">     487</span>              :     # Estimate step size from cell area: use 1/3 of cell diameter for dense sampling</span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">           2 :     n = 10 * 7.0^res + 2</span></span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">           1 :     cell_area_rad2 = 4π / n</span></span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">           1 :     step_deg = rad2deg(sqrt(cell_area_rad2)) / 3.0</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           1 :     step_deg = max(step_deg, 1e-6)</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 :     out = Set{IGEO7Cell}()</span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           1 :     lat = Y[1]</span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">          15 :     while lat &lt;= Y[2]</span></span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">          14 :         lon = X[1]</span></span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">         210 :         while lon &lt;= X[2]</span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">         196 :             c = IGEO7Cell(LonLat(lon, lat), res)</span></span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">         196 :             if containment == :center</span></span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">         196 :                 ct = GI.centroid(c)</span></span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">         196 :                 if GO.contains(geom, ct)</span></span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">         161 :                     push!(out, c)</span></span>
-<span id="L502"><span class="lineNum">     502</span>              :                 end</span>
-<span id="L503"><span class="lineNum">     503</span>              :             else  # :overlap — use centroid as approximation</span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC tlaBgUNC">           0 :                 ct = GI.centroid(c)</span></span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :                 if GO.contains(geom, ct)</span></span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :                     push!(out, c)</span></span>
-<span id="L507"><span class="lineNum">     507</span>              :                 end</span>
-<span id="L508"><span class="lineNum">     508</span>              :             end</span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC tlaBgGNC">         196 :             lon += step_deg</span></span>
-<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC">         196 :         end</span></span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">          14 :         lat += step_deg</span></span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">          14 :     end</span></span>
-<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           1 :     return collect(out)</span></span>
-<span id="L514"><span class="lineNum">     514</span>              : end</span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           8 : function siblings(o::IGEO7Cell)</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">          44 :     r = resolution(o)</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           8 :     r == 0 &amp;&amp; return nothing</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           8 :     return filter!(!=(o), children(parent(o)))</span></span>
+<span id="L430"><span class="lineNum">     430</span>              : end</span>
+<span id="L431"><span class="lineNum">     431</span>              : </span>
+<span id="L432"><span class="lineNum">     432</span>              : #-----------------------------------------------------------------------------# Misc</span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           6 : igeo7_pentagons(r::Integer) = [IGEO7Cell(b, fill(0, r)) for b in 0:11]</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">           6 : pentagons(::IGEO7Grid, r::Integer) = igeo7_pentagons(r)</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           4 : ncells(::IGEO7Grid, res::Integer) = igeo7_n_cells(res)</span></span>
+<span id="L436"><span class="lineNum">     436</span>              : </span>
+<span id="L437"><span class="lineNum">     437</span>              : #-----------------------------------------------------------------------------# igeo7cells</span>
+<span id="L438"><span class="lineNum">     438</span>              : &quot;&quot;&quot;</span>
+<span id="L439"><span class="lineNum">     439</span>              :     igeo7cells(geom, res; kw...)</span>
+<span id="L440"><span class="lineNum">     440</span>              : </span>
+<span id="L441"><span class="lineNum">     441</span>              : Convenience wrapper for `cells(IGEO7Cell, geom, res; kw...)`.</span>
+<span id="L442"><span class="lineNum">     442</span>              : &quot;&quot;&quot;</span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">          14 : igeo7cells(args...; kw...) = cells(IGEO7Cell, args...; kw...)</span></span>
+<span id="L444"><span class="lineNum">     444</span>              : </span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           8 : function cells(::Type{IGEO7Cell}, ::GI.LineTrait, geom, res::Integer; containment=:center)</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           5 :     containment in (:center, :shortest_path) ||</span></span>
+<span id="L447"><span class="lineNum">     447</span>              :         throw(ArgumentError(&quot;Invalid containment mode for IGEO7 LineTrait. Expected :center or :shortest_path. Found: $containment.&quot;))</span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           5 :     coords = [LonLat(x...) for x in GI.coordinates(geom)]</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           3 :     a_ll, b_ll = coords[1], coords[2]</span></span>
+<span id="L450"><span class="lineNum">     450</span>              :     # Densify the line: sample points along the great circle and collect unique cells</span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           3 :     d = haversine(a_ll, b_ll)</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           3 :     n_samples = max(2, ceil(Int, d / 1000.0))  # ~1 km spacing, at least 2 points</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           3 :     az = azimuth(a_ll, b_ll)</span></span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           3 :     out = Set{IGEO7Cell}()</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           3 :     for i in 0:n_samples</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">        2361 :         frac = i / n_samples</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">        2361 :         pt = destination(a_ll, az, frac * d)</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">        2361 :         push!(out, IGEO7Cell(pt, res))</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">        4719 :     end</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           3 :     return collect(out)</span></span>
+<span id="L461"><span class="lineNum">     461</span>              : end</span>
+<span id="L462"><span class="lineNum">     462</span>              : </span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           4 : function cells(::Type{IGEO7Cell}, ::GI.PolygonTrait, geom, res::Integer; containment=:center)</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           3 :     containment in (:center, :overlap) ||</span></span>
+<span id="L465"><span class="lineNum">     465</span>              :         throw(ArgumentError(&quot;Invalid containment mode for IGEO7 PolygonTrait. Expected :center or :overlap. Found: $containment.&quot;))</span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :     ext = GI.extent(geom)</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           1 :     X, Y = ext.X, ext.Y</span></span>
+<span id="L468"><span class="lineNum">     468</span>              :     # Estimate step size from cell area: use 1/3 of cell diameter for dense sampling</span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           2 :     n = 10 * 7.0^res + 2</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :     cell_area_rad2 = 4π / n</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :     step_deg = rad2deg(sqrt(cell_area_rad2)) / 3.0</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :     step_deg = max(step_deg, 1e-6)</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :     out = Set{IGEO7Cell}()</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :     lat = Y[1]</span></span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">          15 :     while lat &lt;= Y[2]</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">          14 :         lon = X[1]</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">         210 :         while lon &lt;= X[2]</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">         196 :             c = IGEO7Cell(LonLat(lon, lat), res)</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">         196 :             ct = GI.centroid(c)</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">         196 :             if GO.contains(geom, ct)</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">         161 :                 push!(out, c)</span></span>
+<span id="L482"><span class="lineNum">     482</span>              :             end</span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">         196 :             lon += step_deg</span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">         196 :         end</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">          14 :         lat += step_deg</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">          14 :     end</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           1 :     return collect(out)</span></span>
+<span id="L488"><span class="lineNum">     488</span>              : end</span>
         </pre>
               </td>
             </tr>

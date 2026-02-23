@@ -573,19 +573,26 @@ window.Quarto = {
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>cell <span class="op">=</span> <span class="fu">H3Cell</span>(p, <span class="fl">5</span>)       <span class="co"># or IGEO7Cell(p, 5), ISEA3HCell(p, 5)</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">resolution</span>(cell)   <span class="co"># resolution level</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">is_pentagon</span>(cell)   <span class="co"># pentagon check (12 per resolution)</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">decode</span>(cell)        <span class="co"># human-readable string</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># GeoInterface</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">centroid</span>(cell)       <span class="co"># center LonLat</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">coordinates</span>(cell)    <span class="co"># boundary vertices (closed polygon)</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">area</span>(cell)           <span class="co"># area in m²</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Hierarchy</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">parent</span>(cell)       <span class="co"># coarser parent cell</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">children</span>(cell)     <span class="co"># finer child cells</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">siblings</span>(cell)     <span class="co"># same-parent neighbor cells</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">resolution</span>(cell)       <span class="co"># resolution level</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">is_pentagon</span>(cell)      <span class="co"># pentagon check (12 per resolution)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">decode</span>(cell)           <span class="co"># human-readable string</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">digits</span>(cell)           <span class="co"># hierarchical digit sequence</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">base_cell</span>(cell)        <span class="co"># base cell index</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">encode</span>(cell)           <span class="co"># hex string of raw index</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># GeoInterface</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">centroid</span>(cell)       <span class="co"># center LonLat</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">coordinates</span>(cell)    <span class="co"># boundary vertices (closed polygon)</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>GI.<span class="fu">area</span>(cell)           <span class="co"># area in m²</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Hierarchy</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>GlobalGrids.<span class="fu">parent</span>(cell)       <span class="co"># coarser parent cell</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="fu">children</span>(cell)                 <span class="co"># finer child cells</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="fu">siblings</span>(cell)                 <span class="co"># same-parent neighbor cells</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Grid-level queries</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ncells</span>(<span class="fu">H3Grid</span>(), <span class="fl">5</span>)            <span class="co"># total cells at resolution 5</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="fu">pentagons</span>(<span class="fu">H3Grid</span>(), <span class="fl">5</span>)         <span class="co"># 12 pentagon cells at resolution 5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="quantizing-geometries" class="level2">
 <h2 class="anchored" data-anchor-id="quantizing-geometries">Quantizing Geometries</h2>
