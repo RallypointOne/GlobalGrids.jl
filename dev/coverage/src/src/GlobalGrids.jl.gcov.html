@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-02-23 15:18:31</td>
+            <td class="headerValue">2026-02-23 19:11:32</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -108,21 +108,21 @@
 <span id="L46"><span class="lineNum">      46</span>              :     LonLat(-75.0, 54.0)</span>
 <span id="L47"><span class="lineNum">      47</span>              : &quot;&quot;&quot;</span>
 <span id="L48"><span class="lineNum">      48</span>              : struct LonLat{T}</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC tlaBgGNC">       55899 :     lon::T</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC tlaBgGNC">       33387 :     lon::T</span></span>
 <span id="L50"><span class="lineNum">      50</span>              :     lat::T</span>
 <span id="L51"><span class="lineNum">      51</span>              : end</span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : Base.show(io::IO, o::LonLat{T}) where {T} = print(io, styled&quot;{bright_cyan:LonLat\{$T\}} (&quot;, o.lon, &quot;, &quot;, o.lat, &quot;)&quot;)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : LonLat((x,y)::NTuple{2, AbstractFloat}) = LonLat(x, y)</span></span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">       11241 : Base.getindex(o::LonLat, i::Integer) = i == 1 ? o.lon : i == 2 ? o.lat : throw(BoundsError(o, i))</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">       11335 : Base.getindex(o::LonLat, i::Integer) = i == 1 ? o.lon : i == 2 ? o.lat : throw(BoundsError(o, i))</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC tlaBgUNC">           0 : Base.length(o::LonLat) = 2</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">       14369 : Base.iterate(o::LonLat, i = 1) = i &gt; 2 ? nothing : (o[i], i + 1)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">       14387 : Base.iterate(o::LonLat, i = 1) = i &gt; 2 ? nothing : (o[i], i + 1)</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 : Base.eltype(::LonLat{T}) where {T} = T</span></span>
 <span id="L59"><span class="lineNum">      59</span>              : </span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC tlaBgUNC">           0 : GI.isgeometry(::LonLat) = true</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">        4440 : GI.geomtrait(o::LonLat) = GI.PointTrait()</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">        4660 : GI.geomtrait(o::LonLat) = GI.PointTrait()</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC tlaBgUNC">           0 : GI.ncoord(::GI.PointTrait, o::LonLat) = 2</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC tlaBgGNC">        1612 : GI.getcoord(::GI.PointTrait, o::LonLat, i::Int) = o[i]</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC tlaBgGNC">        1694 : GI.getcoord(::GI.PointTrait, o::LonLat, i::Int) = o[i]</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">          23 : GI.coordinates(::GI.PointTrait, o::LonLat) = o</span></span>
 <span id="L65"><span class="lineNum">      65</span>              : </span>
 <span id="L66"><span class="lineNum">      66</span>              : &quot;Authalic radius of the earth in meters (WGS84).&quot;</span>
@@ -133,9 +133,9 @@
 <span id="L71"><span class="lineNum">      71</span>              : </span>
 <span id="L72"><span class="lineNum">      72</span>              : Great-circle distance (meters) between two points using the Haversine formula.</span>
 <span id="L73"><span class="lineNum">      73</span>              : &quot;&quot;&quot;</span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">          11 : function haversine((a_lon, a_lat)::LonLat, (b_lon, b_lat)::LonLat)</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">          11 :     x = sind((b_lat - a_lat) / 2) ^ 2 + cosd(a_lat) * cosd(b_lat) * sind((b_lon - a_lon) / 2) ^ 2</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">          11 :     return 2EARTH_RADIUS_AUTHALIC * asin(min(sqrt(x), one(x)))</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">          14 : function haversine((a_lon, a_lat)::LonLat, (b_lon, b_lat)::LonLat)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">          14 :     x = sind((b_lat - a_lat) / 2) ^ 2 + cosd(a_lat) * cosd(b_lat) * sind((b_lon - a_lon) / 2) ^ 2</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">          14 :     return 2EARTH_RADIUS_AUTHALIC * asin(min(sqrt(x), one(x)))</span></span>
 <span id="L77"><span class="lineNum">      77</span>              : end</span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
 <span id="L79"><span class="lineNum">      79</span>              : &quot;&quot;&quot;</span>
@@ -239,7 +239,7 @@
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC tlaBgUNC">           0 : GI.isgeometry(::T) where {T &lt;: AbstractCell} = true</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 : GI.crs(o::T) where {T &lt;: AbstractCell} = GI.crs(grid(o))</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC tlaBgGNC">          17 : GI.ncoord(::GI.PolygonTrait, o::T) where {T &lt;: AbstractCell} = GI.ncoord(grid(o))</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">        1338 : GI.geomtrait(o::T) where {T &lt;: AbstractCell} = GI.PolygonTrait()</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">        1369 : GI.geomtrait(o::T) where {T &lt;: AbstractCell} = GI.PolygonTrait()</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC tlaBgUNC">           0 : GI.nhole(::GI.PolygonTrait, o::T) where {T &lt;: AbstractCell} = 0</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 : GI.ngeom(::GI.PolygonTrait, o::T) where {T &lt;: AbstractCell} = 1</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC tlaBgGNC">          51 : GI.getgeom(::GI.PolygonTrait, o::T, i::Integer) where {T &lt;: AbstractCell} = GI.LineString(GI.coordinates(o))</span></span>
@@ -304,19 +304,20 @@
 <span id="L242"><span class="lineNum">     242</span>              : #-----------------------------------------------------------------------------# dgg (DGGRID-style grids)</span>
 <span id="L243"><span class="lineNum">     243</span>              : include(&quot;dgg/types.jl&quot;)</span>
 <span id="L244"><span class="lineNum">     244</span>              : include(&quot;dgg/quantize_hex.jl&quot;)</span>
-<span id="L245"><span class="lineNum">     245</span>              : include(&quot;dgg/pipeline.jl&quot;)</span>
-<span id="L246"><span class="lineNum">     246</span>              : include(&quot;dgg/hierarchy.jl&quot;)</span>
-<span id="L247"><span class="lineNum">     247</span>              : include(&quot;dgg/boundary.jl&quot;)</span>
-<span id="L248"><span class="lineNum">     248</span>              : include(&quot;dgg/cells.jl&quot;)</span>
-<span id="L249"><span class="lineNum">     249</span>              : </span>
-<span id="L250"><span class="lineNum">     250</span>              : #-----------------------------------------------------------------------------# plotting utils</span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC tlaBgGNC">           4 : function crosses_meridian(geom, λ0 = 180.0)</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">          11 :     lons = Float64[x[1] for x in GI.coordinates(geom)]</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           3 :     rotated = mod.(lons .- λ0, 360)  # rotate such that λ0 is the discontinuity</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           2 :     return maximum(rotated) - minimum(rotated) &gt; 180</span></span>
-<span id="L255"><span class="lineNum">     255</span>              : end</span>
-<span id="L256"><span class="lineNum">     256</span>              : </span>
-<span id="L257"><span class="lineNum">     257</span>              : end # module GlobalGrids</span>
+<span id="L245"><span class="lineNum">     245</span>              : include(&quot;dgg/face_geometry.jl&quot;)</span>
+<span id="L246"><span class="lineNum">     246</span>              : include(&quot;dgg/pipeline.jl&quot;)</span>
+<span id="L247"><span class="lineNum">     247</span>              : include(&quot;dgg/hierarchy.jl&quot;)</span>
+<span id="L248"><span class="lineNum">     248</span>              : include(&quot;dgg/boundary.jl&quot;)</span>
+<span id="L249"><span class="lineNum">     249</span>              : include(&quot;dgg/cells.jl&quot;)</span>
+<span id="L250"><span class="lineNum">     250</span>              : </span>
+<span id="L251"><span class="lineNum">     251</span>              : #-----------------------------------------------------------------------------# plotting utils</span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC tlaBgGNC">           4 : function crosses_meridian(geom, λ0 = 180.0)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">          11 :     lons = Float64[x[1] for x in GI.coordinates(geom)]</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           3 :     rotated = mod.(lons .- λ0, 360)  # rotate such that λ0 is the discontinuity</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           2 :     return maximum(rotated) - minimum(rotated) &gt; 180</span></span>
+<span id="L256"><span class="lineNum">     256</span>              : end</span>
+<span id="L257"><span class="lineNum">     257</span>              : </span>
+<span id="L258"><span class="lineNum">     258</span>              : end # module GlobalGrids</span>
         </pre>
               </td>
             </tr>

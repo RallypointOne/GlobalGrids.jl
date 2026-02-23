@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">27</td>
-            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">26</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-02-23 15:18:31</td>
+            <td class="headerValue">2026-02-23 19:11:32</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,40 +63,39 @@
 <span id="L1"><span class="lineNum">       1</span>              : #-----------------------------------------------------------------------------# Cell Boundary (polygon vertices) for hex DGG cells</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span> <span class="tlaGNC tlaBgGNC">          13 : function _dgg_boundary(idx::UInt64, ::Val{A}) where A</span></span>
-<span id="L4"><span class="lineNum">       4</span> <span class="tlaGNC">          13 :     base1, cx, cy = _dgg_center_lambert(idx, Val(A))</span></span>
+<span id="L4"><span class="lineNum">       4</span> <span class="tlaGNC">          13 :     fi, cx, cy = _dgg_center_lambert(idx, Val(A))</span></span>
 <span id="L5"><span class="lineNum">       5</span> <span class="tlaGNC">          91 :     res = dgg_resolution(idx, Val(A))</span></span>
-<span id="L6"><span class="lineNum">       6</span> <span class="tlaGNC">          14 :     pent = _dgg_is_pentagon(idx, Val(A))</span></span>
-<span id="L7"><span class="lineNum">       7</span> <span class="tlaGNC">          13 :     n_verts = pent ? 5 : 6</span></span>
-<span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">          13 :     s1 = _dgg_s1(Val(A))</span></span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC">          13 :     scale = _dgg_scale_factor(Val(A))</span></span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">          13 :     theta = _dgg_theta(Val(A))</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">          25 :     s_res = res == 0 ? s1 : s1 / scale^(res - 1)</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">          13 :     hex_R = s_res</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">          13 :     total_rotation = -res * theta</span></span>
-<span id="L15"><span class="lineNum">      15</span>              : </span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">          13 :     coords = Vector{LonLat{Float64}}(undef, n_verts + 1)</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">          13 :     for k in 0:(n_verts - 1)</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">          77 :         angle = deg2rad(30.0 + k * (360.0 / n_verts)) + total_rotation</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">          77 :         vx = cx + hex_R * cos(angle)</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">          77 :         vy = cy + hex_R * sin(angle)</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          77 :         p = _lambert_inverse(vx, vy, base1)</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">          77 :         coords[k + 1] = _xyz_to_lonlat(p)</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">         141 :     end</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">          13 :     coords[end] = coords[1]  # close polygon</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">          13 :     return coords</span></span>
-<span id="L26"><span class="lineNum">      26</span>              : end</span>
-<span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span>              : #-----------------------------------------------------------------------------# GeoInterface</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">         852 : GI.centroid(::GI.PolygonTrait, o::DGGCell{P,A,T}) where {P,A,T} = _dgg_centroid(o.index, Val(A))</span></span>
-<span id="L30"><span class="lineNum">      30</span>              : </span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          13 : GI.coordinates(::GI.PolygonTrait, o::DGGCell{P,A,T}) where {P,A,T} = _dgg_boundary(o.index, Val(A))</span></span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">          19 : function GI.area(::GI.PolygonTrait, o::DGGCell{P,A,:hex}) where {P,A}</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">         112 :     r = resolution(o)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          36 :     n = 10 * Float64(A)^r + 2</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">          19 :     return 4π * EARTH_RADIUS_AUTHALIC^2 / n</span></span>
-<span id="L37"><span class="lineNum">      37</span>              : end</span>
+<span id="L6"><span class="lineNum">       6</span> <span class="tlaGNC">          13 :     n_verts = 6</span></span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC">          13 :     s1 = _dgg_s1(Val(A))</span></span>
+<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">          13 :     scale = _dgg_scale_factor(Val(A))</span></span>
+<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC">          13 :     theta = _dgg_theta(Val(A))</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">          25 :     s_res = res == 0 ? s1 : s1 / scale^(res - 1)</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">          13 :     hex_R = s_res</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">          13 :     total_rotation = res * theta</span></span>
+<span id="L14"><span class="lineNum">      14</span>              : </span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">          13 :     coords = Vector{LonLat{Float64}}(undef, n_verts + 1)</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">          13 :     for k in 0:(n_verts - 1)</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">          78 :         angle = deg2rad(30.0 + k * (360.0 / n_verts)) + total_rotation</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">          78 :         vx = cx + hex_R * cos(angle)</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">          78 :         vy = cy + hex_R * sin(angle)</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">          78 :         p = _face_lambert_inverse(vx, vy, fi)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">          78 :         coords[k + 1] = _xyz_to_lonlat(p)</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">         143 :     end</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">          13 :     coords[end] = coords[1]  # close polygon</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">          13 :     return coords</span></span>
+<span id="L25"><span class="lineNum">      25</span>              : end</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : #-----------------------------------------------------------------------------# GeoInterface</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">         883 : GI.centroid(::GI.PolygonTrait, o::DGGCell{P,A,T}) where {P,A,T} = _dgg_centroid(o.index, Val(A))</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          13 : GI.coordinates(::GI.PolygonTrait, o::DGGCell{P,A,T}) where {P,A,T} = _dgg_boundary(o.index, Val(A))</span></span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">          19 : function GI.area(::GI.PolygonTrait, o::DGGCell{P,A,:hex}) where {P,A}</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">         112 :     r = resolution(o)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">          36 :     n = 20 * Float64(A)^r</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">          19 :     return 4π * EARTH_RADIUS_AUTHALIC^2 / n</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : end</span>
         </pre>
               </td>
             </tr>

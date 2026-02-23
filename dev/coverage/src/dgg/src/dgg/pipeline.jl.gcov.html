@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">53</td>
-            <td class="headerCovTableEntry">53</td>
+            <td class="headerCovTableEntry">57</td>
+            <td class="headerCovTableEntry">57</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-02-23 15:18:31</td>
+            <td class="headerValue">2026-02-23 19:11:32</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -60,100 +60,108 @@
               <td>
 <pre class="sourceHeading">            Line data    Source code</pre>
 <pre class="source">
-<span id="L1"><span class="lineNum">       1</span>              : #-----------------------------------------------------------------------------# Forward Transform: LonLat → DGGCell (hex grids)</span>
+<span id="L1"><span class="lineNum">       1</span>              : #-----------------------------------------------------------------------------# Forward Transform: LonLat -&gt; DGGCell (hex grids)</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span> <span class="tlaGNC tlaBgGNC">        1631 : function DGGCell{P,A,:hex}(coord::LonLat, res::Integer) where {P,A}</span></span>
-<span id="L4"><span class="lineNum">       4</span> <span class="tlaGNC">        4040 :     maxd = _dgg_maxd(Val(A))</span></span>
-<span id="L5"><span class="lineNum">       5</span> <span class="tlaGNC">        4042 :     0 &lt;= res &lt;= maxd || throw(ArgumentError(&quot;resolution must be in 0:$maxd, got $res&quot;))</span></span>
-<span id="L6"><span class="lineNum">       6</span> <span class="tlaGNC">        4038 :     _dgg_forward_hex(coord, res, Val(P), Val(A))</span></span>
+<span id="L3"><span class="lineNum">       3</span> <span class="tlaGNC tlaBgGNC">        1634 : function DGGCell{P,A,:hex}(coord::LonLat, res::Integer) where {P,A}</span></span>
+<span id="L4"><span class="lineNum">       4</span> <span class="tlaGNC">        4071 :     maxd = _dgg_maxd(Val(A))</span></span>
+<span id="L5"><span class="lineNum">       5</span> <span class="tlaGNC">        4073 :     0 &lt;= res &lt;= maxd || throw(ArgumentError(&quot;resolution must be in 0:$maxd, got $res&quot;))</span></span>
+<span id="L6"><span class="lineNum">       6</span> <span class="tlaGNC">        4069 :     _dgg_forward_hex(coord, res, Val(P), Val(A))</span></span>
 <span id="L7"><span class="lineNum">       7</span>              : end</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
 <span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">           1 : DGGCell{P,A,:hex}((x, y)::NTuple{2, Real}, res::Integer) where {P,A} = DGGCell{P,A,:hex}(LonLat(Float64(x), Float64(y)), res)</span></span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
-<span id="L11"><span class="lineNum">      11</span>              : &quot;&quot;&quot;Find the 1-indexed base vertex nearest to 3D unit vector `p`.&quot;&quot;&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              : function _nearest_vertex(p::SVector{3,Float64})</span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">        4038 :     best_dot = -Inf</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">        4038 :     base1 = 1</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">        4038 :     for i in 1:12</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">       48456 :         d = dot(p, IGEO7_VERTICES_3D[i])</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">       48456 :         if d &gt; best_dot</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">        9605 :             best_dot = d</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">        9605 :             base1 = i</span></span>
-<span id="L20"><span class="lineNum">      20</span>              :         end</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">       92874 :     end</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">        4038 :     return base1</span></span>
-<span id="L23"><span class="lineNum">      23</span>              : end</span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              : &quot;&quot;&quot;Quantize Lambert-plane point to finest-level hex and extract digits bottom-up.&quot;&quot;&quot;</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">       48420 : function _quantize_and_extract(px::Float64, py::Float64, base1::Int, res::Integer, ::Val{P}, ::Val{A}) where {P,A}</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">       92004 :     s_finest = _dgg_s1(Val(A)) / _dgg_scale_factor(Val(A))^(res - 1)</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">       48420 :     total_rot = -res * _dgg_theta(Val(A))</span></span>
-<span id="L29"><span class="lineNum">      29</span>              : </span>
-<span id="L30"><span class="lineNum">      30</span>              :     # Undo total rotation to align with finest-level hex frame</span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">       48420 :     ux, uy = _rotate2d(px, py, -total_rot)</span></span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span>              :     # Convert to fractional axial and round to nearest hex</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">       48420 :     fq, fr = _cart_to_axial(ux, uy, s_finest)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">       48420 :     q, r = _hex_round(fq, fr)</span></span>
-<span id="L36"><span class="lineNum">      36</span>              : </span>
-<span id="L37"><span class="lineNum">      37</span>              :     # Bottom-up digit extraction</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">       48420 :     digits = _dgg_bottomup_digits(q, r, res, Val(A))</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">       48420 :     return DGGCell{P,A,:hex}(base1 - 1, digits)</span></span>
-<span id="L40"><span class="lineNum">      40</span>              : end</span>
+<span id="L11"><span class="lineNum">      11</span>              : &quot;&quot;&quot;Compute a candidate DGG cell on face `fi` at resolution `res` from Lambert coords.</span>
+<span id="L12"><span class="lineNum">      12</span>              : Returns the cell index (UInt64).&quot;&quot;&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              : @inline function _dgg_quantize_on_face(px::Float64, py::Float64, fi::Int, res::Integer, ::Val{A}) where A</span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">       25845 :     s1 = _dgg_s1(Val(A))</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">       25845 :     scale = _dgg_scale_factor(Val(A))</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">       25845 :     theta = _dgg_theta(Val(A))</span></span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">       48599 :     s_finest = s1 / scale^(res - 1)</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">       25845 :     total_rotation = res * theta</span></span>
+<span id="L20"><span class="lineNum">      20</span>              : </span>
+<span id="L21"><span class="lineNum">      21</span>              :     # Undo cumulative rotation to align with finest-level hex grid</span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">       25845 :     rx, ry = _rotate2d(px, py, -total_rotation)</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              :     # Convert to fractional axial, snap to nearest hex center</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">       25845 :     fq, fr = _cart_to_axial(rx, ry, s_finest)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">       25845 :     q, r = _hex_round(fq, fr)</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              :     # Extract digits bottom-up using modular arithmetic</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">       25845 :     digits = _dgg_bottomup_digits(q, r, res, Val(A))</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">       25845 :     return DGGCell{:isea,A,:hex}(fi - 1, digits).index</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : end</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : &quot;&quot;&quot;Forward transform: quantize a LonLat to the nearest DGG hex cell.</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : Uses face-centered Lambert projection with bottom-up digit extraction.</span>
+<span id="L37"><span class="lineNum">      37</span>              : Tries multiple candidate faces near the input point and picks the cell</span>
+<span id="L38"><span class="lineNum">      38</span>              : whose centroid is closest on the sphere, handling face boundary cases.&quot;&quot;&quot;</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">        4069 : function _dgg_forward_hex(coord::LonLat, res::Integer, ::Val{P}, ::Val{A}) where {P,A}</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">        4069 :     p = _lonlat_to_xyz(coord)</span></span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        4038 : function _dgg_forward_hex(coord::LonLat, res::Integer, ::Val{P}, ::Val{A}) where {P,A}</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">        4038 :     p = _lonlat_to_xyz(coord)</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">       48456 :     base1 = _nearest_vertex(p)</span></span>
-<span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">        4038 :     res == 0 &amp;&amp; return DGGCell{P,A,:hex}(base1 - 1, Int[])</span></span>
-<span id="L47"><span class="lineNum">      47</span>              : </span>
-<span id="L48"><span class="lineNum">      48</span>              :     # Try nearest vertex first</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">        4035 :     px, py = _lambert_forward(p, base1)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">        4035 :     best_cell = _quantize_and_extract(px, py, base1, res, Val(P), Val(A))</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">        4035 :     best_centroid = _lonlat_to_xyz(_dgg_centroid(best_cell.index, Val(A)))</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">        4035 :     best_dot = dot(p, best_centroid)</span></span>
-<span id="L53"><span class="lineNum">      53</span>              : </span>
-<span id="L54"><span class="lineNum">      54</span>              :     # Search all other vertices for a cell whose centroid is closer to input.</span>
-<span id="L55"><span class="lineNum">      55</span>              :     # This guarantees round-trips: forward(inverse(forward(x))) == forward(x)</span>
-<span id="L56"><span class="lineNum">      56</span>              :     # because inverse(cell) produces centroid with dot=1.0 against itself.</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">        4035 :     for v in 1:12</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">       48420 :         v == base1 &amp;&amp; continue</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">       44385 :         px_v, py_v = _lambert_forward(p, v)</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">       44385 :         cell_v = _quantize_and_extract(px_v, py_v, v, res, Val(P), Val(A))</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">       44385 :         centroid_v = _lonlat_to_xyz(_dgg_centroid(cell_v.index, Val(A)))</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">       44385 :         d = dot(p, centroid_v)</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">       44385 :         if d &gt; best_dot</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">        1148 :             best_dot = d</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">        1148 :             best_cell = cell_v</span></span>
-<span id="L66"><span class="lineNum">      66</span>              :         end</span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">       92805 :     end</span></span>
-<span id="L68"><span class="lineNum">      68</span>              : </span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">        4035 :     return best_cell</span></span>
-<span id="L70"><span class="lineNum">      70</span>              : end</span>
-<span id="L71"><span class="lineNum">      71</span>              : </span>
-<span id="L72"><span class="lineNum">      72</span>              : #-----------------------------------------------------------------------------# Inverse Transform: DGGCell → center LonLat</span>
-<span id="L73"><span class="lineNum">      73</span>              : </span>
-<span id="L74"><span class="lineNum">      74</span>              : &quot;&quot;&quot;Compute Lambert-plane center (x, y) and base vertex (1-indexed) for a hex DGG cell.</span>
-<span id="L75"><span class="lineNum">      75</span>              : </span>
-<span id="L76"><span class="lineNum">      76</span>              : Uses bottom-up approach: convert digits to finest-level hex coords, then to Lambert.</span>
-<span id="L77"><span class="lineNum">      77</span>              : This is consistent with the bottom-up forward transform, ensuring round-trip accuracy.&quot;&quot;&quot;</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">       49285 : function _dgg_center_lambert(idx::UInt64, ::Val{A}) where A</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">      173694 :     base1, q, r = _dgg_finest_hex(idx, Val(A))</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">      222977 :     res = dgg_resolution(idx, Val(A))</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">       49285 :     res == 0 &amp;&amp; return base1, 0.0, 0.0</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">       93528 :     s_finest = _dgg_s1(Val(A)) / _dgg_scale_factor(Val(A))^(res - 1)</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">       49283 :     total_rot = -res * _dgg_theta(Val(A))</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">       49283 :     ux, uy = _axial_to_cart(q, r, s_finest)</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">       49283 :     cx, cy = _rotate2d(ux, uy, total_rot)</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">       49283 :     return base1, cx, cy</span></span>
-<span id="L87"><span class="lineNum">      87</span>              : end</span>
-<span id="L88"><span class="lineNum">      88</span>              : </span>
-<span id="L89"><span class="lineNum">      89</span>              : function _dgg_centroid(idx::UInt64, ::Val{A}) where A</span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">       49272 :     base1, cx, cy = _dgg_center_lambert(idx, Val(A))</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">       49272 :     p = _lambert_inverse(cx, cy, base1)</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">       49272 :     return _xyz_to_lonlat(p)</span></span>
-<span id="L93"><span class="lineNum">      93</span>              : end</span>
-<span id="L94"><span class="lineNum">      94</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">        4069 :     if res == 0</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">          60 :         fi = _nearest_face(p)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           3 :         return DGGCell{P,A,:hex}(fi - 1, Int[])</span></span>
+<span id="L45"><span class="lineNum">      45</span>              :     end</span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span>              :     # Score all faces by dot product with input point, try top candidates</span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">        4066 :     best_idx = UInt64(0)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">        4066 :     best_dot = -Inf</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">        4066 :     for fi in 1:20</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">       81320 :         face_dot = dot(p, DGG_FACE_CENTROIDS[fi])</span></span>
+<span id="L53"><span class="lineNum">      53</span>              :         # Skip faces whose centroid is too far (cos &gt; 0.3 means &lt; ~72 degrees)</span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">       81320 :         face_dot &lt; 0.3 &amp;&amp; continue</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">       25845 :         px, py = _face_lambert_forward(p, fi)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">       48599 :         idx = _dgg_quantize_on_face(px, py, fi, res, Val(A))</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : </span>
+<span id="L59"><span class="lineNum">      59</span>              :         # Score: dot product of cell centroid with input point (higher = closer)</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">       25845 :         centroid_p = _lonlat_to_xyz(_dgg_centroid(idx, Val(A)))</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">       25845 :         cdot = dot(p, centroid_p)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">       25845 :         if cdot &gt; best_dot</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">       10564 :             best_dot = cdot</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">       10564 :             best_idx = idx</span></span>
+<span id="L65"><span class="lineNum">      65</span>              :         end</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">      158574 :     end</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">        4066 :     return DGGCell{P,A,:hex}(best_idx)</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : end</span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              : #-----------------------------------------------------------------------------# Inverse Transform: DGGCell -&gt; center LonLat</span>
+<span id="L72"><span class="lineNum">      72</span>              : </span>
+<span id="L73"><span class="lineNum">      73</span>              : &quot;&quot;&quot;Compute face Lambert-plane center (x, y) and face index (1-indexed) for a hex DGG cell.</span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span>              : Accumulates rotated offsets top-down, matching the forward transform's geometric model.&quot;&quot;&quot;</span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">       26741 : function _dgg_center_lambert(idx::UInt64, ::Val{A}) where A</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">       26741 :     fi = dgg_base(idx) + 1  # face index, 1-indexed</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">      162819 :     res = dgg_resolution(idx, Val(A))</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">       26741 :     res == 0 &amp;&amp; return fi, 0.0, 0.0</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">       26739 :     offsets = _dgg_digit_offsets(Val(A))</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">       26739 :     s1 = _dgg_s1(Val(A))</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">       26739 :     scale = _dgg_scale_factor(Val(A))</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">       26739 :     theta = _dgg_theta(Val(A))</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">       26739 :     cx, cy = 0.0, 0.0</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">       26739 :     for level in 1:res</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">      136078 :         d = dgg_digit(idx, level, Val(A))</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">      245417 :         s_level = s1 / scale^(level - 1)</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">      136078 :         rotation = level * theta</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">      136078 :         off = offsets[d + 1]</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">      136078 :         ox, oy = _axial_to_cart(off[1], off[2], s_level)</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">      136078 :         ox, oy = _rotate2d(ox, oy, rotation)</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">      136078 :         cx += ox</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">      136078 :         cy += oy</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">      245417 :     end</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">       26739 :     return fi, cx, cy</span></span>
+<span id="L96"><span class="lineNum">      96</span>              : end</span>
+<span id="L97"><span class="lineNum">      97</span>              : </span>
+<span id="L98"><span class="lineNum">      98</span>              : function _dgg_centroid(idx::UInt64, ::Val{A}) where A</span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">       26728 :     fi, cx, cy = _dgg_center_lambert(idx, Val(A))</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">       26728 :     p = _face_lambert_inverse(cx, cy, fi)</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">       26728 :     return _xyz_to_lonlat(p)</span></span>
+<span id="L102"><span class="lineNum">     102</span>              : end</span>
         </pre>
               </td>
             </tr>

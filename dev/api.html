@@ -472,7 +472,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples" class="level3">
 <h3 class="anchored" data-anchor-id="examples">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -525,7 +525,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-3" class="level3">
 <h3 class="anchored" data-anchor-id="examples-3">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -560,7 +560,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-5" class="level3">
 <h3 class="anchored" data-anchor-id="examples-5">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -595,7 +595,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-7" class="level3">
 <h3 class="anchored" data-anchor-id="examples-7">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -630,7 +630,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-9" class="level3">
 <h3 class="anchored" data-anchor-id="examples-9">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -665,7 +665,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-11" class="level3">
 <h3 class="anchored" data-anchor-id="examples-11">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -700,7 +700,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-13" class="level3">
 <h3 class="anchored" data-anchor-id="examples-13">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -788,7 +788,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-17" class="level3">
 <h3 class="anchored" data-anchor-id="examples-17">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -823,7 +823,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-19" class="level3">
 <h3 class="anchored" data-anchor-id="examples-19">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -858,7 +858,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-21" class="level3">
 <h3 class="anchored" data-anchor-id="examples-21">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb46"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -893,7 +893,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-23" class="level3">
 <h3 class="anchored" data-anchor-id="examples-23">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -928,7 +928,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-25" class="level3">
 <h3 class="anchored" data-anchor-id="examples-25">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb54"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -963,7 +963,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(base<span class="op">::</span><span class="dt">Integer</span>, digits<span class="op">::</span><span class="dt">AbstractVector{&lt;:Integer}</span>)</span>
 <span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(coord<span class="op">::</span><span class="dt">LonLat</span>, res<span class="op">::</span><span class="dt">Integer</span>)</span>
 <span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DGGCell</span><span class="dt">{Proj, Ap, Topo}</span>(str<span class="op">::</span><span class="dt">AbstractString</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 4-bit base cell (0–11) and hierarchical refinement digits.</p>
+<p>A single cell in a DGG grid. Wraps a <code>UInt64</code> index encoding a 5-bit base face (0-19) and hierarchical refinement digits.</p>
 <section id="examples-27" class="level3">
 <h3 class="anchored" data-anchor-id="examples-27">Examples</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb58"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ISEA3HCell</span>(<span class="fu">LonLat</span>(<span class="op">-</span><span class="fl">75.0</span>, <span class="fl">54.0</span>), <span class="fl">5</span>)</span>
@@ -1045,7 +1045,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  [2] decode(o::GlobalGrids.IGEO7Cell)
      @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/igeo7.jl:388
  [3] decode(o::GlobalGrids.DGGCell{P, A, T}) where {P, A, T}
-     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:160</code></pre>
+     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:154</code></pre>
 </div>
 </div>
 <div class="card mb-3">
@@ -1090,7 +1090,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  [2] grid(::GlobalGrids.IGEO7Cell)
      @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/igeo7.jl:380
  [3] grid(::GlobalGrids.DGGCell{P, A, T}) where {P, A, T}
-     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:144</code></pre>
+     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:146</code></pre>
 </div>
 </div>
 <div class="card mb-3">
@@ -1151,7 +1151,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  [2] is_pentagon(o::GlobalGrids.IGEO7Cell)
      @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/igeo7.jl:384
  [3] is_pentagon(o::GlobalGrids.DGGCell{P, A, T}) where {P, A, T}
-     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:156
+     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:150
  [4] is_pentagon(::GlobalGrids.AbstractCell)
      @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/GlobalGrids.jl:117</code></pre>
 </div>
@@ -1187,7 +1187,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  [2] resolution(o::GlobalGrids.IGEO7Cell)
      @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/igeo7.jl:382
  [3] resolution(o::GlobalGrids.DGGCell{P, A, T}) where {P, A, T}
-     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:146</code></pre>
+     @ ~/work/GlobalGrids.jl/GlobalGrids.jl/src/dgg/types.jl:148</code></pre>
 </div>
 </div>
 <div class="card mb-3">

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-02-23 15:18:31</td>
+            <td class="headerValue">2026-02-23 19:11:32</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -234,75 +234,75 @@
 <span id="L172"><span class="lineNum">     172</span>              : #-----------------------------------------------------------------------------# Lambert Azimuthal Equal-Area Projection</span>
 <span id="L173"><span class="lineNum">     173</span>              : &quot;&quot;&quot;Project 3D unit vector `p` onto tangent plane at base vertex `bi` (1-indexed).</span>
 <span id="L174"><span class="lineNum">     174</span>              : Returns (x, y) in the local coordinate system.&quot;&quot;&quot;</span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">       51007 : function _lambert_forward(p::SVector{3,Float64}, bi::Int)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">       51007 :     n = IGEO7_VERTICES_3D[bi]</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">      102006 :     cos_a = clamp(dot(p, n), -1.0, 1.0)</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">       51007 :     cos_a &lt;= -1.0 + 1e-14 &amp;&amp; return (0.0, 0.0)  # antipodal</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">       50923 :     k = sqrt(2.0 / (1.0 + cos_a))</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">       50923 :     x = k * dot(p, IGEO7_BASIS_U[bi])</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">       50923 :     y = k * dot(p, IGEO7_BASIS_V[bi])</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">       50923 :     return (x, y)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">        2587 : function _lambert_forward(p::SVector{3,Float64}, bi::Int)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">        2587 :     n = IGEO7_VERTICES_3D[bi]</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">        5174 :     cos_a = clamp(dot(p, n), -1.0, 1.0)</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">        2587 :     cos_a &lt;= -1.0 + 1e-14 &amp;&amp; return (0.0, 0.0)  # antipodal</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">        2587 :     k = sqrt(2.0 / (1.0 + cos_a))</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">        2587 :     x = k * dot(p, IGEO7_BASIS_U[bi])</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">        2587 :     y = k * dot(p, IGEO7_BASIS_V[bi])</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">        2587 :     return (x, y)</span></span>
 <span id="L183"><span class="lineNum">     183</span>              : end</span>
 <span id="L184"><span class="lineNum">     184</span>              : </span>
 <span id="L185"><span class="lineNum">     185</span>              : &quot;&quot;&quot;Inverse Lambert: (x, y) in tangent plane at base vertex `bi` → 3D unit vector.&quot;&quot;&quot;</span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">       49616 : function _lambert_inverse(x::Float64, y::Float64, bi::Int)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">       49616 :     rho2 = x * x + y * y</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">       49616 :     rho2 &lt; 1e-30 &amp;&amp; return IGEO7_VERTICES_3D[bi]</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">       43815 :     cos_a = 1.0 - rho2 / 2.0</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">       43815 :     scale = sqrt(max(0.0, 1.0 - rho2 / 4.0))</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">       43815 :     p = cos_a * IGEO7_VERTICES_3D[bi] + scale * (x * IGEO7_BASIS_U[bi] + y * IGEO7_BASIS_V[bi])</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">       43815 :     return normalize(p)</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">         267 : function _lambert_inverse(x::Float64, y::Float64, bi::Int)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">         267 :     rho2 = x * x + y * y</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">         267 :     rho2 &lt; 1e-30 &amp;&amp; return IGEO7_VERTICES_3D[bi]</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">         257 :     cos_a = 1.0 - rho2 / 2.0</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">         257 :     scale = sqrt(max(0.0, 1.0 - rho2 / 4.0))</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">         257 :     p = cos_a * IGEO7_VERTICES_3D[bi] + scale * (x * IGEO7_BASIS_U[bi] + y * IGEO7_BASIS_V[bi])</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">         257 :     return normalize(p)</span></span>
 <span id="L193"><span class="lineNum">     193</span>              : end</span>
 <span id="L194"><span class="lineNum">     194</span>              : </span>
 <span id="L195"><span class="lineNum">     195</span>              : &quot;&quot;&quot;Convert 3D unit vector to LonLat.&quot;&quot;&quot;</span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">       49616 : function _xyz_to_lonlat(p::SVector{3,Float64})</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">       99232 :     lat = asind(clamp(p[3], -1.0, 1.0))</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">       49616 :     lon = atand(p[2], p[1])</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">       49616 :     return LonLat(lon, lat)</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">       27073 : function _xyz_to_lonlat(p::SVector{3,Float64})</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">       54146 :     lat = asind(clamp(p[3], -1.0, 1.0))</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">       27073 :     lon = atand(p[2], p[1])</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">       27073 :     return LonLat(lon, lat)</span></span>
 <span id="L200"><span class="lineNum">     200</span>              : end</span>
 <span id="L201"><span class="lineNum">     201</span>              : </span>
 <span id="L202"><span class="lineNum">     202</span>              : &quot;&quot;&quot;Convert LonLat to 3D unit vector.&quot;&quot;&quot;</span>
 <span id="L203"><span class="lineNum">     203</span>              : function _lonlat_to_xyz(ll::LonLat)</span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">       55048 :     clat = cosd(ll.lat)</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">       55048 :     SVector(clat * cosd(ll.lon), clat * sind(ll.lon), sind(ll.lat))</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">       32504 :     clat = cosd(ll.lat)</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">       32504 :     SVector(clat * cosd(ll.lon), clat * sind(ll.lon), sind(ll.lat))</span></span>
 <span id="L206"><span class="lineNum">     206</span>              : end</span>
 <span id="L207"><span class="lineNum">     207</span>              : </span>
 <span id="L208"><span class="lineNum">     208</span>              : #-----------------------------------------------------------------------------# Hex Math</span>
 <span id="L209"><span class="lineNum">     209</span>              : &quot;&quot;&quot;Axial (q, r) → Cartesian (x, y) for pointy-top hex with size parameter `s`.&quot;&quot;&quot;</span>
 <span id="L210"><span class="lineNum">     210</span>              : function _axial_to_cart(q, r, s)</span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">      105356 :     x = s * (sqrt(3) * q + sqrt(3) / 2 * r)</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">      105356 :     y = s * (1.5 * r)</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">      105356 :     return (x, y)</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">      192151 :     x = s * (sqrt(3) * q + sqrt(3) / 2 * r)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">      192151 :     y = s * (1.5 * r)</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">      192151 :     return (x, y)</span></span>
 <span id="L214"><span class="lineNum">     214</span>              : end</span>
 <span id="L215"><span class="lineNum">     215</span>              : </span>
 <span id="L216"><span class="lineNum">     216</span>              : &quot;&quot;&quot;Cartesian (x, y) → fractional axial (q, r) for pointy-top hex with size parameter `s`.&quot;&quot;&quot;</span>
 <span id="L217"><span class="lineNum">     217</span>              : function _cart_to_axial(x, y, s)</span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">       48420 :     r = y / (1.5 * s)</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">       48420 :     q = (x / s - sqrt(3) / 2 * r) / sqrt(3)</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">       48420 :     return (q, r)</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">       25845 :     r = y / (1.5 * s)</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">       25845 :     q = (x / s - sqrt(3) / 2 * r) / sqrt(3)</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">       25845 :     return (q, r)</span></span>
 <span id="L221"><span class="lineNum">     221</span>              : end</span>
 <span id="L222"><span class="lineNum">     222</span>              : </span>
 <span id="L223"><span class="lineNum">     223</span>              : &quot;&quot;&quot;Round fractional axial (q, r) to nearest hex center.&quot;&quot;&quot;</span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">       48420 : function _hex_round(q::Float64, r::Float64)</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">       48420 :     s = -q - r  # cube z</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">       48420 :     rq = round(q)</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">       48420 :     rr = round(r)</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">       48420 :     rs = round(s)</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">       48420 :     dq = abs(rq - q)</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">       48420 :     dr = abs(rr - r)</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">       48420 :     ds = abs(rs - s)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">       48420 :     if dq &gt; dr &amp;&amp; dq &gt; ds</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">       15393 :         rq = -rr - rs</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">       33027 :     elseif dr &gt; ds</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">       16894 :         rr = -rq - rs</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">       25845 : function _hex_round(q::Float64, r::Float64)</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">       25845 :     s = -q - r  # cube z</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">       25845 :     rq = round(q)</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">       25845 :     rr = round(r)</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">       25845 :     rs = round(s)</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">       25845 :     dq = abs(rq - q)</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">       25845 :     dr = abs(rr - r)</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">       25845 :     ds = abs(rs - s)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">       25845 :     if dq &gt; dr &amp;&amp; dq &gt; ds</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">        8819 :         rq = -rr - rs</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">       17026 :     elseif dr &gt; ds</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">        8425 :         rr = -rq - rs</span></span>
 <span id="L236"><span class="lineNum">     236</span>              :     end</span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">       48420 :     return (Int(rq), Int(rr))</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">       25845 :     return (Int(rq), Int(rr))</span></span>
 <span id="L238"><span class="lineNum">     238</span>              : end</span>
 <span id="L239"><span class="lineNum">     239</span>              : </span>
 <span id="L240"><span class="lineNum">     240</span>              : &quot;&quot;&quot;Apply 2D rotation by angle `theta` (radians) to point (x, y).&quot;&quot;&quot;</span>
 <span id="L241"><span class="lineNum">     241</span>              : function _rotate2d(x, y, theta)</span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">      153776 :     c, s = cos(theta), sin(theta)</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">      153776 :     return (c * x - s * y, s * x + c * y)</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">      217996 :     c, s = cos(theta), sin(theta)</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">      217996 :     return (c * x - s * y, s * x + c * y)</span></span>
 <span id="L244"><span class="lineNum">     244</span>              : end</span>
 <span id="L245"><span class="lineNum">     245</span>              : </span>
 <span id="L246"><span class="lineNum">     246</span>              : #-----------------------------------------------------------------------------# Forward Transform (LonLat → IGEO7Cell)</span>

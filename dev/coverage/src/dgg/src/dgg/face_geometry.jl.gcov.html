@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - on branch main - src/dgg/src/dgg/face_geometry.jl</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">src/dgg/src/dgg</a> - face_geometry.jl<span style="font-size: 80%;"> (source / <a href="face_geometry.jl.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">on branch main</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">46.2&nbsp;%</td>
+            <td class="headerCovTableEntry">52</td>
+            <td class="headerCovTableEntry">24</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-02-23 19:11:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : #-----------------------------------------------------------------------------# Icosahedron Face Geometry</span>
+<span id="L2"><span class="lineNum">       2</span>              : # Precompute face centroids, vertex indices, and Lambert projection bases</span>
+<span id="L3"><span class="lineNum">       3</span>              : # for face-centered DGG addressing.</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : &quot;&quot;&quot;Precompute ISEA icosahedron face centroids and vertex indices.&quot;&quot;&quot;</span>
+<span id="L6"><span class="lineNum">       6</span> <span class="tlaUNC tlaBgUNC">           0 : function _compute_face_data()</span></span>
+<span id="L7"><span class="lineNum">       7</span> <span class="tlaUNC">           0 :     ico = icosahedron(:isea)</span></span>
+<span id="L8"><span class="lineNum">       8</span> <span class="tlaUNC">           0 :     verts_3d = [SVector{3,Float64}(v...) for v in ico.position]</span></span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span> <span class="tlaUNC">           0 :     n_faces = length(ico.faces)</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaUNC">           0 :     centroids = Vector{SVector{3,Float64}}(undef, n_faces)</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaUNC">           0 :     vert_indices = Vector{SVector{3,Int}}(undef, n_faces)</span></span>
+<span id="L13"><span class="lineNum">      13</span>              : </span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :     for (fi, face) in enumerate(ico.faces)</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :         i, j, k = face[1], face[2], face[3]</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :         vert_indices[fi] = SVector(i, j, k)</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :         centroids[fi] = normalize(verts_3d[i] + verts_3d[j] + verts_3d[k])</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :     end</span></span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :     return SVector{20}(centroids), SVector{20}(vert_indices)</span></span>
+<span id="L21"><span class="lineNum">      21</span>              : end</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : const DGG_FACE_CENTROIDS, DGG_FACE_VERTEX_INDICES = _compute_face_data()</span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : &quot;&quot;&quot;Find icosahedron face (1-indexed) whose centroid is nearest to point `p`.&quot;&quot;&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : function _nearest_face(p::SVector{3,Float64})</span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           3 :     best = -Inf</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           3 :     best_fi = 1</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           3 :     for fi in 1:20</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">          60 :         d = dot(p, DGG_FACE_CENTROIDS[fi])</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">          60 :         if d &gt; best</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           3 :             best = d</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           3 :             best_fi = fi</span></span>
+<span id="L34"><span class="lineNum">      34</span>              :         end</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">         117 :     end</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           3 :     return best_fi</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : end</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : &quot;&quot;&quot;Return the 3 vertex indices (1-indexed) of face `fi`.&quot;&quot;&quot;</span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC tlaBgUNC">           0 : _face_vertex_indices(fi::Int) = DGG_FACE_VERTEX_INDICES[fi]</span></span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              : #-----------------------------------------------------------------------------# Face Lambert Projection</span>
+<span id="L43"><span class="lineNum">      43</span>              : # Each face has a Lambert azimuthal equal-area projection centered on its centroid.</span>
+<span id="L44"><span class="lineNum">      44</span>              : # Local tangent-plane basis (u, v) oriented toward the first vertex of the face.</span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 : function _compute_face_bases()</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :     ico = icosahedron(:isea)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :     verts_3d = [SVector{3,Float64}(v...) for v in ico.position]</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : </span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :     bases_u = Vector{SVector{3,Float64}}(undef, 20)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :     bases_v = Vector{SVector{3,Float64}}(undef, 20)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :     for fi in 1:20</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         n = DGG_FACE_CENTROIDS[fi]</span></span>
+<span id="L54"><span class="lineNum">      54</span>              :         # Orient u toward the first vertex of the face</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         v1 = verts_3d[DGG_FACE_VERTEX_INDICES[fi][1]]</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         t = v1 - dot(v1, n) * n  # project onto tangent plane</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         u = normalize(t)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         v = cross(n, u)</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         bases_u[fi] = u</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         bases_v[fi] = v</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :     end</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :     return SVector{20}(bases_u), SVector{20}(bases_v)</span></span>
+<span id="L63"><span class="lineNum">      63</span>              : end</span>
+<span id="L64"><span class="lineNum">      64</span>              : </span>
+<span id="L65"><span class="lineNum">      65</span>              : const DGG_FACE_BASIS_U, DGG_FACE_BASIS_V = _compute_face_bases()</span>
+<span id="L66"><span class="lineNum">      66</span>              : </span>
+<span id="L67"><span class="lineNum">      67</span>              : &quot;&quot;&quot;Project 3D unit vector `p` onto face `fi`'s Lambert tangent plane.</span>
+<span id="L68"><span class="lineNum">      68</span>              : Returns (x, y) in the face's local coordinate system.&quot;&quot;&quot;</span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC tlaBgGNC">       25845 : function _face_lambert_forward(p::SVector{3,Float64}, fi::Int)</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">       25845 :     n = DGG_FACE_CENTROIDS[fi]</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">       51685 :     cos_a = clamp(dot(p, n), -1.0, 1.0)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">       25845 :     cos_a &lt;= -1.0 + 1e-14 &amp;&amp; return (0.0, 0.0)  # antipodal</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">       25845 :     k = sqrt(2.0 / (1.0 + cos_a))</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">       25845 :     x = k * dot(p, DGG_FACE_BASIS_U[fi])</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">       25845 :     y = k * dot(p, DGG_FACE_BASIS_V[fi])</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">       25845 :     return (x, y)</span></span>
+<span id="L77"><span class="lineNum">      77</span>              : end</span>
+<span id="L78"><span class="lineNum">      78</span>              : </span>
+<span id="L79"><span class="lineNum">      79</span>              : &quot;&quot;&quot;Inverse face Lambert: (x, y) in face `fi`'s tangent plane -&gt; 3D unit vector.&quot;&quot;&quot;</span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">       26806 : function _face_lambert_inverse(x::Float64, y::Float64, fi::Int)</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">       26806 :     rho2 = x * x + y * y</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">       26806 :     rho2 &lt; 1e-30 &amp;&amp; return DGG_FACE_CENTROIDS[fi]</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">       25470 :     cos_a = 1.0 - rho2 / 2.0</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">       25470 :     scale = sqrt(max(0.0, 1.0 - rho2 / 4.0))</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">       25470 :     p = cos_a * DGG_FACE_CENTROIDS[fi] + scale * (x * DGG_FACE_BASIS_U[fi] + y * DGG_FACE_BASIS_V[fi])</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">       25470 :     return normalize(p)</span></span>
+<span id="L87"><span class="lineNum">      87</span>              : end</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
