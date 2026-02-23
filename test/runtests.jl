@@ -221,3 +221,300 @@ end
     @test_throws ArgumentError h3cells(GI.Line(boundary[1:2]), 5; containment = :invalid)
     @test_throws ArgumentError h3cells(polygon, 5; containment = :invalid)
 end
+
+#-----------------------------------------------------------------------------# IGEO7Grid
+@testset "IGEO7Grid" begin
+    g = IGEO7Grid()
+    @test g isa IGEO7Grid
+    @test GI.isgeometry(g)
+    @test GI.crs(g) == GI.crs(g)
+    @test contains(sprint(show, g), "IGEO7Grid")
+end
+
+#-----------------------------------------------------------------------------# IGEO7Cell
+@testset "IGEO7Cell" begin
+    coord = LonLat(-75.0, 54.0)
+
+    # Invalid resolution
+    @test_throws ArgumentError IGEO7Cell(coord, -1)
+    @test_throws ArgumentError IGEO7Cell(coord, 21)
+
+    # Invalid base
+    @test_throws ArgumentError IGEO7Cell(-1, Int[])
+    @test_throws ArgumentError IGEO7Cell(12, Int[])
+
+    # Invalid digit
+    @test_throws ArgumentError IGEO7Cell(0, [7])
+
+    # Pentagon cannot have digit 6
+    @test_throws ArgumentError IGEO7Cell(0, [6])
+
+    # Hex string constructor
+    c = IGEO7Cell(coord, 3)
+    @test IGEO7Cell(GG.igeo7_string(c)) == c
+
+    # Resolution sweep
+    for res in 0:8
+        o = IGEO7Cell(coord, res)
+
+        @test GG.resolution(o) == res
+        # At res 0, all cells are pentagons (base vertices)
+        if res == 0
+            @test GG.is_pentagon(o)
+        else
+            @test !GG.is_pentagon(o)
+        end
+        @test length(GG.igeo7_digits(o.index)) == res
+
+        # Padding digits are 7
+        for i in (res + 1):GG.IGEO7_NUM_DIGITS
+            @test GG.igeo7_digit(o.index, i) == 7
+        end
+
+        # Parent/children
+        if res > 0
+            p = GG.parent(o)
+            @test GG.resolution(p) == res - 1
+            @test o in GG.children(p)
+            for sib in GG.siblings(o)
+                @test GG.resolution(sib) == res
+                @test GG.parent(sib) == p
+            end
+        else
+            @test isnothing(GG.parent(o))
+        end
+
+        # Round-trip: cell → centroid → cell
+        @test o == IGEO7Cell(GI.centroid(o), res)
+
+        # GeoInterface
+        @test GI.area(o) > 0
+        @test length(GI.coordinates(o)) == (GG.is_pentagon(o) ? 6 : 7)
+    end
+
+    # Pentagon tests across resolutions
+    for res in 0:5
+        pents = GG.igeo7_pentagons(res)
+        @test length(pents) == 12
+        @test all(GG.is_pentagon, pents)
+
+        # Pentagon children count
+        for p in pents
+            if res < GG.IGEO7_MAX_RES
+                ch = GG.children(p)
+                @test length(ch) == 6
+                @test GG.is_pentagon(ch[1])  # digit-0 child is pentagon
+                @test all(!GG.is_pentagon, ch[2:end])  # others are hexagons
+            end
+        end
+    end
+
+    # Hexagon children count
+    hex = IGEO7Cell(0, [1])
+    @test length(GG.children(hex)) == 7
+
+    # Cell count formula: 10*7^r + 2
+    @test GG.igeo7_n_cells(0) == 12
+    @test GG.igeo7_n_cells(1) == 72
+    @test GG.igeo7_n_cells(2) == 492
+    @test GG.igeo7_n_cells(3) == 3432
+
+    # Area decreases with resolution
+    areas = [GI.area(IGEO7Cell(coord, r)) for r in 0:5]
+    @test issorted(areas, rev=true)
+    @test all(>(0), areas)
+
+    # IGEO7Cell haversine and destination
+    c1 = IGEO7Cell(LonLat(0.0, 0.0), 5)
+    c2 = IGEO7Cell(LonLat(1.0, 0.0), 5)
+    @test GG.haversine(c1, c2) > 0
+    c3 = GG.destination(c1, 90.0, 50_000.0)
+    @test c3 isa IGEO7Cell
+
+    # Show
+    @test contains(sprint(show, c1), "IGEO7Cell")
+
+    # decode
+    @test GG.decode(IGEO7Cell(0, [1, 2, 3])) == "0-123"
+
+    # crosses_meridian
+    @test !GG.crosses_meridian(IGEO7Cell(LonLat(0.0, 0.0), 5))
+end
+
+#-----------------------------------------------------------------------------# igeo7cells
+@testset "igeo7cells" begin
+    # Point
+    x = igeo7cells(LonLat(0.0, 0.0), 5)
+    @test length(x) == 1
+    @test x[1] isa IGEO7Cell
+
+    # MultiPoint
+    x = igeo7cells(GI.MultiPoint([(0.0, 0.0), (10.0, 10.0), (20.0, 20.0)]), 3)
+    @test length(x) >= 1
+    @test all(c -> c isa IGEO7Cell, x)
+
+    # Line
+    x = igeo7cells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)
+    @test length(x) >= 2
+    @test all(c -> c isa IGEO7Cell, x)
+
+    # LineString
+    x = igeo7cells(GI.LineString([(0.0, 0.0), (5.0, 5.0), (10.0, 0.0)]), 3)
+    @test length(x) >= 2
+
+    # Polygon (use large enough polygon for cells to have centroids inside)
+    boundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]
+    poly = GI.Polygon([boundary])
+    x = igeo7cells(poly, 2; containment=:center)
+    @test length(x) >= 1
+    @test all(c -> c isa IGEO7Cell, x)
+
+    # Invalid containment
+    @test_throws ArgumentError igeo7cells(GI.Line([(0.0, 0.0), (1.0, 1.0)]), 3; containment=:invalid)
+    @test_throws ArgumentError igeo7cells(poly, 3; containment=:invalid)
+end
+
+#-----------------------------------------------------------------------------# DGGGrid
+@testset "DGGGrid" begin
+    g = ISEA3H()
+    @test g isa ISEA3H
+    @test g isa DGGGrid{:isea, 3, :hex}
+    @test GI.isgeometry(g)
+    @test GI.crs(g) == GI.crs(g)
+    @test contains(sprint(show, g), "DGGGrid")
+end
+
+#-----------------------------------------------------------------------------# DGGCell
+@testset "DGGCell" begin
+    coord = LonLat(-75.0, 54.0)
+
+    # Invalid resolution
+    @test_throws ArgumentError ISEA3HCell(coord, -1)
+    @test_throws ArgumentError ISEA3HCell(coord, 29)
+
+    # Invalid base
+    @test_throws ArgumentError ISEA3HCell(-1, Int[])
+    @test_throws ArgumentError ISEA3HCell(12, Int[])
+
+    # Invalid digit
+    @test_throws ArgumentError ISEA3HCell(0, [3])  # aperture-3: digits must be 0–2
+
+    # Hex string constructor
+    c = ISEA3HCell(coord, 3)
+    @test ISEA3HCell(GG.dgg_string(c)) == c
+
+    # Tuple constructor
+    @test ISEA3HCell((coord[1], coord[2]), 3) == c
+
+    # Resolution sweep
+    for res in 0:12
+        o = ISEA3HCell(coord, res)
+
+        @test GG.resolution(o) == res
+        if res == 0
+            @test GG.is_pentagon(o)
+        else
+            @test !GG.is_pentagon(o)
+        end
+        @test length(GG.dgg_digits(o.index, Val(3))) == res
+
+        # Padding digits are 0x3 (all-1s mask for 2-bit digits)
+        for i in (res + 1):GG._dgg_maxd(Val(3))
+            @test GG.dgg_digit(o.index, i, Val(3)) == 3
+        end
+
+        # Parent/children
+        if res > 0
+            p = GG.parent(o)
+            @test GG.resolution(p) == res - 1
+            @test o in GG.children(p)
+            for sib in GG.siblings(o)
+                @test GG.resolution(sib) == res
+                @test GG.parent(sib) == p
+            end
+        else
+            @test isnothing(GG.parent(o))
+        end
+
+        # Round-trip: cell → centroid → cell
+        @test o == ISEA3HCell(GI.centroid(o), res)
+
+        # GeoInterface
+        @test GI.area(o) > 0
+        @test length(GI.coordinates(o)) == (GG.is_pentagon(o) ? 6 : 7)
+    end
+
+    # 12 pentagons at each resolution
+    for res in 0:5
+        pents = GG.dgg_pentagons(ISEA3H(), res)
+        @test length(pents) == 12
+        @test all(GG.is_pentagon, pents)
+    end
+
+    # Cell count formula: 10*3^r + 2
+    @test GG.dgg_n_cells(3, 0) == 12
+    @test GG.dgg_n_cells(3, 1) == 32
+    @test GG.dgg_n_cells(3, 2) == 92
+    @test GG.dgg_n_cells(3, 3) == 272
+
+    # Area decreases with resolution
+    areas = [GI.area(ISEA3HCell(coord, r)) for r in 0:5]
+    @test issorted(areas, rev=true)
+    @test all(>(0), areas)
+
+    # DGGCell haversine and destination (use res 8 so cells are small enough)
+    c1 = ISEA3HCell(LonLat(0.0, 0.0), 8)
+    c2 = ISEA3HCell(LonLat(1.0, 0.0), 8)
+    @test GG.haversine(c1, c2) > 0
+    c3 = GG.destination(c1, 90.0, 50_000.0)
+    @test c3 isa ISEA3HCell
+
+    # Show
+    @test contains(sprint(show, c1), "DGGCell")
+
+    # Decode
+    @test GG.decode(ISEA3HCell(0, [1, 2, 0])) == "0-120"
+
+    # Round-trip with a grid of test points at multiple resolutions
+    test_lons = range(-180, 180, length=20)
+    test_lats = range(-85, 85, length=10)
+    for res in [1, 3, 5, 8]
+        for lon in test_lons, lat in test_lats
+            c = ISEA3HCell(LonLat(Float64(lon), Float64(lat)), res)
+            @test c == ISEA3HCell(GI.centroid(c), res)
+        end
+    end
+end
+
+#-----------------------------------------------------------------------------# dggcells
+@testset "dggcells" begin
+    # Point
+    x = dggcells(LonLat(0.0, 0.0), 5)
+    @test length(x) == 1
+    @test x[1] isa ISEA3HCell
+
+    # MultiPoint
+    x = dggcells(GI.MultiPoint([(0.0, 0.0), (10.0, 10.0), (20.0, 20.0)]), 3)
+    @test length(x) >= 1
+    @test all(c -> c isa ISEA3HCell, x)
+
+    # Line
+    x = dggcells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)
+    @test length(x) >= 2
+    @test all(c -> c isa ISEA3HCell, x)
+
+    # LineString
+    x = dggcells(GI.LineString([(0.0, 0.0), (5.0, 5.0), (10.0, 0.0)]), 3)
+    @test length(x) >= 2
+
+    # Polygon (use large enough polygon for cells to have centroids inside)
+    boundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]
+    poly = GI.Polygon([boundary])
+    x = dggcells(poly, 2; containment=:center)
+    @test length(x) >= 1
+    @test all(c -> c isa ISEA3HCell, x)
+
+    # Invalid containment
+    @test_throws ArgumentError dggcells(GI.Line([(0.0, 0.0), (1.0, 1.0)]), 3; containment=:invalid)
+    @test_throws ArgumentError dggcells(poly, 3; containment=:invalid)
+end

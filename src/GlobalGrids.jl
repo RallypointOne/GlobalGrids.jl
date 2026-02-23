@@ -16,7 +16,16 @@ using H3_jll: libh3
 
 export icosahedron, LonLat, cells,
     # H3:
-    H3Grid, H3Cell, h3cells
+    H3Grid, H3Cell, h3cells,
+    # IGEO7:
+    IGEO7Grid, IGEO7Cell, igeo7cells,
+    # DGG (DGGRID-style):
+    DGGGrid, DGGCell,
+    ISEA3H, ISEA4H, ISEA7H, ISEA43H, ISEA4T, ISEA4D,
+    FULLER3H, FULLER4H, FULLER7H, FULLER43H, FULLER4T, FULLER4D,
+    ISEA3HCell, ISEA4HCell, ISEA7HCell, ISEA43HCell, ISEA4TCell, ISEA4DCell,
+    FULLER3HCell, FULLER4HCell, FULLER7HCell, FULLER43HCell, FULLER4TCell, FULLER4DCell,
+    dggcells
 
 
 #-----------------------------------------------------------------------------# icosahedron
@@ -172,6 +181,17 @@ end
 
 #-----------------------------------------------------------------------------# h3
 include("h3.jl")
+
+#-----------------------------------------------------------------------------# igeo7
+include("igeo7.jl")
+
+#-----------------------------------------------------------------------------# dgg (DGGRID-style grids)
+include("dgg/types.jl")
+include("dgg/quantize_hex.jl")
+include("dgg/pipeline.jl")
+include("dgg/hierarchy.jl")
+include("dgg/boundary.jl")
+include("dgg/cells.jl")
 
 #-----------------------------------------------------------------------------# plotting utils
 function crosses_meridian(geom, λ0 = 180.0)

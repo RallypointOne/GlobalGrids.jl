@@ -25,6 +25,8 @@ book:
         - index.qmd
         - getting-started.qmd
         - h3.qmd
+        - igeo7.qmd
+        - dgg.qmd
         - coordinates.qmd
         - icosahedron.qmd
     - part: "API"

@@ -5,50 +5,48 @@ engine: julia
 
 # Coordinates
 
-GlobalGrids.jl provides small coordinate wrapper types that preserve projection info and interoperate via Proj.jl. All coordinate types implement GeoInterface's point trait, so they work with plotting and spatial libraries.
+## LonLat
 
-## Types
-
-- `LonLat(x, y)` — longitude and latitude in degrees (EPSG:4326)
-- `LonLatAuthalic(x, y)` — lon/lat in degrees using the authalic radius
-- `ISEA(x, y)` — ISEA projection coordinates on the plane
-- `ISEACube(x, y)` — rotated/skewed ISEA plane coordinates.
-- `ECEF(x, y, z)` — Earth‑Centered, Earth‑Fixed Cartesian meters (WGS84)
-
-Each type can be constructed from another to transform coordinates:
+`LonLat(lon, lat)` is GlobalGrids' coordinate type — a point on the Earth's surface in degrees (EPSG:4326).  It implements GeoInterface's `PointTrait`, so it works with plotting and spatial libraries.
 
 ```julia
 using GlobalGrids
+
 p = LonLat(-75.0, 54.0)
-ISEA(p)                 # -> ISEA
-ISEACube(p)             # -> ISEACube (via ISEA)
-ECEF(p)                 # -> ECEF meters
-LonLat(ECEF(p))         # round‑trip back to lon/lat
+
+p.lon   # -75.0
+p.lat   # 54.0
+p[1]    # -75.0 (indexable)
+p[2]    # 54.0
 ```
 
-## Distance and bearings
+A `LonLat` can also be constructed from a tuple:
 
-- `haversine(a, b)` — great‑circle distance in meters using the Haversine formula (operates on any coordinate types).
+```julia
+LonLat((1.0, 2.0))
+```
+
+## Distance and Bearings
+
+- `haversine(a, b)` — great-circle distance in meters using the Haversine formula.
 - `azimuth(a, b)` — initial bearing from `a` to `b`, degrees clockwise from North.
-- `destination(x, azimuth°, dist_m)` — destination point from `x` at azimuth and distance.
+- `destination(origin, azimuth°, dist_m)` — destination point at the given azimuth and distance.
 
 ```julia
 using GlobalGrids
-p = LonLat(-75, 54)
-q = LonLat(-80, 50)
-GlobalGrids.haversine(p, q)          # ≈ distance in meters
-θ = GlobalGrids.azimuth(p, q)        # degrees
-r = GlobalGrids.destination(p, θ, 50_000)
+
+a = LonLat(-75.0, 54.0)
+b = LonLat(-80.0, 50.0)
+
+GlobalGrids.haversine(a, b)              # distance in meters
+GlobalGrids.azimuth(a, b)                # bearing in degrees
+GlobalGrids.destination(a, 0.0, 111_195) # ~1° north
 ```
 
-## Extents
-
-`coords2extent(x; n=1000, s=1000, e=1000, w=1000)` builds an `Extents.Extent` around a point by offset distances in meters (or provide a single value to use for all directions):
+These functions also work directly on cell types:
 
 ```julia
-using GlobalGrids, Extents
-p = LonLat(-75, 54)
-ex = GlobalGrids.coords2extent(p, 2000)  # 2 km in all directions
-# or directional:
-ex2 = GlobalGrids.coords2extent(p; n=5000, s=1000, e=2000, w=2000)
+c1 = H3Cell(a, 5)
+c2 = H3Cell(b, 5)
+GlobalGrids.haversine(c1, c2)  # distance between centroids
 ```

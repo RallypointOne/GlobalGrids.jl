@@ -7,11 +7,15 @@ engine: julia
 
 **Discrete global grids (DGGs) for Julia.**
 
-GlobalGrids provides:
+GlobalGrids provides three discrete global grid systems, all built on the icosahedron:
 
-- An idiomatic Julia interface to Uber's [H3](https://h3geo.org) hexagonal grid system.
-- Icosahedron mesh and orientation utilities for DGG design (a work in progress).
-- Makie.jl and Rasters.jl integration.
+| Grid System | Description | Aperture | Resolutions |
+|---|---|---|---|
+| **H3** | Julia wrapper around Uber's [H3](https://h3geo.org) C library | 7 | 0–15 |
+| **IGEO7** | Pure-Julia aperture-7 hexagonal grid with Lambert azimuthal projection | 7 | 0–20 |
+| **DGG** | Parametric DGGRID-style grids (projection × aperture × topology) | 3, 4, 7, 43 | 0–28 |
+
+All grid cell types implement [GeoInterface.jl](https://github.com/JuliaGeo/GeoInterface.jl) and work with plotting (Makie) and spatial libraries (GeometryOps).
 
 > A great resource for learning about DGGs is [https://discreteglobalgrids.org](https://discreteglobalgrids.org)
 
@@ -24,17 +28,23 @@ Pkg.add(url = "https://github.com/RallypointOne/GlobalGrids.jl")
 
 ## Quickstart
 
-```{julia}
-import GlobalGrids as GG
-using CairoMakie
+```julia
+using GlobalGrids
+import GeoInterface as GI
 
-# Create a lon/lat point
-p = GG.LonLat(-75.0, 54.0)
+p = LonLat(-75.0, 54.0)
 
-# Find the cell containing the point at a given resolution
-c = GG.H3Cell(p, 7)
-```
+# H3 (Uber's grid)
+h3 = H3Cell(p, 7)
 
-```{julia}
-poly(GG.grid_ring(c, 1), color=1:6)
+# IGEO7 (pure Julia aperture-7)
+ig = IGEO7Cell(p, 5)
+
+# DGG (DGGRID-style, default ISEA aperture-3 hex)
+dg = ISEA3HCell(p, 5)
+
+# All cell types support the same interface:
+GI.centroid(h3)      # center point
+GI.coordinates(h3)   # boundary vertices
+GI.area(h3)          # area in m²
 ```

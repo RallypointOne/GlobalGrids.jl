@@ -1,0 +1,104 @@
+---
+title: "IGEO7 Grid System"
+engine: julia
+---
+
+# IGEO7 Grid System
+
+IGEO7 is a pure-Julia aperture-7 hexagonal discrete global grid.  It uses the same icosahedral vertex placement as the ISEA orientation and a Lambert azimuthal equal-area projection centered on each of the 12 icosahedron vertices.
+
+**Key properties:**
+
+- **Aperture**: 7 — each hexagonal cell subdivides into 7 children.
+- **Resolutions**: 0–20 (resolution 0 has 12 pentagonal cells at icosahedron vertices).
+- **Cell count**: $10 \cdot 7^r + 2$ at resolution $r$.
+- **12 pentagons** at every resolution (located at the icosahedron vertices).
+- **Pure Julia** — no binary dependencies beyond the standard library.
+
+## Creating an IGEO7Cell
+
+### From Coordinates and Resolution
+
+```julia
+using GlobalGrids
+
+coord = LonLat(-75.0, 54.0)
+cell = IGEO7Cell(coord, 5)
+```
+
+### From Base Vertex and Digits
+
+Each cell is identified by a base vertex (0–11) and a sequence of digits (0–6):
+
+```julia
+# Base vertex 0, digits [1, 2, 3]
+cell = IGEO7Cell(0, [1, 2, 3])
+```
+
+### From Hex String
+
+```julia
+cell = IGEO7Cell(coord, 5)
+str = GlobalGrids.igeo7_string(cell)
+IGEO7Cell(str)
+```
+
+## Inspecting Cells
+
+```julia
+using GlobalGrids
+
+cell = IGEO7Cell(LonLat(-75.0, 54.0), 5)
+
+GlobalGrids.resolution(cell)       # 5
+GlobalGrids.is_pentagon(cell)       # false
+GlobalGrids.igeo7_digits(cell.index) # [d1, d2, d3, d4, d5]
+GlobalGrids.decode(cell)            # "3-12045" (base-digits)
+```
+
+## GeoInterface
+
+```julia
+import GeoInterface as GI
+
+GI.centroid(cell)       # center LonLat
+GI.coordinates(cell)    # boundary vertices (7 for hex, 6 for pentagon — closed)
+GI.area(cell)           # area in m²
+```
+
+## Grid Hierarchy
+
+```julia
+using GlobalGrids
+
+cell = IGEO7Cell(LonLat(0.0, 0.0), 3)
+
+p = GlobalGrids.parent(cell)        # resolution 2 parent
+ch = GlobalGrids.children(cell)     # 7 children (6 for pentagons)
+sib = GlobalGrids.siblings(cell)    # same-parent siblings
+```
+
+Pentagons at any resolution:
+
+```julia
+pents = GlobalGrids.igeo7_pentagons(3)  # 12 pentagons at resolution 3
+```
+
+## Rasterizing Geometries
+
+Use `igeo7cells` to find cells covering a geometry:
+
+```julia
+using GlobalGrids
+import GeoInterface as GI
+
+# Point
+igeo7cells(LonLat(0.0, 0.0), 5)
+
+# Line
+igeo7cells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)
+
+# Polygon
+boundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]
+igeo7cells(GI.Polygon([boundary]), 2; containment=:center)
+```

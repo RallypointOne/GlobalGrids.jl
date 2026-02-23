@@ -1,0 +1,160 @@
+---
+title: "DGG Grid System"
+engine: julia
+---
+
+# DGG Grid System
+
+The DGG (Discrete Global Grid) module provides parametric grid types inspired by [DGGRID](https://github.com/sahrk/DGGRID).  Grid configuration is encoded in type parameters, enabling zero-cost dispatch across different projections, apertures, and topologies.
+
+## Grid Configuration
+
+A DGG grid is parameterized by three values:
+
+| Parameter | Options | Description |
+|---|---|---|
+| **Projection** | `:isea`, `:fuller` | Map projection (currently uses Lambert azimuthal equal-area) |
+| **Aperture** | `3`, `4`, `7`, `43` | Number of child cells per parent (currently `3` is implemented) |
+| **Topology** | `:hex`, `:tri`, `:diamond` | Cell shape (currently `:hex` is implemented) |
+
+This gives **12 preset grid types**, each with a corresponding cell type:
+
+| Grid | Cell | Description |
+|---|---|---|
+| `ISEA3H` | `ISEA3HCell` | ISEA aperture-3 hexagonal |
+| `ISEA4H` | `ISEA4HCell` | ISEA aperture-4 hexagonal |
+| `ISEA7H` | `ISEA7HCell` | ISEA aperture-7 hexagonal |
+| `ISEA43H` | `ISEA43HCell` | ISEA mixed 4-3 hexagonal |
+| `ISEA4T` | `ISEA4TCell` | ISEA aperture-4 triangular |
+| `ISEA4D` | `ISEA4DCell` | ISEA aperture-4 diamond |
+| `FULLER3H` | `FULLER3HCell` | Fuller aperture-3 hexagonal |
+| `FULLER4H` | `FULLER4HCell` | Fuller aperture-4 hexagonal |
+| `FULLER7H` | `FULLER7HCell` | Fuller aperture-7 hexagonal |
+| `FULLER43H` | `FULLER43HCell` | Fuller mixed 4-3 hexagonal |
+| `FULLER4T` | `FULLER4TCell` | Fuller aperture-4 triangular |
+| `FULLER4D` | `FULLER4DCell` | Fuller aperture-4 diamond |
+
+::: {.callout-note}
+Currently only **aperture-3 hexagonal** grids (`ISEA3H`, `FULLER3H`) are fully implemented.  Other apertures and topologies are defined in the type system but not yet functional.
+:::
+
+## Cell Index Layout
+
+Each cell wraps a single `UInt64` encoding the base vertex (0–11) and hierarchical digits:
+
+| Aperture | Bits/digit | Max digits | Max resolution |
+|---|---|---|---|
+| 3, 4 | 2 | 28 | 28 |
+| 7, 43 | 3 | 20 | 20 |
+
+**Cell count** at resolution $r$ with aperture $A$: $\;10 \cdot A^r + 2$
+
+## Creating a DGGCell
+
+### From Coordinates and Resolution
+
+```julia
+using GlobalGrids
+
+coord = LonLat(-75.0, 54.0)
+cell = ISEA3HCell(coord, 5)
+```
+
+### From Base Vertex and Digits
+
+```julia
+# Base vertex 0, digits [1, 2, 0]
+cell = ISEA3HCell(0, [1, 2, 0])
+```
+
+### From Hex String
+
+```julia
+cell = ISEA3HCell(coord, 5)
+str = GlobalGrids.dgg_string(cell)
+ISEA3HCell(str)
+```
+
+### Using the Convenience Wrapper
+
+```julia
+# dggcells defaults to ISEA3H
+dggcells(LonLat(0.0, 0.0), 5)
+
+# Specify a different grid
+dggcells(LonLat(0.0, 0.0), 5; grid=FULLER3H())
+```
+
+## Inspecting Cells
+
+```julia
+using GlobalGrids
+
+cell = ISEA3HCell(LonLat(-75.0, 54.0), 5)
+
+GlobalGrids.resolution(cell)                     # 5
+GlobalGrids.is_pentagon(cell)                     # false
+GlobalGrids.dgg_digits(cell.index, Val(3))        # digit vector
+GlobalGrids.decode(cell)                          # "3-12010" (base-digits)
+```
+
+## GeoInterface
+
+```julia
+import GeoInterface as GI
+
+cell = ISEA3HCell(LonLat(-75.0, 54.0), 5)
+
+GI.centroid(cell)       # center LonLat
+GI.coordinates(cell)    # boundary vertices (7 for hex, 6 for pentagon — closed)
+GI.area(cell)           # area in m²
+```
+
+## Grid Hierarchy
+
+```julia
+using GlobalGrids
+
+cell = ISEA3HCell(LonLat(0.0, 0.0), 3)
+
+p = GlobalGrids.parent(cell)        # resolution 2 parent
+ch = GlobalGrids.children(cell)     # 3 children per hex
+sib = GlobalGrids.siblings(cell)    # same-parent siblings
+```
+
+Pentagons at any resolution:
+
+```julia
+pents = GlobalGrids.dgg_pentagons(ISEA3H(), 3)  # 12 pentagons at resolution 3
+```
+
+## Rasterizing Geometries
+
+```julia
+using GlobalGrids
+import GeoInterface as GI
+
+# Point
+dggcells(LonLat(0.0, 0.0), 5)
+
+# Line
+dggcells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)
+
+# Polygon
+boundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]
+dggcells(GI.Polygon([boundary]), 2; containment=:center)
+```
+
+## Comparison with IGEO7
+
+Both DGG (aperture-3) and IGEO7 (aperture-7) use Lambert azimuthal equal-area projection centered on icosahedron vertices.  Key differences:
+
+| | ISEA3H | IGEO7 |
+|---|---|---|
+| Aperture | 3 | 7 |
+| Children per hex | 3 | 7 |
+| Children per pentagon | 3 | 6 |
+| Digits | 0–2 | 0–6 |
+| Rotation per level | 30° | 19.1° |
+| Max resolution | 28 | 20 |
+| Cells at res 5 | 2,432 | 168,072 |

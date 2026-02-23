@@ -5,12 +5,84 @@ engine: julia
 
 # Getting Started {.unnumbered}
 
-## Basic Usage
+## Choosing a Grid System
+
+GlobalGrids provides three grid systems.  Each makes different tradeoffs:
+
+| | H3 | IGEO7 | DGG |
+|---|---|---|---|
+| Implementation | C library (H3_jll) | Pure Julia | Pure Julia |
+| Aperture | 7 | 7 | 3, 4, 7, or 43 |
+| Max Resolution | 15 | 20 | 28 (aperture 3/4) or 20 (aperture 7/43) |
+| Topology | Hex | Hex | Hex (tri/diamond planned) |
+| Projection | Custom (Uber) | Lambert azimuthal equal-area | Lambert azimuthal equal-area |
+| Cell count formula | — | $10 \cdot 7^r + 2$ | $10 \cdot A^r + 2$ |
+
+**Recommendations:**
+
+- **H3** — Best ecosystem support (widely used), ring/disk/path operations, mature C library.
+- **IGEO7** — Pure Julia, no binary dependency, aperture-7.
+- **DGG** — Configurable aperture.  Currently supports aperture-3 hexagonal grids (`ISEA3H`).
+
+## Common Interface
+
+All cell types share the same interface through `AbstractCell`:
 
 ```julia
 using GlobalGrids
+import GeoInterface as GI
+
+p = LonLat(-75.0, 54.0)
+
+# Create a cell from coordinates + resolution
+cell = H3Cell(p, 5)       # or IGEO7Cell(p, 5), ISEA3HCell(p, 5)
+
+# Inspect
+GlobalGrids.resolution(cell)   # resolution level
+GlobalGrids.is_pentagon(cell)   # pentagon check (12 per resolution)
+GlobalGrids.decode(cell)        # human-readable string
+
+# GeoInterface
+GI.centroid(cell)       # center LonLat
+GI.coordinates(cell)    # boundary vertices (closed polygon)
+GI.area(cell)           # area in m²
+
+# Hierarchy
+GlobalGrids.parent(cell)       # coarser parent cell
+GlobalGrids.children(cell)     # finer child cells
+GlobalGrids.siblings(cell)     # same-parent neighbor cells
 ```
 
-## Examples
+## Rasterizing Geometries
 
-*TODO: Add examples here.*
+The `cells` function (and convenience wrappers `h3cells`, `igeo7cells`, `dggcells`) find the grid cells covering a geometry:
+
+```julia
+using GlobalGrids
+import GeoInterface as GI
+
+# Point
+h3cells(LonLat(0.0, 0.0), 5)
+
+# Line
+igeo7cells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3)
+
+# Polygon
+boundary = [(-20.0, -20.0), (-20.0, 20.0), (20.0, 20.0), (20.0, -20.0), (-20.0, -20.0)]
+dggcells(GI.Polygon([boundary]), 2)
+```
+
+## Geodesic Functions
+
+GlobalGrids includes geodesic utilities that work with `LonLat` points and cells:
+
+```julia
+using GlobalGrids
+
+a = LonLat(0.0, 0.0)
+b = LonLat(1.0, 1.0)
+
+GlobalGrids.haversine(a, b)          # great-circle distance in meters
+GlobalGrids.azimuth(a, b)            # bearing in degrees (clockwise from North)
+GlobalGrids.destination(a, 45.0, 1e5) # point 100km away at 45° bearing
+```
