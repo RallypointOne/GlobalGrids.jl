@@ -1,15 +1,17 @@
 #-----------------------------------------------------------------------------# Bit Layout
-# Aperture 3/4: base(4 bits) + reserved(4 bits) + 28×2-bit digits
-# Aperture 7/43: base(4 bits) + 20×3-bit digits
+# Face-based addressing: 5-bit base (0-19) + hierarchical digits
+# Aperture 3/4: base(5 bits) + 29×2-bit digits + 1 unused bit
+# Aperture 7/43: base(5 bits) + 19×3-bit digits + 2 unused bits
 
-const DGG_BASE_OFFSET = 60  # bits [63:60] for base vertex (0-11)
+const DGG_BASE_OFFSET = 59  # bits [63:59] for base face (0-19)
+const DGG_BASE_MASK = UInt64(0x1F)  # 5 bits
 
 # Per-aperture compile-time constants
 @inline _dgg_bpd(::Val{3}) = 2;    @inline _dgg_bpd(::Val{4}) = 2
 @inline _dgg_bpd(::Val{7}) = 3;    @inline _dgg_bpd(::Val{43}) = 3
 
-@inline _dgg_maxd(::Val{3}) = 28;   @inline _dgg_maxd(::Val{4}) = 28
-@inline _dgg_maxd(::Val{7}) = 20;   @inline _dgg_maxd(::Val{43}) = 20
+@inline _dgg_maxd(::Val{3}) = 29;   @inline _dgg_maxd(::Val{4}) = 29
+@inline _dgg_maxd(::Val{7}) = 19;   @inline _dgg_maxd(::Val{43}) = 19
 
 @inline _dgg_mask(::Val{3}) = UInt64(0x3);  @inline _dgg_mask(::Val{4}) = UInt64(0x3)
 @inline _dgg_mask(::Val{7}) = UInt64(0x7);  @inline _dgg_mask(::Val{43}) = UInt64(0x7)
@@ -44,8 +46,8 @@ GI.ncoord(::DGGGrid) = 2
     DGGCell{Proj, Ap, Topo}(coord::LonLat, res::Integer)
     DGGCell{Proj, Ap, Topo}(str::AbstractString)
 
-A single cell in a DGG grid.  Wraps a `UInt64` index encoding a 4-bit base
-cell (0–11) and hierarchical refinement digits.
+A single cell in a DGG grid.  Wraps a `UInt64` index encoding a 5-bit base
+face (0-19) and hierarchical refinement digits.
 
 ### Examples
 
@@ -84,8 +86,8 @@ const FULLER4TCell  = DGGCell{:fuller, 4, :tri}
 const FULLER4DCell  = DGGCell{:fuller, 4, :diamond}
 
 #-----------------------------------------------------------------------------# Bit Manipulation
-"""Extract base vertex (0–11) from raw index."""
-@inline dgg_base(idx::UInt64) = Int((idx >> DGG_BASE_OFFSET) & 0xF)
+"""Extract base face (0-19) from raw index."""
+@inline dgg_base(idx::UInt64) = Int((idx >> DGG_BASE_OFFSET) & DGG_BASE_MASK)
 
 """Get digit at 1-based position `i`."""
 @inline function dgg_digit(idx::UInt64, i::Int, ::Val{Ap}) where Ap
@@ -116,11 +118,11 @@ dgg_string(idx::UInt64) = string(idx, base=16)
 dgg_string(o::DGGCell) = dgg_string(o.index)
 
 """Number of cells at resolution `r` for hex grid with aperture `a`."""
-dgg_n_cells(a::Integer, r::Integer) = 10 * big(a)^r + 2
+dgg_n_cells(a::Integer, r::Integer) = 20 * big(a)^r
 
 #-----------------------------------------------------------------------------# Constructors
 function DGGCell{P,A,T}(base::Integer, digits::AbstractVector{<:Integer}) where {P,A,T}
-    0 <= base <= 11 || throw(ArgumentError("base must be in 0:11, got $base"))
+    0 <= base <= 19 || throw(ArgumentError("base must be in 0:19, got $base"))
     maxd = _dgg_maxd(Val(A))
     mask = _dgg_mask(Val(A))
     maxval = _dgg_maxval(Val(A))
@@ -145,17 +147,9 @@ grid(::DGGCell{P,A,T}) where {P,A,T} = DGGGrid{P,A,T}()
 
 resolution(o::DGGCell{P,A,T}) where {P,A,T} = dgg_resolution(o.index, Val(A))
 
-function _dgg_is_pentagon(idx::UInt64, ::Val{Ap}) where Ap
-    r = dgg_resolution(idx, Val(Ap))
-    for i in 1:r
-        dgg_digit(idx, i, Val(Ap)) != 0 && return false
-    end
-    return true
-end
+is_pentagon(o::DGGCell{P,A,T}) where {P,A,T} = false
 
-is_pentagon(o::DGGCell{P,A,T}) where {P,A,T} = _dgg_is_pentagon(o.index, Val(A))
-
-icon(o::DGGCell) = is_pentagon(o) ? styled"{bright_red: ⬠}" : styled"{bright_green: ⬡}"
+icon(o::DGGCell) = styled"{bright_green: \u2b21}"
 
 decode(o::DGGCell{P,A,T}) where {P,A,T} = string(dgg_base(o.index), "-", join(dgg_digits(o.index, Val(A))))
 digits(o::DGGCell{P,A,T}) where {P,A,T} = dgg_digits(o.index, Val(A))

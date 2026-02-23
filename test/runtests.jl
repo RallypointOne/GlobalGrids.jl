@@ -404,14 +404,14 @@ end
 
     # Invalid resolution
     @test_throws ArgumentError ISEA3HCell(coord, -1)
-    @test_throws ArgumentError ISEA3HCell(coord, 29)
+    @test_throws ArgumentError ISEA3HCell(coord, 30)
 
-    # Invalid base
+    # Invalid base (face-based: 0-19)
     @test_throws ArgumentError ISEA3HCell(-1, Int[])
-    @test_throws ArgumentError ISEA3HCell(12, Int[])
+    @test_throws ArgumentError ISEA3HCell(20, Int[])
 
     # Invalid digit
-    @test_throws ArgumentError ISEA3HCell(0, [3])  # aperture-3: digits must be 0–2
+    @test_throws ArgumentError ISEA3HCell(0, [3])  # aperture-3: digits must be 0-2
 
     # Hex string constructor
     c = ISEA3HCell(coord, 3)
@@ -425,11 +425,7 @@ end
         o = ISEA3HCell(coord, res)
 
         @test resolution(o) == res
-        if res == 0
-            @test is_pentagon(o)
-        else
-            @test !is_pentagon(o)
-        end
+        @test !is_pentagon(o)  # face-based: no pentagons
         @test length(GG.digits(o)) == res
 
         # Padding digits are 0x3 (all-1s mask for 2-bit digits)
@@ -450,41 +446,35 @@ end
             @test isnothing(GG.parent(o))
         end
 
-        # Round-trip: cell → centroid → cell
+        # Round-trip: cell -> centroid -> cell
         @test o == ISEA3HCell(GI.centroid(o), res)
 
         # GeoInterface
         @test GI.area(o) > 0
-        @test length(GI.coordinates(o)) == (is_pentagon(o) ? 6 : 7)
+        @test length(GI.coordinates(o)) == 7  # always hexagons
     end
 
-    # 12 pentagons at each resolution
-    for res in 0:5
-        pents = pentagons(ISEA3H(), res)
-        @test length(pents) == 12
-        @test all(is_pentagon, pents)
-    end
-
-    # Cell count formula: 10*3^r + 2
-    @test ncells(ISEA3H(), 0) == 12
-    @test ncells(ISEA3H(), 1) == 32
-    @test ncells(ISEA3H(), 2) == 92
-    @test ncells(ISEA3H(), 3) == 272
+    # Cell count formula: 20*3^r
+    @test ncells(ISEA3H(), 0) == 20
+    @test ncells(ISEA3H(), 1) == 60
+    @test ncells(ISEA3H(), 2) == 180
+    @test ncells(ISEA3H(), 3) == 540
 
     # Area decreases with resolution
     areas = [GI.area(ISEA3HCell(coord, r)) for r in 0:5]
     @test issorted(areas, rev=true)
     @test all(>(0), areas)
 
-    # DGGCell haversine and destination (use res 8 so cells are small enough)
-    c1 = ISEA3HCell(LonLat(0.0, 0.0), 8)
-    c2 = ISEA3HCell(LonLat(1.0, 0.0), 8)
+    # DGGCell haversine and destination
+    c1 = ISEA3HCell(LonLat(-75.0, 54.0), 8)
+    c2 = ISEA3HCell(LonLat(-74.0, 54.0), 8)
     @test haversine(c1, c2) > 0
     c3 = destination(c1, 90.0, 50_000.0)
     @test c3 isa ISEA3HCell
 
-    # base_cell, digits, encode
+    # base_cell (0-19), digits, encode
     @test base_cell(c1) == GG.dgg_base(c1.index)
+    @test 0 <= base_cell(c1) <= 19
     @test GG.digits(c1) == GG.dgg_digits(c1.index, Val(3))
     @test encode(c1) == GG.dgg_string(c1.index)
 
@@ -493,6 +483,12 @@ end
 
     # Decode
     @test decode(ISEA3HCell(0, [1, 2, 0])) == "0-120"
+
+    # Convergence test at former dead spots
+    for ll in [LonLat(0.0, 0.0), LonLat(30.0, 0.0), LonLat(-120.0, 45.0)]
+        c = ISEA3HCell(ll, 12)
+        @test haversine(GI.centroid(c), ll) < 10_000.0  # < 10 km
+    end
 
     # Round-trip with a grid of test points at multiple resolutions
     test_lons = range(-180, 180, length=20)
@@ -503,6 +499,7 @@ end
             @test c == ISEA3HCell(GI.centroid(c), res)
         end
     end
+
 end
 
 #-----------------------------------------------------------------------------# dggcells
@@ -517,13 +514,13 @@ end
     @test length(x) >= 1
     @test all(c -> c isa ISEA3HCell, x)
 
-    # Line
-    x = dggcells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 3; containment=:center)
+    # Line (use res=6 -- aperture-3 cells are large at low res)
+    x = dggcells(GI.Line([(0.0, 0.0), (5.0, 5.0)]), 6; containment=:center)
     @test length(x) >= 2
     @test all(c -> c isa ISEA3HCell, x)
 
     # LineString
-    x = dggcells(GI.LineString([(0.0, 0.0), (5.0, 5.0), (10.0, 0.0)]), 3)
+    x = dggcells(GI.LineString([(0.0, 0.0), (5.0, 5.0), (10.0, 0.0)]), 6)
     @test length(x) >= 2
 
     # Polygon (use large enough polygon for cells to have centroids inside)

@@ -10,16 +10,10 @@ const DGG_AP3_DIGIT_OFFSETS = SVector{3, SVector{2, Int}}(
     SVector(0, 1),   # digit 2
 )
 
-# Hex spacing at resolution 1 for aperture 3.
-# Constrained so that level-1 child centers (at distance √3*S1 from base vertex)
-# stay within the vertex Voronoi region (apothem ≈ 0.547 in Lambert coords).
-const DGG_AP3_S1 = let
-    v1 = IGEO7_VERTICES_3D[1]
-    v2 = IGEO7_VERTICES_3D[IGEO7_VERTEX_NEIGHBORS[1][1]]
-    edge_angle = acos(clamp(dot(v1, v2), -1.0, 1.0))
-    apothem = 2.0 * sin(edge_angle / 4.0)
-    apothem / sqrt(3.0) * 0.95
-end
+# Hex spacing at resolution 1 for aperture 3 (face-centered grid).
+# At res 1, each of 20 faces has 3 cells → 60 total.
+# hex_area = (3√3/2)*s²;  cell_area = 4π/60 = π/15
+const DGG_AP3_S1 = sqrt(2 * 4π / (60 * sqrt(3))) / sqrt(3)
 
 #-----------------------------------------------------------------------------# Aperture-specific accessors (extend for aperture 4, 7 later)
 _dgg_theta(::Val{3})          = DGG_AP3_THETA

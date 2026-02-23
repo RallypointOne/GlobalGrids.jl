@@ -32,7 +32,7 @@ function cells(::Type{DGGCell{P,A,:hex}}, ::GI.PolygonTrait, geom, res::Integer;
         throw(ArgumentError("Invalid containment mode. Expected :center or :overlap. Found: $containment."))
     ext = GI.extent(geom)
     X, Y = ext.X, ext.Y
-    n = 10 * Float64(A)^res + 2
+    n = 20 * Float64(A)^res
     cell_area_rad2 = 4π / n
     step_deg = rad2deg(sqrt(cell_area_rad2)) / 3.0
     step_deg = max(step_deg, 1e-6)

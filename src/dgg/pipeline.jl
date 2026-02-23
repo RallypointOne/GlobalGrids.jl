@@ -1,4 +1,4 @@
-#-----------------------------------------------------------------------------# Forward Transform: LonLat → DGGCell (hex grids)
+#-----------------------------------------------------------------------------# Forward Transform: LonLat -> DGGCell (hex grids)
 
 function DGGCell{P,A,:hex}(coord::LonLat, res::Integer) where {P,A}
     maxd = _dgg_maxd(Val(A))
@@ -8,87 +8,95 @@ end
 
 DGGCell{P,A,:hex}((x, y)::NTuple{2, Real}, res::Integer) where {P,A} = DGGCell{P,A,:hex}(LonLat(Float64(x), Float64(y)), res)
 
-"""Find the 1-indexed base vertex nearest to 3D unit vector `p`."""
-function _nearest_vertex(p::SVector{3,Float64})
-    best_dot = -Inf
-    base1 = 1
-    for i in 1:12
-        d = dot(p, IGEO7_VERTICES_3D[i])
-        if d > best_dot
-            best_dot = d
-            base1 = i
-        end
-    end
-    return base1
-end
+"""Compute a candidate DGG cell on face `fi` at resolution `res` from Lambert coords.
+Returns the cell index (UInt64)."""
+@inline function _dgg_quantize_on_face(px::Float64, py::Float64, fi::Int, res::Integer, ::Val{A}) where A
+    s1 = _dgg_s1(Val(A))
+    scale = _dgg_scale_factor(Val(A))
+    theta = _dgg_theta(Val(A))
 
-"""Quantize Lambert-plane point to finest-level hex and extract digits bottom-up."""
-function _quantize_and_extract(px::Float64, py::Float64, base1::Int, res::Integer, ::Val{P}, ::Val{A}) where {P,A}
-    s_finest = _dgg_s1(Val(A)) / _dgg_scale_factor(Val(A))^(res - 1)
-    total_rot = -res * _dgg_theta(Val(A))
+    s_finest = s1 / scale^(res - 1)
+    total_rotation = res * theta
 
-    # Undo total rotation to align with finest-level hex frame
-    ux, uy = _rotate2d(px, py, -total_rot)
+    # Undo cumulative rotation to align with finest-level hex grid
+    rx, ry = _rotate2d(px, py, -total_rotation)
 
-    # Convert to fractional axial and round to nearest hex
-    fq, fr = _cart_to_axial(ux, uy, s_finest)
+    # Convert to fractional axial, snap to nearest hex center
+    fq, fr = _cart_to_axial(rx, ry, s_finest)
     q, r = _hex_round(fq, fr)
 
-    # Bottom-up digit extraction
+    # Extract digits bottom-up using modular arithmetic
     digits = _dgg_bottomup_digits(q, r, res, Val(A))
-    return DGGCell{P,A,:hex}(base1 - 1, digits)
+
+    return DGGCell{:isea,A,:hex}(fi - 1, digits).index
 end
 
+"""Forward transform: quantize a LonLat to the nearest DGG hex cell.
+
+Uses face-centered Lambert projection with bottom-up digit extraction.
+Tries multiple candidate faces near the input point and picks the cell
+whose centroid is closest on the sphere, handling face boundary cases."""
 function _dgg_forward_hex(coord::LonLat, res::Integer, ::Val{P}, ::Val{A}) where {P,A}
     p = _lonlat_to_xyz(coord)
-    base1 = _nearest_vertex(p)
 
-    res == 0 && return DGGCell{P,A,:hex}(base1 - 1, Int[])
+    if res == 0
+        fi = _nearest_face(p)
+        return DGGCell{P,A,:hex}(fi - 1, Int[])
+    end
 
-    # Try nearest vertex first
-    px, py = _lambert_forward(p, base1)
-    best_cell = _quantize_and_extract(px, py, base1, res, Val(P), Val(A))
-    best_centroid = _lonlat_to_xyz(_dgg_centroid(best_cell.index, Val(A)))
-    best_dot = dot(p, best_centroid)
+    # Score all faces by dot product with input point, try top candidates
+    best_idx = UInt64(0)
+    best_dot = -Inf
 
-    # Search all other vertices for a cell whose centroid is closer to input.
-    # This guarantees round-trips: forward(inverse(forward(x))) == forward(x)
-    # because inverse(cell) produces centroid with dot=1.0 against itself.
-    for v in 1:12
-        v == base1 && continue
-        px_v, py_v = _lambert_forward(p, v)
-        cell_v = _quantize_and_extract(px_v, py_v, v, res, Val(P), Val(A))
-        centroid_v = _lonlat_to_xyz(_dgg_centroid(cell_v.index, Val(A)))
-        d = dot(p, centroid_v)
-        if d > best_dot
-            best_dot = d
-            best_cell = cell_v
+    for fi in 1:20
+        face_dot = dot(p, DGG_FACE_CENTROIDS[fi])
+        # Skip faces whose centroid is too far (cos > 0.3 means < ~72 degrees)
+        face_dot < 0.3 && continue
+
+        px, py = _face_lambert_forward(p, fi)
+        idx = _dgg_quantize_on_face(px, py, fi, res, Val(A))
+
+        # Score: dot product of cell centroid with input point (higher = closer)
+        centroid_p = _lonlat_to_xyz(_dgg_centroid(idx, Val(A)))
+        cdot = dot(p, centroid_p)
+        if cdot > best_dot
+            best_dot = cdot
+            best_idx = idx
         end
     end
 
-    return best_cell
+    return DGGCell{P,A,:hex}(best_idx)
 end
 
-#-----------------------------------------------------------------------------# Inverse Transform: DGGCell → center LonLat
+#-----------------------------------------------------------------------------# Inverse Transform: DGGCell -> center LonLat
 
-"""Compute Lambert-plane center (x, y) and base vertex (1-indexed) for a hex DGG cell.
+"""Compute face Lambert-plane center (x, y) and face index (1-indexed) for a hex DGG cell.
 
-Uses bottom-up approach: convert digits to finest-level hex coords, then to Lambert.
-This is consistent with the bottom-up forward transform, ensuring round-trip accuracy."""
+Accumulates rotated offsets top-down, matching the forward transform's geometric model."""
 function _dgg_center_lambert(idx::UInt64, ::Val{A}) where A
-    base1, q, r = _dgg_finest_hex(idx, Val(A))
+    fi = dgg_base(idx) + 1  # face index, 1-indexed
     res = dgg_resolution(idx, Val(A))
-    res == 0 && return base1, 0.0, 0.0
-    s_finest = _dgg_s1(Val(A)) / _dgg_scale_factor(Val(A))^(res - 1)
-    total_rot = -res * _dgg_theta(Val(A))
-    ux, uy = _axial_to_cart(q, r, s_finest)
-    cx, cy = _rotate2d(ux, uy, total_rot)
-    return base1, cx, cy
+    res == 0 && return fi, 0.0, 0.0
+    offsets = _dgg_digit_offsets(Val(A))
+    s1 = _dgg_s1(Val(A))
+    scale = _dgg_scale_factor(Val(A))
+    theta = _dgg_theta(Val(A))
+    cx, cy = 0.0, 0.0
+    for level in 1:res
+        d = dgg_digit(idx, level, Val(A))
+        s_level = s1 / scale^(level - 1)
+        rotation = level * theta
+        off = offsets[d + 1]
+        ox, oy = _axial_to_cart(off[1], off[2], s_level)
+        ox, oy = _rotate2d(ox, oy, rotation)
+        cx += ox
+        cy += oy
+    end
+    return fi, cx, cy
 end
 
 function _dgg_centroid(idx::UInt64, ::Val{A}) where A
-    base1, cx, cy = _dgg_center_lambert(idx, Val(A))
-    p = _lambert_inverse(cx, cy, base1)
+    fi, cx, cy = _dgg_center_lambert(idx, Val(A))
+    p = _face_lambert_inverse(cx, cy, fi)
     return _xyz_to_lonlat(p)
 end
-

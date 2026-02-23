@@ -21,8 +21,3 @@ function siblings(o::DGGCell{P,A,T}) where {P,A,T}
     r == 0 && return nothing
     return filter!(!=(o), children(parent(o)))
 end
-
-#-----------------------------------------------------------------------------# Pentagons
-dgg_pentagons(::DGGGrid{P,A,:hex}, r::Integer) where {P,A} =
-    [DGGCell{P,A,:hex}(b, fill(0, r)) for b in 0:11]
-pentagons(g::DGGGrid{P,A,:hex}, r::Integer) where {P,A} = dgg_pentagons(g, r)
